@@ -1,19 +1,29 @@
 import { Title } from "@solidjs/meta";
-import Counter from "~/components/Counter";
+import { A } from "@solidjs/router";
+import s from "./index.module.css";
 
 export default function Home() {
   return (
-    <main>
-      <Title>Hello World</Title>
-      <h1>Hello world!</h1>
-      <Counter />
-      <p>
-        Visit{" "}
-        <a href="https://start.solidjs.com" target="_blank">
-          start.solidjs.com
-        </a>{" "}
-        to learn how to build SolidStart apps.
-      </p>
+    <main class={s.page}>
+      <Title>flover</Title>
+
+      <div class={s.glow} aria-hidden="true" />
+
+      <div class={s.body}>
+        <h1 class={s.wordmark}>flover</h1>
+
+        <p class={s.tagline}>
+          A starter template. A token layer, a design system, a transport port with a memory
+          adapter, and a set of protocols you may adopt or delete.
+        </p>
+
+        <A href="/kitchen-sink" class={s.link}>
+          Kitchen sink
+          <span class={s.arrow} aria-hidden="true">→</span>
+        </A>
+      </div>
+
+      <p class={s.foot}>Clone it, delete what you do not need.</p>
     </main>
   );
 }

@@ -1,0 +1,308 @@
+@layer screen {
+  .shell { min-block-size: 100vh; }
+
+  /* ── header ─────────────────────────────────────────────────────────── */
+  .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-sticky);
+    background: var(--surface-rail);
+    border-block-end: 1px solid var(--line);
+  }
+  .headerInner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: 0 var(--space-7);
+    block-size: 46px;
+  }
+  .wordmark {
+    font-size: var(--text-12);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent);
+    flex: none;
+  }
+  .nav { display: flex; gap: var(--space-6); flex: 1; overflow-x: auto; }
+  .navLink {
+    font-size: var(--text-12);
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .navLink:hover { color: var(--ink); }
+  .controls { flex: none; }
+
+  .themeGroup {
+    display: flex;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    overflow: hidden;
+  }
+  .themeBtn {
+    min-block-size: var(--control-sm);
+    padding-inline: var(--space-5);
+    background: var(--surface-panel);
+    color: var(--ink-3);
+    font-size: var(--text-11);
+    border-inline-start: 1px solid var(--line);
+  }
+  .themeBtn:first-child { border-inline-start: 0; }
+  .themeBtn:hover { background: var(--surface-hover); color: var(--ink); }
+  /* Styled on aria-pressed, which is this control's own attribute — a
+     data-state written by some other primitive cannot collide with it. */
+  .themeBtn[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent); }
+
+  /* ── body ───────────────────────────────────────────────────────────── */
+  .body {
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr);
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .body { grid-template-columns: minmax(0, 1fr); }
+    .rail { display: none; }
+  }
+
+  .rail {
+    position: sticky;
+    inset-block-start: 46px;
+    block-size: calc(100vh - 46px);
+    overflow-y: auto;
+    border-inline-end: 1px solid var(--line);
+    background: var(--surface-rail);
+    padding: var(--space-7) var(--space-5);
+  }
+  .caseNav { display: grid; gap: var(--space-7); }
+  .caseGroup { display: grid; gap: var(--space-1); }
+  .caseSection {
+    font-size: var(--text-10);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+    padding-block-end: var(--space-2);
+  }
+  .caseLink {
+    font-size: var(--text-12);
+    color: var(--ink-3);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-1);
+    border-inline-start: 2px solid transparent;
+  }
+  .caseLink:hover { background: var(--surface-hover); color: var(--ink); }
+  .caseLinkActive {
+    color: var(--accent);
+    border-inline-start-color: var(--accent);
+    background: var(--accent-tint);
+  }
+
+  .main {
+    min-inline-size: 0;
+    padding: var(--space-9) var(--space-8) var(--space-11);
+    max-inline-size: var(--page-max);
+  }
+
+  /* ── intro ──────────────────────────────────────────────────────────── */
+  .intro { display: grid; gap: var(--space-5); padding-block-end: var(--space-9); }
+  .titleRow { display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap; }
+  .h1 {
+    font-size: var(--text-42);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+  }
+  .mockBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-10);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: var(--radius-pill);
+    padding: var(--space-1) var(--space-5);
+  }
+  .lede {
+    max-inline-size: var(--measure);
+    color: var(--ink-3);
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+  }
+  .lede strong { color: var(--ink-2); font-weight: var(--weight-strong); }
+
+  /* ── section · case · row ───────────────────────────────────────────── */
+  .sections { display: grid; gap: var(--space-11); }
+  .section { display: grid; gap: var(--space-5); scroll-margin-block-start: 62px; }
+  .sectionTitle {
+    font-size: var(--text-30);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+  }
+  .sectionBlurb {
+    max-inline-size: var(--measure);
+    color: var(--ink-3);
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+  }
+  .sectionBody { display: grid; gap: var(--space-7); padding-block-start: var(--space-4); }
+
+  .case {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    background: var(--surface-panel);
+    scroll-margin-block-start: 62px;
+  }
+  .caseHead {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+    padding: var(--space-5) var(--space-7);
+    border-block-end: 1px solid var(--line);
+  }
+  .caseTitle { font-size: var(--text-15); font-weight: var(--weight-strong); }
+  .anchor { color: inherit; }
+  .anchor:hover { color: var(--accent); }
+  .caseNote {
+    color: var(--ink-4);
+    font-size: var(--text-11-5);
+    line-height: var(--leading-body);
+    max-inline-size: var(--measure);
+  }
+  .caseNote strong { color: var(--ink-2); font-weight: var(--weight-strong); }
+  .caseNote code {
+    font-family: var(--font-mono);
+    font-size: 0.93em;
+    color: var(--ink-2);
+  }
+  .caseBody { padding: var(--space-7); display: grid; gap: var(--space-6); }
+
+  .row { display: flex; align-items: baseline; gap: var(--space-6); flex-wrap: wrap; }
+  .rowLabel {
+    inline-size: 118px;
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-4);
+  }
+  .rowBody { display: flex; align-items: baseline; gap: var(--space-5); flex-wrap: wrap; min-inline-size: 0; }
+
+  /* ── chips ──────────────────────────────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-10);
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.02em;
+    border-radius: var(--radius-pill);
+    padding: var(--space-1) var(--space-5);
+    border: 1px solid var(--line-strong);
+    background: var(--surface-raised);
+    color: var(--ink-2);
+  }
+  /* Every tone sets border, background AND colour. A chip that changed only
+     its background would be legible in one theme and not the other. */
+  .chip[data-tone="accent"] { color: var(--accent); background: var(--accent-tint); border-color: var(--accent-line); }
+  .chip[data-tone="warn"]   { color: var(--warn);   background: var(--warn-tint);   border-color: var(--warn-line); }
+  .chip[data-tone="crit"]   { color: var(--crit);   background: var(--crit-tint);   border-color: var(--crit-line); }
+  .chip[data-tone="info"]   { color: var(--info);   background: var(--info-tint);   border-color: var(--info-line); }
+  .chipGlyph { font-size: 1.05em; line-height: 1; }
+
+  /* ── swatches ───────────────────────────────────────────────────────── */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+    gap: var(--space-5);
+  }
+  .swatch {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface-panel-2);
+    overflow: hidden;
+  }
+  /* The chequerboard is behind every chip, so a translucent token reads as
+     translucent rather than as a slightly different flat colour. */
+  .swatchChip {
+    block-size: 52px;
+    border-block-end: 1px solid var(--line);
+    background-image:
+      linear-gradient(45deg, var(--surface-sunk) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--surface-sunk) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--surface-sunk) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--surface-sunk) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  }
+  .swatchFill { block-size: 100%; }
+  .swatchLabel {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink);
+    padding: var(--space-4) var(--space-5) 0;
+  }
+  .swatchPoints { font-size: var(--text-9); color: var(--ink-3); padding: 0 var(--space-5); }
+  .swatchValue {
+    font-family: var(--font-mono);
+    font-size: var(--text-9);
+    color: var(--ink-4);
+    padding: 0 var(--space-5) var(--space-4);
+  }
+  .count { font-size: var(--text-11); color: var(--ink-4); }
+
+  /* ── tables ─────────────────────────────────────────────────────────── */
+  /* A table is the one element that reliably outgrows its column, and the
+     scroller is here so the page never scrolls sideways because of one. */
+  .scroller { inline-size: 100%; overflow-x: auto; }
+  .audit { border-collapse: collapse; inline-size: 100%; font-size: var(--text-11-5); }
+  .audit th, .audit td {
+    text-align: start;
+    padding: var(--space-3) var(--space-6) var(--space-3) 0;
+    border-block-end: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .audit th {
+    font-size: var(--text-10);
+    font-weight: var(--weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-4);
+    position: sticky;
+    inset-block-start: 0;
+    /* A sticky head with no background lets rows scroll THROUGH it. */
+    background: var(--surface-panel);
+  }
+  .mono { font-family: var(--font-mono); }
+  .num { text-align: end; font-variant-numeric: tabular-nums; }
+  .pass { color: var(--ink-3); }
+  .fail { color: var(--crit); font-weight: var(--weight-strong); }
+  .auditBlock { display: grid; gap: var(--space-4); }
+
+  .measure { display: block; max-inline-size: var(--measure); }
+  .unread {
+    color: var(--ink-4);
+    font-size: var(--text-12);
+    font-style: italic;
+    border-block-end: 1px dotted currentColor;
+    justify-self: start;
+  }
+
+  /* Clipped, not hidden. display:none and visibility:hidden both remove the
+     element from the accessibility tree, which is the one thing this must
+     never do. Every declaration is load-bearing. */
+  .srOnly {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,14 @@
+/* The one stylesheet the application imports, and the order is the file.
+ *
+ * `layers.css` is FIRST and that is load-bearing. `@layer a, b, c;` can only
+ * order the layers it has not already seen, so a component module that reaches
+ * the browser before the statement establishes its own layer first — and the
+ * statement then appends reset/token/base BEHIND it. The symptom is
+ * `button { border: none }` in @layer reset beating every button primitive,
+ * which reads as a specificity bug in a file that has no specificity problem.
+ *
+ * See `doc.ts`. */
+@import "./layers.css";
+@import "./tokens/index.css";
+@import "./reset.css";
+@import "./base.css";

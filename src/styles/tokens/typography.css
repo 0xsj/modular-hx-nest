@@ -1,0 +1,45 @@
+@layer token {
+  :root {
+    /* `--font-sans-src` and `--font-mono-src` are HOOKS, not values. A project
+       sets them however it loads a face — an @font-face block, a link tag, a
+       framework's font pipeline — and everything below inherits.
+
+       THE FALLBACK INSIDE THE var() IS LOAD-BEARING. `var(--x)` with no
+       fallback, where `--x` is undefined, is invalid at computed-value time —
+       and IACVT poisons the WHOLE declaration, not just that slot. So
+       `--font-sans` computes to the empty string, `font-family: var(--font-sans)`
+       is then invalid too, and the page renders in the UA default serif.
+
+       Measured, not reasoned about: without the fallback, body computed to
+       `Times` in Chrome and `--font-sans` read back as "". The version of this
+       comment that shipped first asserted the opposite and was wrong. */
+    --font-sans: var(--font-sans-src, ui-sans-serif), system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: var(--font-mono-src, ui-monospace), "SF Mono", Menlo, monospace;
+
+    --text-9:    9.5px;
+    --text-10:   10px;
+    --text-11:   11px;
+    --text-11-5: 11.5px;
+    --text-12:   12px;
+    --text-12-5: 12.5px;
+    --text-13:   13px;
+    --text-15:   15px;
+    --text-18:   18px;
+    --text-22:   22px;
+    --text-30:   30px;
+    --text-42:   42px;
+    --text-54:   54px;
+
+    --weight-regular: 400;
+    --weight-medium:  450;
+    --weight-strong:  500;
+    --weight-bold:    600;
+
+    --leading-tight: 1.25;
+    --leading-snug:  1.45;
+    --leading-body:  1.65;
+
+    --tracking-tight: -0.018em;
+    --tracking-label:  0.07em;
+  }
+}

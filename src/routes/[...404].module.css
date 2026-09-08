@@ -1,0 +1,40 @@
+@layer screen {
+  .page {
+    block-size: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: var(--space-8);
+    background: var(--surface-ground);
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    text-align: center;
+  }
+  .code {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-4);
+  }
+  .title {
+    font-size: var(--text-30);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
+  }
+  .link {
+    display: inline-flex;
+    align-items: center;
+    block-size: var(--control-md);
+    padding-inline: var(--space-7);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    background: var(--surface-panel);
+    color: var(--ink);
+    font-size: var(--text-12-5);
+  }
+  .link:hover { border-color: var(--line-heavy); background: var(--surface-panel-2); }
+}

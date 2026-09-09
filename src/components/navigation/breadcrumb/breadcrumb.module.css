@@ -1,0 +1,32 @@
+@layer primitive {
+  .breadcrumb { min-inline-size: 0; }
+
+  .list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-11-5);
+  }
+
+  .item { display: inline-flex; align-items: center; gap: var(--space-2); min-inline-size: 0; }
+
+  .separator { color: var(--ink-4); user-select: none; }
+
+  .link { color: var(--ink-4); text-decoration: none; border-radius: var(--radius-1); }
+  .link:hover { color: var(--ink-2); text-decoration: underline; }
+  .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .current {
+    color: var(--ink-2);
+    /* The last step is usually the longest and the least useful to read in
+       full — it is where you already are. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-inline-size: 32ch;
+  }
+}

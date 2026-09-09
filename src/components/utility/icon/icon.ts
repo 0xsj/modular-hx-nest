@@ -16,3 +16,8 @@ export { default as ChevronDown } from "lucide-solid/icons/chevron-down";
  *  state is "partly", which is a different claim. */
 export { default as Minus } from "lucide-solid/icons/minus";
 export { default as X } from "lucide-solid/icons/x";
+/** Both alert tones share one glyph. The shape says "something needs your
+ *  attention"; WHICH something is the tone's job, and two similar triangles
+ *  would be a distinction nobody can make at 14px. */
+export { default as TriangleAlert } from "lucide-solid/icons/triangle-alert";
+export { default as Info } from "lucide-solid/icons/info";

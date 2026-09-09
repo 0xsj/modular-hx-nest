@@ -98,6 +98,34 @@ exactly the regression it cannot see.
 **A negative assertion in an environment that returns nothing is the highest-risk
 line in a suite**, because emptiness and correctness are the same observation.
 
+### And from a stronger attribute standing in front of a weaker one
+
+A third route to the same place, and the one most likely to survive review,
+because the test reads as thorough.
+
+Measured: a separator that is decorative by default sets both `role="none"`
+and `aria-hidden="true"`. The test asserted the intent through a role query:
+
+```
+  queryByRole("separator")  ->  null        role="none"      correct
+  queryByRole("separator")  ->  null        role="separator" MUTANT, still null
+```
+
+`aria-hidden` removes the element from the accessibility tree whatever its role
+says, so the role assertion sits behind an attribute that dominates it and can
+never fail. The test would have passed on a component that announces itself as
+a separator and is hidden anyway — which is a real defect and precisely the one
+it was written to catch.
+
+**Where two attributes can produce the same observation, assert each one
+separately.** Not because the tree query is wrong — it is the right assertion
+for what a reader gets — but because it cannot distinguish "correct" from
+"broken in a way something else is covering up".
+
+The tell is that the mutation is in a DIFFERENT attribute from the one the
+assertion queries. Any time a component writes two things that both bear on one
+observable, only the dominant one is under test.
+
 ## How to tell
 
 **A uniform result is the tell.** 12 of 12, 52 of 52, 100%. A real suite against
@@ -162,6 +190,26 @@ count, a named case, a value that varies between runs.
 **Distrust the wrapper before the subject.** Every instance above was a layer
 above the code under test — a timeout binary, a reporter flag, an attribute
 lookup. When a result is surprising, the first hypothesis is the instrument.
+
+**Shared mutable state makes a case pass for its POSITION in the file.**
+Measured: a control reading a module-level store, and a test asserting it
+defaults to "system". It passed — because it ran before the case that selects
+"Dark", not because of anything the component does. Reorder the file and it
+fails; run it alone and it passes again, which is the worst debugging shape
+there is.
+
+The check that this class of test is honest is a hook that resets the shared
+state, plus one case at the END of the file asserting the reset happened.
+Without that last case the hook itself is unverified, and deleting it breaks
+nothing visible.
+
+**The instrument is often a pattern.** Three separate audits in one session
+reported clean because the pattern was wrong rather than the page: `<th[^>]*>`
+matched every `<thead>`, and a dangling-reference sweep found nothing in a 404
+document it had been handed by mistake. Both reported the shape of a pass. A
+sweep over rendered output needs an assertion that the SUBJECT is present —
+a case count, a known element — before any conclusion drawn from its absence
+means anything.
 
 **A check written alongside the thing it checks inherits its blind spot.** The
 tautological assertion was written by the same session that wrote the component,

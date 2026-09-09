@@ -1,0 +1,61 @@
+@layer primitive {
+  .root { display: inline-flex; flex-direction: column; gap: var(--space-2); }
+
+  .label {
+    font-size: var(--text-10);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .labelHidden {
+    position: absolute;
+    inline-size: 1px; block-size: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%);
+    white-space: nowrap; border: 0;
+  }
+
+  .track {
+    position: relative;
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    background: var(--surface-sunk);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+  }
+
+  .item {
+    position: relative;
+    /* Above the indicator, which slides underneath. */
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-1);
+    font-size: var(--text-11);
+    color: var(--ink-4);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: color var(--dur-1) var(--ease);
+  }
+  .item:hover { color: var(--ink-2); }
+  .item[data-state="checked"] { color: var(--ink); }
+  .item[data-disabled] { opacity: 0.45; cursor: not-allowed; }
+  /* The focus ring goes on the ITEM, because the real input is visually
+     hidden — without this the control is operable and shows nothing. */
+  .item:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+  .indicator {
+    position: absolute;
+    z-index: 0;
+    background: var(--surface-raised);
+    border-radius: var(--radius-1);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+    transition: translate var(--dur-2) var(--ease), width var(--dur-2) var(--ease);
+  }
+
+  .itemText { line-height: 1; }
+}

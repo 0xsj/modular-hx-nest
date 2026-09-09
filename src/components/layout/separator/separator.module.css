@@ -1,0 +1,13 @@
+@layer primitive {
+  .separator {
+    /* A background, not a border: a 1px border on a zero-size box is rounded
+       away at some zoom levels and disappears entirely on others. */
+    background: var(--line);
+    flex-shrink: 0;
+    border: 0;
+  }
+  .horizontal { block-size: 1px; inline-size: 100%; }
+  /* `align-self: stretch` so it takes the height of the row it divides without
+     the caller having to know what that is. */
+  .vertical { inline-size: 1px; align-self: stretch; min-block-size: 1em; }
+}

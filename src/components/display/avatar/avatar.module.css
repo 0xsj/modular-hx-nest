@@ -1,0 +1,32 @@
+@layer primitive {
+  .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background: var(--fill);
+    color: var(--ink-3);
+    font-weight: var(--weight-medium);
+    /* Not the sans stack: initials are two glyphs judged against each other,
+       and proportional spacing makes an "II" and an "MM" different widths in
+       a column of avatars. */
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+
+  .sm { inline-size: 20px; block-size: 20px; font-size: var(--text-9); }
+  .md { inline-size: 28px; block-size: 28px; font-size: var(--text-11); }
+
+  .initials { line-height: 1; letter-spacing: 0.02em; }
+
+  .image {
+    inline-size: 100%;
+    block-size: 100%;
+    /* Cover, not contain: a portrait crop is expected, and letterboxing a
+       face inside a circle looks like a rendering fault. */
+    object-fit: cover;
+    display: block;
+  }
+}

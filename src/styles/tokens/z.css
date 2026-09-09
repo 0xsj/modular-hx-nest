@@ -4,6 +4,13 @@
     --z-sticky:  20;
     --z-scrim:   40;
     --z-drawer:  41;
+    /* Above a modal dialog on purpose: a popover or a menu opened from INSIDE
+       one has to sit over it, and content behind a modal is inert so it has
+       nothing to compete with. */
+    --z-popover: 50;
+    /* And a tooltip above those, because a tooltip can describe a control
+       that lives in a popover. */
+    --z-tooltip: 55;
     --z-palette: 60;
     --z-toast:   70;
   }

@@ -27,8 +27,17 @@ export function Section(props: {
   children: JSX.Element;
 }) {
   return (
-    <section id={props.id} data-section={props.title} class={s.section}>
-      <h2 class={s.sectionTitle}>{props.title}</h2>
+    /* Named, for the same reason `display/panel` is: a `section` with no
+       accessible name is still a landmark, so it lands in the regions list
+       announcing nothing. The page that demonstrates the rule should not be
+       the page that breaks it. */
+    <section
+      id={props.id}
+      data-section={props.title}
+      class={s.section}
+      aria-labelledby={`${props.id}-title`}
+    >
+      <h2 id={`${props.id}-title`} class={s.sectionTitle}>{props.title}</h2>
       <Show when={props.blurb}>
         <p class={s.sectionBlurb}>{props.blurb}</p>
       </Show>

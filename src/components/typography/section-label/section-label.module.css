@@ -1,0 +1,13 @@
+@layer primitive {
+  .label {
+    margin: 0;
+    font-size: var(--text-10);
+    font-weight: var(--weight-medium);
+    /* The transform is CSS, not the text — see doc.ts. Uppercase letterforms
+       need the extra tracking or they set too tight to read at this size. */
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    line-height: var(--leading-snug);
+    color: var(--ink-4);
+  }
+}

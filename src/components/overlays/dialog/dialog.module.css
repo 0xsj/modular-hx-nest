@@ -1,0 +1,62 @@
+@layer primitive {
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-scrim);
+    background: var(--scrim);
+  }
+
+  .positioner {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-drawer);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-5);
+    /* The SCROLL lives on the positioner, so a tall dialog scrolls the whole
+       box rather than trapping the overflow inside a centred child that can
+       no longer reach its own top. */
+    overflow-y: auto;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    inline-size: 100%;
+    max-inline-size: 32rem;
+    /* Bounded by the VIEWPORT, not by a fixed height: a dialog taller than
+       the screen must still be scrollable to its last button. */
+    max-block-size: calc(100vh - var(--space-9));
+    padding: var(--space-5);
+    background: var(--surface-raised);
+    border-radius: var(--radius-3);
+    box-shadow: var(--shadow);
+  }
+  .content:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+  .title { margin: 0; font-size: var(--text-15); font-weight: var(--weight-medium); color: var(--ink); }
+  .description { margin: 0; font-size: var(--text-12); color: var(--ink-3); line-height: var(--leading-body); }
+
+  .body { min-block-size: 0; overflow-y: auto; font-size: var(--text-12); color: var(--ink-2); }
+  .footer { display: flex; justify-content: flex-end; gap: var(--space-3); }
+
+  .close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 26px;
+    block-size: 26px;
+    margin: -3px -3px 0 0;
+    border: 0;
+    border-radius: var(--radius-1);
+    background: none;
+    color: var(--ink-4);
+    cursor: pointer;
+  }
+  .close:hover { color: var(--ink); background: var(--surface-hover); }
+  .close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+}

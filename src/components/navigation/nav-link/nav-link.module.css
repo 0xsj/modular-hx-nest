@@ -1,0 +1,27 @@
+@layer primitive {
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-2);
+    color: var(--ink-3);
+    text-decoration: none;
+    font-size: var(--text-12);
+    transition: color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+  }
+  .link:hover { color: var(--ink); background: var(--surface-hover); }
+  .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* The section highlight. Applied on a PREFIX match, so a parent stays lit
+     while you are on one of its children. */
+  .active { color: var(--ink); background: var(--fill); }
+
+  /* And the current page, which is a narrower claim: the router sets
+     `aria-current="page"` only on an exact match. Selecting the attribute
+     rather than a class keeps the mark and the announcement inseparable —
+     they cannot drift, because they are the same condition. */
+  .link[aria-current="page"] { font-weight: var(--weight-medium); }
+
+  .inactive { }
+}

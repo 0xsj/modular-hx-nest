@@ -1,0 +1,29 @@
+@layer primitive {
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .sm { font-size: var(--text-12-5); }
+  .md { font-size: var(--text-15); }
+
+  /* A shape, not an image file: a template ships no asset, and a box drawn
+     from tokens is honest about being a placeholder. */
+  .glyph {
+    inline-size: 0.72em;
+    block-size: 0.72em;
+    border-radius: 2px;
+    background: var(--accent);
+    /* Optical: a square sits high against a cap-height word. */
+    translate: 0 0.5px;
+  }
+
+  .link:hover { color: var(--accent); }
+  .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-1); }
+}

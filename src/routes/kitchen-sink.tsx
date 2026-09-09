@@ -1,8 +1,9 @@
 import { Title } from "@solidjs/meta";
 import { For, type JSX } from "solid-js";
+import { DensityToggle, Mark, ThemeToggle } from "~/components/chrome";
+import { hydrateRuntime } from "~/lib/runtime";
 import { QueryProvider } from "~/lib/query";
 import { CaseNav } from "./kitchen-sink/_components/case-nav";
-import { ThemeSwitch } from "./kitchen-sink/_components/theme-switch";
 import { SECTIONS } from "./kitchen-sink/_sections/registry";
 import s from "./kitchen-sink/_components/sink.module.css";
 
@@ -13,6 +14,11 @@ import s from "./kitchen-sink/_components/sink.module.css";
  * SolidStart nests a layout by NAME: this file sits beside the `kitchen-sink/`
  * directory and wraps every route inside it. */
 export default function KitchenSinkLayout(props: { children?: JSX.Element }) {
+  /* Read the stored preferences once, after mount. It used to live inside the
+     route's own theme control; now that the control is a real component with
+     no state of its own, the shell is the thing that owns hydrating them. */
+  hydrateRuntime();
+
   return (
     <QueryProvider>
       <div class={s.shell}>
@@ -20,14 +26,15 @@ export default function KitchenSinkLayout(props: { children?: JSX.Element }) {
 
         <header class={s.header}>
           <div class={s.headerInner}>
-            <span class={s.wordmark}>flover</span>
+            <Mark href="/" size="sm" />
             <nav aria-label="Sections on this page" class={s.nav}>
               <For each={SECTIONS}>
                 {(entry) => <a href={`#${entry.id}`} class={s.navLink}>{entry.label}</a>}
               </For>
             </nav>
             <div class={s.controls}>
-              <ThemeSwitch />
+              <ThemeToggle labelHidden />
+              <DensityToggle labelHidden />
             </div>
           </div>
         </header>

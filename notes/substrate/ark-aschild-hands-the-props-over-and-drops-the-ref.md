@@ -79,10 +79,32 @@ they cannot collide anyway; precedence is the layer's job.
 Ark's, because a parameter type is contravariant and Ark passes
 `(userProps?) => JSX.HTMLAttributes`. Alias the library's own type.
 
+**A part that already renders an interactive element cannot wrap another
+one.** A dialog's close trigger IS a `button`, so the composition that reads
+naturally —
+
+```jsx
+<DialogClose><Button>Cancel</Button></DialogClose>     // button inside a button
+```
+
+— produces invalid HTML and two elements carrying the same accessible name.
+Nothing errors; the page renders, and a role-and-name query finds two matches
+where the author expected one. `asChild` is the answer and is what the API is
+for:
+
+```jsx
+<DialogClose asChild={(p) => <Button {...p()}>Cancel</Button>} />
+```
+
+The general rule: whenever a library part is itself a control — a trigger, a
+close, a menu item — composing a design-system control INSIDE it is nesting,
+and handing the props over is the only correct shape.
+
 ## Used in
 
 `src/components/forms/button/button.tsx`, the `asChild` branch; clauses B13–B16
-of its `doc.ts`.
+of its `doc.ts`; and every trigger and close in `src/components/overlays/`,
+where the nesting above is the failure it prevents.
 
 ## Related
 

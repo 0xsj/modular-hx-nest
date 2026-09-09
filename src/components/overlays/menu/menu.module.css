@@ -1,0 +1,45 @@
+@layer primitive {
+  .positioner { z-index: var(--z-popover); }
+
+  .content {
+    min-inline-size: 11rem;
+    max-inline-size: 18rem;
+    padding: var(--space-2);
+    background: var(--surface-raised);
+    border-radius: var(--radius-2);
+    box-shadow: var(--shadow);
+    /* A long menu scrolls rather than growing past the viewport. */
+    max-block-size: min(22rem, calc(100vh - var(--space-8)));
+    overflow-y: auto;
+  }
+  .content:focus-visible { outline: none; }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-1);
+    font-size: var(--text-12);
+    color: var(--ink-2);
+    cursor: pointer;
+    user-select: none;
+  }
+  /* The library moves a virtual focus with the arrow keys and marks it with
+     `data-highlighted`. Styling `:hover` alone would leave a keyboard user
+     with no idea where they are. */
+  .item[data-highlighted] { background: var(--surface-hover); color: var(--ink); outline: none; }
+  .item[data-disabled] { opacity: 0.45; cursor: not-allowed; }
+
+  .separator { block-size: 1px; background: var(--line); margin: var(--space-2) 0; border: 0; }
+  .group { display: block; }
+  .groupLabel {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-10);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+}

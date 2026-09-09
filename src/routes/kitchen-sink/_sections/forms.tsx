@@ -107,7 +107,14 @@ export function FormsSection() {
         </Row>
 
         <Row label="asChild">
-          <Button asChild={(props) => <A href="/" {...props()}>Home</A>} />
+          {/* `activeClass`/`inactiveClass` emptied: the router's defaults are the
+              GLOBAL names "active"/"inactive", and an empty key is skipped.
+              See navigation/nav-link/doc.ts. */}
+          <Button
+            asChild={(props) => (
+              <A href="/" end activeClass="" inactiveClass="" {...props()}>Home</A>
+            )}
+          />
           <Button
             intent="primary"
             asChild={(props) => <a href="https://start.solidjs.com" {...props()}>External</a>}

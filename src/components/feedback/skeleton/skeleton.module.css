@@ -1,0 +1,38 @@
+@layer primitive {
+  .skeleton {
+    display: block;
+    /* Fills its container by default: a skeleton is the size of the thing
+       that is coming, and the container already knows that. */
+    inline-size: 100%;
+    block-size: 1em;
+    border-radius: var(--radius-1);
+    background: var(--fill);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--surface-hover-2) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+  }
+
+  .circle { border-radius: var(--radius-pill); aspect-ratio: 1; inline-size: auto; }
+
+  .text { display: grid; gap: var(--space-2); inline-size: 100%; }
+
+  @keyframes skeleton-sweep {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+
+  /* Not a shorter duration — NONE. An indefinite animation is the one kind
+     that cannot be waited out, and for a vestibular disorder a loop in the
+     corner of the eye is the specific thing that causes harm. The motion
+     tokens zero their durations here, but this animation does not use one:
+     an infinite iteration count over a zero duration is a different bug. */
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; background-image: none; }
+  }
+}

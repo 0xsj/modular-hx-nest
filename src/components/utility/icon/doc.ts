@@ -72,4 +72,22 @@
  * text beside it. It is not here because nothing needs it yet, and a component
  * with no caller is a guess about what a caller will want.
  */
+
+/* # The list lives in ONE file, and the barrels forward
+ *
+ * Adding `TriangleAlert` first required three edits — the seam, this
+ * directory's barrel, and the group barrel — because both barrels had copied
+ * the list of names rather than forwarding. Two of those were re-declarations
+ * carrying no information, and nothing checked that they agreed.
+ *
+ * A surface restated in three places is not countable; it is three lists that
+ * drift, and the drift is silent because a missing name is a build error only
+ * for whoever imports through the barrel that lost it.
+ *
+ * So: `icon.ts` names every icon, and every barrel above it uses `export *`.
+ * The rule "name each export rather than star-exporting" earns its keep at the
+ * boundary with the library, where it states which of 2,077 icons this project
+ * uses. Above that boundary it buys nothing.
+ */
+
 export {};

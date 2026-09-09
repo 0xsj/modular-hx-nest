@@ -1,0 +1,10 @@
+@layer primitive {
+  .state {
+    font-size: var(--text-12);
+    line-height: var(--leading-body);
+    color: var(--ink-4);
+  }
+  /* Distinguishable from "empty" without being an alarm. An unmeasured value
+     is a fact about the request, not an error the user caused. */
+  .unmeasured { color: var(--warn); }
+}

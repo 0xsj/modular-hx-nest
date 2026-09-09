@@ -24,18 +24,68 @@
  * # The groups, and why a taxonomy up front
  *
  *     charts       frames and the pure kernel under them
- *     chrome       product furniture — the mark, the theme control
- *     display      panel, table, badge, stat, avatar, empty
+ *     chrome       mark, theme-toggle, density-toggle, segmented
+ *     display      panel, table, badge, stat, avatar, empty, mock, presence
  *     feedback     alert, skeleton
  *     forms        button, field, input, select, checkbox, switch, toggle
- *     layout       separator, and whatever else is pure arrangement
+ *     layout       box, flex, container, separator
  *     navigation   nav-link, tabs, breadcrumb
- *     overlays     dialog, popover, tooltip, dropdown-menu
+ *     overlays     dialog, alert-dialog, popover, tooltip, menu
  *     typography   heading, text, section-label
- *     utility      icon, portal, visually-hidden, accessible-icon
+ *     utility      icon, visually-hidden, accessible-icon, portal
  *
- * The directories exist and are empty, held by `.gitkeep` so a clone keeps
- * them. That is a claim about shape and not about content: a group with no
+ * # What the list above got wrong, now that three groups exist
+ *
+ * This file was written before any component, and said so. Recording the
+ * corrections here rather than quietly editing them in is the point of having
+ * written it early.
+ *
+ * **`display` was two short.** `presence` and `mock` were not predicted, and
+ * neither is a display concern in the obvious sense — both exist to stop a
+ * distinction being lost at the moment it is rendered. `presence` is the
+ * render half of `lib/kernel`'s three states; `mock` marks content that is not
+ * the product's data. The group turned out to be about what a screen CLAIMS,
+ * not about what it draws.
+ *
+ * **`layout` resolved to more than arrangement primitives.** "Whatever else is
+ * pure arrangement" became `box`, `flex` and `container` — and a fourth thing
+ * the anatomy below does not describe: a module shared by the whole group.
+ *
+ * **`feedback` was predicted exactly** — `alert` and `skeleton`, and nothing
+ * else turned up. Worth recording as the case where the guess held: the two
+ * that were named are the two a screen needs to say *something is happening*
+ * and *something happened*, and neither grew a third sibling once written.
+ *
+ * **`overlays` was one short, and the missing one is the interesting one.**
+ * `alert-dialog` was not predicted, and it turns out to be a single prop —
+ * `role="alertdialog"` — from which the library derives three behaviours. It
+ * exists as a named component anyway, because a caller who has to remember a
+ * prop will forget it and the failure is a destructive confirmation that
+ * closes on a stray click. That is a general shape worth watching for: when
+ * one flag changes a cluster of behaviour, the flag wants a name.
+ *
+ * **`typography` and `utility` were both predicted exactly**, and `utility`
+ * arrived in pieces rather than at once — `visually-hidden` when a stat needed
+ * to announce an em dash, `accessible-icon` and `portal` last. A group whose
+ * members are each earned by a caller is the shape the rest should have had.
+ *
+ * **`chrome` grew a primitive that is not chrome.** `segmented` is a generic
+ * control — radio semantics in a segmented shape — and it lives here because
+ * both of its callers do. It stays until a third caller outside the group
+ * wants it, at which point it moves rather than being copied. The rule that
+ * decides it is the same one everywhere: a shared thing is earned by a second
+ * caller, and MOVED by a caller in a different group.
+ *
+ * **The anatomy assumed every file belongs to one component.** `style-props.ts`
+ * sits at `components/` root and is imported by three of them, because the
+ * spacing props are a contract BETWEEN components rather than the property of
+ * any one. A per-component copy would let the scale drift silently, which is
+ * the failure the tokens exist to prevent. Shared modules at the group or root
+ * level are therefore allowed, and are earned the same way a `.variants.ts`
+ * is: by a second caller, never by anticipation.
+ *
+ * The directories that remain exist and are empty, held by `.gitkeep` so a
+ * clone keeps them. That is a claim about shape and not about content: a group with no
  * component in it is a name, and a name is cheap to move. A component whose
  * group is wrong is the thing worth noticing, and having the ten written down
  * is what makes that noticeable on the day it happens.

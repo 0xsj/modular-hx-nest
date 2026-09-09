@@ -45,6 +45,42 @@ explains it*. It is:
 
 Everything else is context, which is real and valuable and is not a name.
 
+## The same rule read backwards: fragments speak unless something stops them
+
+If a container does not name its children, it follows that an unnamed
+container does not SILENCE them either. A component assembled from parts is
+several objects in the accessibility tree until it is deliberately made into
+one.
+
+Measured, on an avatar built as a circle containing initials:
+
+```
+  <span>                          nothing
+    <span>AK</span>               announced: "A K"    two letters, no meaning
+```
+
+The letters are a visual shorthand for a name the reader can already get from
+the text beside it. Spoken individually they are noise, and worse than nothing
+because they interrupt.
+
+Collapsing it into one object takes both halves — a role and a name on the
+wrapper, and everything inside hidden:
+
+```
+  <span role="img" aria-label="Ada Byron King">
+    <span aria-hidden="true">AK</span>
+  </span>
+```
+
+The same reasoning decides the image variant: `alt=""`, not the name. The
+wrapper already carries it, and a second copy has the reader say it twice.
+"Empty alt" is usually shorthand for *decorative*; here it means *named one
+level up*, which is a different and more common reason than it gets credit for.
+
+**The test in both directions is the same one.** Ask which element carries the
+role, and what its name is. A container with a name whose child has the role is
+the first failure; a child with content whose parent has no role is the second.
+
 ## Gotchas
 
 **A wrapper can move the role away from the element you labelled.** A library
@@ -69,6 +105,8 @@ been mistaken for a label.
 
 ## Used in
 
+`src/components/display/avatar/avatar.tsx`, which is one `role="img"` with the
+full name and hides its own initials; and
 `src/components/forms/radio-group/radio-group.tsx`, whose doc comment used to
 claim the legend was the group's name and now states what was measured; the
 `Radio group` and `Fieldset` cases of the kitchen sink, where every group

@@ -1,0 +1,29 @@
+@layer primitive {
+  .empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-9) var(--space-5);
+    text-align: center;
+    /* Bounded by the reading measure, not by the container: a one-line
+       sentence stretched across a wide panel is read as a heading. */
+    max-inline-size: 44ch;
+    margin-inline: auto;
+  }
+
+  .title {
+    margin: 0;
+    font-size: var(--text-13);
+    font-weight: var(--weight-medium);
+    color: var(--ink-2);
+  }
+
+  .body {
+    margin: 0;
+    font-size: var(--text-12);
+    line-height: var(--leading-body);
+    color: var(--ink-4);
+  }
+
+  .action { margin-block-start: var(--space-2); }
+}

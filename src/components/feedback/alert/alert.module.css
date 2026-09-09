@@ -1,0 +1,61 @@
+@layer primitive {
+  .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--fill);
+    color: var(--ink-2);
+    font-size: var(--text-12);
+    line-height: var(--leading-body);
+    min-inline-size: 0;
+  }
+
+  /* Optical alignment: the glyph sits with the first LINE of text, not with
+     the centre of a block that may be five lines tall. */
+  .glyph { display: flex; flex-shrink: 0; padding-block-start: 1px; }
+
+  .content { display: grid; gap: var(--space-2); min-inline-size: 0; flex: 1 1 auto; }
+  .title { margin: 0; font-weight: var(--weight-medium); color: var(--ink); }
+  .body { min-inline-size: 0; overflow-wrap: anywhere; }
+  .action { display: flex; gap: var(--space-2); margin-block-start: var(--space-1); }
+
+  .dismiss {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 22px;
+    block-size: 22px;
+    margin: -2px -2px 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-1);
+    background: none;
+    color: inherit;
+    /* Dimmed, never invisible-until-hover: a control that appears on hover
+       cannot be found by anyone not using a pointer, and cannot be found at
+       all on a touch screen. */
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+  }
+  .dismiss:hover { opacity: 1; background: var(--surface-hover); }
+  .dismiss:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .neutral { background: var(--fill); border-color: var(--line); }
+  .accent  { background: var(--accent-tint); border-color: var(--accent-line); }
+  .info    { background: var(--info-tint);   border-color: var(--info-line); }
+  .warn    { background: var(--warn-tint);   border-color: var(--warn-line); }
+  .crit    { background: var(--crit-tint);   border-color: var(--crit-line); }
+
+  /* The glyph takes the tone's colour; the TEXT does not. Body copy tinted
+     red is harder to read than body copy in ink, and the border, fill and
+     icon have already said which tone this is. */
+  .accent .glyph { color: var(--accent); }
+  .info .glyph   { color: var(--info); }
+  .warn .glyph   { color: var(--warn); }
+  .crit .glyph   { color: var(--crit); }
+}

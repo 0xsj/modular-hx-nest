@@ -1,10 +1,10 @@
 /* Reading the token layer out of the document that actually loaded it.
  *
- * The build this is ported from parsed `styles/tokens/*.css` off disk at build
- * time. This reads the CSSOM instead, and the difference is the claim each can
- * make: parsing the file proves what is written down, reading the cascade
- * proves it also LOADED, resolved, and won. The second is the failure worth
- * catching — a stylesheet can be perfect and imported in the wrong order.
+ * There are two ways to answer *what are the tokens*, and they make different
+ * claims. Parsing `styles/tokens/*.css` off disk proves what is WRITTEN DOWN.
+ * Reading the CSSOM proves it also LOADED, resolved, and won. The second is
+ * the failure worth catching, because a stylesheet can be perfectly correct
+ * and imported in the wrong order.
  *
  * Both are ASSERTED and neither is MEASURED. Sampling a rendered pixel is a
  * different instrument and a different job; see

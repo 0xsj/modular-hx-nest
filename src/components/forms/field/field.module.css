@@ -1,0 +1,8 @@
+@layer primitive {
+  /* A grid with a gap, not a horizontal variant. A caller that wants
+     label-beside-control writes that grid where the layout is. */
+  .field { display: grid; gap: var(--space-3); }
+  .required { color: var(--crit); }
+  .error { font-size: var(--text-11-5); color: var(--crit); }
+  .hint { font-size: var(--text-11-5); color: var(--ink-4); }
+}

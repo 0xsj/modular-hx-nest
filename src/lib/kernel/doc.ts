@@ -33,13 +33,23 @@
  * that lives beside the first one gets imported sideways — which is the
  * beginning of a `utils` directory whose import list nobody agreed to.
  *
+ * # The failure model lives here for the same reason
+ *
+ * `failure.ts` is vocabulary shared by the tier that PRODUCES a value and the
+ * tier that RENDERS it: `lib/http` constructs a failure and a screen branches
+ * on it, so it can live in neither. Its specification is `failure.doc.ts`,
+ * which is a module doc rather than a tier doc — a module large enough to be
+ * its own oracle gets its own, because an oracle carrying unrelated prose is
+ * material a barriered writer has to be told to ignore.
+ *
+ * It is the reason this tier's import rule matters rather than being a slogan.
+ * A failure is plain data with a structural guard and no base class, precisely
+ * so that it survives a serialisation boundary — and a class imported from
+ * anywhere else would be the thing that broke it.
+ *
  * # What else belongs here, and does not exist yet
  *
- * Vocabulary shared by the tier that PRODUCES a value and the tier that
- * RENDERS it. An error type carrying a kind is the clearest case: `lib/http`
- * constructs it and a screen branches on it, so it can live in neither.
- *
- * None of it is written, because none of it has two callers yet. A type here
- * with one caller belongs beside that caller until it has two.
+ * Nothing has earned it. A type here with one caller belongs beside that
+ * caller until it has two.
  */
 export {};

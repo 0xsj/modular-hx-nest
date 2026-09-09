@@ -1,0 +1,14 @@
+Writer: spec-test-writer
+Tools granted: Write          (the entire grant — nothing else is listed)
+
+  no Read        cannot open failure.ts. The oracle is INLINE in the prompt.
+  no Bash        cannot compile, cannot run, cannot iterate to green
+  no Grep/Glob   cannot find the source it is not allowed to read
+
+Barrier tier: ENFORCED — the violation is impossible, not merely forbidden.
+The absence of a read capability is a structural fact recorded in the agent
+definition, so "it never opened the implementation" follows from the grant
+rather than from the actor's own account of its run.
+
+Honest limit: a grant bounds what the actor could ACCESS, never what it already
+carried. For a module written in this session that distinction is academic.

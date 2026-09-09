@@ -17,10 +17,10 @@ import s from "./sink.module.css";
  * presents as a page that "does not finish loading" rather than as a nav bug.
  *
  * So the observer fires freely and the SIGNAL is only written when the set of
- * anchors actually changed, compared as a flat string. The build this is
- * ported from reached the same place from the other direction: its
- * `getSnapshot` had to return a stable string because a fresh array is a new
- * identity every call. Different framework, same guard, same reason.
+ * anchors actually changed, compared as a flat string. The guard has to be
+ * explicit here because a signal write is unconditional — there is no identity
+ * comparison in the runtime to fall back on, which is the thing that would
+ * otherwise absorb the loop without anybody noticing it existed.
  *
  * No default export. */
 

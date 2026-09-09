@@ -1,5 +1,5 @@
 import type { JSX } from "solid-js";
-import { Show } from "solid-js";
+import { For, Show } from "solid-js";
 import s from "./sink.module.css";
 
 /* Section · Case · Row — the sink's own furniture.
@@ -46,10 +46,13 @@ export function Row(props: { label: string; children: JSX.Element }) {
   );
 }
 
+import type { Source } from "../_lib/source";
+
 export function Case(props: {
   title: string;
   note?: string;
   children: JSX.Element;
+  sources?: readonly Source[];
 }) {
   const id = slug(props.title);
   return (
@@ -63,6 +66,29 @@ export function Case(props: {
         </Show>
       </div>
       <div class={s.caseBody}>{props.children}</div>
+      <Show when={props.sources?.length}>
+        {/* Collapsed. The source is the tallest thing in any case, so open by
+            default means scrolling the page shows code and the demos are what
+            you pass on the way. A <details> needs no component, is
+            keyboard-operable, and is announced — which a div with a click
+            handler is not. */}
+        <details class={s.source}>
+          <summary class={s.sourceSummary}>
+            source
+            <span class={s.sourcePaths}>
+              {props.sources!.map((x) => x.path).join(" · ")}
+            </span>
+          </summary>
+          <For each={props.sources}>
+            {(src) => (
+              <div>
+                <p class={s.codePath}>{src.path}</p>
+                <pre class={s.code}><code>{src.code}</code></pre>
+              </div>
+            )}
+          </For>
+        </details>
+      </Show>
     </div>
   );
 }

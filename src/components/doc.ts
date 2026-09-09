@@ -17,9 +17,9 @@
  *       doc.ts               why this looks like this
  *       index.ts             the barrel
  *
- * `.variants.ts` appears only where variants exist. In the build these groups
- * come from that was ten components of forty-two, so the file is earned rather
- * than expected.
+ * `.variants.ts` appears only where variants exist — a component with one
+ * appearance does not get a variant map to hold nothing. The file is earned
+ * rather than expected.
  *
  * # The groups, and why a taxonomy up front
  *

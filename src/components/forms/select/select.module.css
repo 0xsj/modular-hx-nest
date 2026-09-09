@@ -1,0 +1,64 @@
+@layer primitive {
+  .select { display: grid; gap: var(--space-3); }
+  .trigger {
+    inline-size: 100%;
+    min-inline-size: 0;
+    block-size: var(--control-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-inline: var(--space-6);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    background: var(--surface-sunk);
+    color: var(--ink);
+    font-size: var(--text-12-5);
+    text-align: start;
+  }
+  .trigger:hover { border-color: var(--line-heavy); }
+  .trigger:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+  .trigger[data-disabled] { opacity: 0.55; cursor: not-allowed; }
+  .value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .value[data-placeholder] { color: var(--ink-4); }
+  .chevron { color: var(--ink-4); line-height: 0; flex: none; }
+
+  .content {
+    z-index: var(--z-drawer);
+    /* Never narrower than the control that opened it: a list narrower than its
+       trigger reads as a different object rather than as that control
+       expanding. */
+    min-inline-size: var(--width, 100%);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    background: var(--surface-raised);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .list { max-block-size: 260px; overflow-y: auto; padding: var(--space-2); }
+
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-1);
+    font-size: var(--text-12-5);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  /* data-highlighted, never :hover. The library drives pointer and keyboard
+     through one attribute, so exactly one item is lit at a time. Styling
+     `:hover` produces the two-cursor bug — a keyboard cursor on one item and a
+     mouse highlight on another, with Enter activating the one that is not under
+     the pointer. */
+  .item[data-highlighted] { background: var(--surface-hover); color: var(--ink); }
+  .item[data-state="checked"] { color: var(--accent); }
+  .item[data-disabled] { opacity: 0.5; cursor: not-allowed; }
+  .tick { line-height: 0; }
+}

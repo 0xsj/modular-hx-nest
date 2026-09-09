@@ -1,0 +1,6 @@
+Grant: see 03-agent-definition.md — the runtime's own file, not prose about it.
+  name: spec-test-writer
+  tools: Write
+Barrier tier: ENFORCED. With no Read, Bash, Grep or Glob in the tool list, the
+violation is impossible rather than forbidden.
+Honest limit: a grant bounds what the actor could ACCESS, never what it carried.

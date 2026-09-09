@@ -1,0 +1,24 @@
+@layer primitive {
+  .group { display: grid; gap: var(--space-4); }
+  .radio {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    cursor: pointer;
+  }
+  .control {
+    inline-size: 15px;
+    block-size: 15px;
+    flex: none;
+    border: 1px solid var(--line-heavy);
+    border-radius: 50%;
+    background: var(--surface-sunk);
+    display: grid;
+    place-items: center;
+    transition: border-color var(--dur-1);
+  }
+  .radio:hover .control { border-color: var(--accent); }
+  .control[data-state="checked"] { border-color: var(--fill); border-width: 5px; }
+  .radio[data-disabled] { opacity: 0.55; cursor: not-allowed; }
+  .text { font-size: var(--text-12-5); color: var(--ink); }
+}

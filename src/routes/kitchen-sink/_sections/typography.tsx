@@ -10,10 +10,9 @@ const TRACKING = ["--tracking-tight", "--tracking-label"];
 
 const PANGRAM = "Sphinx of black quartz, judge my vow — 0123456789";
 
-export function TypographySection(props: { revision: number }) {
+export function TypographySection() {
   const [stacks, setStacks] = createSignal({ sans: "", mono: "", body: "" });
   createEffect(() => {
-    props.revision;
     setStacks(fontStacks());
   });
 

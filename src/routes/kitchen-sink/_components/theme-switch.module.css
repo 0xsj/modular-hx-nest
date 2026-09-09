@@ -1,0 +1,23 @@
+@layer screen {
+  .row { display: flex; gap: var(--space-4); align-items: center; }
+  .group {
+    display: flex;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    overflow: hidden;
+  }
+  .option {
+    min-block-size: var(--control-sm);
+    padding-inline: var(--space-5);
+    background: var(--surface-panel);
+    color: var(--ink-3);
+    font-size: var(--text-11);
+    border-inline-start: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .option:first-child { border-inline-start: 0; }
+  .option:hover { background: var(--surface-hover); color: var(--ink); }
+  /* Styled on aria-pressed, which is this control's own attribute — a
+     data-state written by some other primitive cannot collide with it. */
+  .option[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent); }
+}

@@ -1,0 +1,2 @@
+0bbc1e1503278cc846b012c802e6b88a13ce9bab6109bbce0bda658921504667  src/lib/kernel/failure.ts
+28de00d08f0a1403441f85ed867b203beb02b4f5ce19e1a6aca58410fc71627a  src/lib/kernel/result.ts

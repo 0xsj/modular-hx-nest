@@ -1,0 +1,6 @@
+12b88d84a93fe35c5d2d231586907b6633432a0d1a013e8238e4bbf1c839a429  src/lib/kernel/optional.ts
+6d0b6d76bd4fdb8abc12b4cd918d5425b9674e1b032fe2d05b6aae1673065900  src/lib/kernel/app-error.ts
+9cbf9d12e56e0aba719f9fb5154af34bc1b5261cdbea791901a9b191b56e6d6c  src/lib/http/envelope.ts
+ee15657f7ef346c91e7828a4acfad1a3f349b604f6f47ab80f15e37ade803340  src/lib/http/fetch-client.ts
+14c7166d9e18fd8442281cd857fecb9ab9f9fe97878df1c08f15913d101d4372  src/lib/http/memory-client.ts
+e888c83afa27505d351b6b6df3cc91cd37acc53054d7e13e462080c6fb91553e  src/lib/http/port.ts

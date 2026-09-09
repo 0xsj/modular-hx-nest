@@ -1,0 +1,52 @@
+@layer screen {
+  .ramp { display: grid; gap: var(--space-4); }
+  .rampName {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+    gap: var(--space-5);
+  }
+  .cell {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface-panel-2);
+    overflow: hidden;
+  }
+  /* The chequerboard sits behind every chip, so a translucent token reads as
+     translucent rather than as a slightly different flat colour. */
+  .chip {
+    block-size: 52px;
+    border-block-end: 1px solid var(--line);
+    background-image:
+      linear-gradient(45deg, var(--surface-sunk) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--surface-sunk) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--surface-sunk) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--surface-sunk) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  }
+  .paint { block-size: 100%; }
+  .shadowChip {
+    block-size: 52px;
+    margin: var(--space-5);
+    border-radius: var(--radius-2);
+    background: var(--surface-raised);
+  }
+  .meta { padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-1); }
+  .token { font-family: var(--font-mono); font-size: var(--text-10); color: var(--ink); }
+  .value { font-family: var(--font-mono); font-size: var(--text-9); color: var(--ink-4); }
+  /* An empty resolved value means the token does not exist. That is the whole
+     reason the value is printed, so it must not look like a quiet one. */
+  .unresolved {
+    font-family: var(--font-mono);
+    font-size: var(--text-9);
+    color: var(--crit);
+    font-weight: var(--weight-strong);
+  }
+}

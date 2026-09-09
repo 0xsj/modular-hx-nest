@@ -191,6 +191,12 @@
   }
   .rowBody { display: flex; align-items: baseline; gap: var(--space-5); flex-wrap: wrap; min-inline-size: 0; }
 
+  /* Two shapes a Row does not give: a control stacked under its own label,
+     and a control sitting beside one. Both are demo furniture — a form's real
+     layout is the screen's job, not this page's. */
+  .stack { display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; min-inline-size: 0; }
+  .inline { display: flex; align-items: center; gap: var(--space-2); }
+
   /* ── chips ──────────────────────────────────────────────────────────── */
   .chip {
     display: inline-flex;
@@ -305,4 +311,75 @@
     clip-path: inset(50%);
     white-space: nowrap;
   }
+}
+
+@layer screen {
+  /* ── collapsed source ─────────────────────────────────────────────────── */
+  .source { border-block-start: 1px solid var(--line); }
+  .sourceSummary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-7);
+    font-size: var(--text-11);
+    color: var(--ink-4);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    min-inline-size: 0;
+  }
+  .sourceSummary::-webkit-details-marker { display: none; }
+  .sourceSummary::before {
+    content: "\25B8";
+    display: inline-block;
+    transition: transform var(--dur-1);
+  }
+  .source[open] .sourceSummary::before { transform: rotate(90deg); }
+  .sourceSummary:hover { color: var(--ink-2); }
+  .sourcePaths {
+    font-family: var(--font-mono);
+    font-size: var(--text-9);
+    color: var(--ink-4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-inline-size: 0;
+  }
+  .codePath {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-4);
+    padding: var(--space-5) var(--space-7) 0;
+  }
+  .code {
+    margin: 0;
+    padding: var(--space-6) var(--space-7);
+    background: var(--surface-sunk);
+    border-block-start: 1px solid var(--line);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+    tab-size: 2;
+  }
+}
+
+@layer screen {
+  .hops { display: grid; gap: var(--space-3); }
+  .hop {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: baseline;
+    padding-block: var(--space-2);
+    border-block-end: 1px solid var(--line);
+  }
+  .hopTier {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--accent);
+  }
+  .hopWhat { font-size: var(--text-11-5); color: var(--ink-3); line-height: var(--leading-body); }
+  .warnText { color: var(--warn); font-size: var(--text-12); }
 }

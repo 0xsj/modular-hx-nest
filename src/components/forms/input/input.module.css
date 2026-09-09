@@ -1,0 +1,59 @@
+@layer primitive {
+  .input {
+    inline-size: 100%;
+    min-inline-size: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    background: var(--surface-sunk);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    padding-inline: var(--space-6);
+    transition: border-color var(--dur-1), box-shadow var(--dur-1);
+  }
+  .input::placeholder { color: var(--ink-4); }
+
+  /* A box-shadow, not an outline. An outline cannot follow `border-radius` on
+     every engine, and the ring sits OUTSIDE a border that changes colour at the
+     same time — a shadow composites over whatever the field is sitting on,
+     which an outline cannot because it does not know the surface.
+
+     `:focus-visible`, never `:focus`: a mouse click on a text field should not
+     paint a ring, and `:focus` cannot tell the difference. */
+  .input:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+
+  /* Written twice on purpose. `aria-invalid` is a contract with assistive
+     technology; `data-invalid` is a contract with this stylesheet. Collapsing
+     them means a future styling need edits an accessibility attribute. */
+  .input[aria-invalid], .input[data-invalid] {
+    border-color: var(--crit);
+  }
+  .input[aria-invalid]:focus-visible, .input[data-invalid]:focus-visible {
+    box-shadow: 0 0 0 2px var(--crit-tint);
+  }
+
+  .input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: var(--surface-panel);
+  }
+
+  .sm { block-size: var(--control-sm); font-size: var(--text-11-5); }
+  .md { block-size: var(--control-md); font-size: var(--text-12-5); }
+  .lg { block-size: var(--control-lg); font-size: var(--text-13); }
+
+  /* The mono face runs visually larger at the same nominal size, so a scope
+     pattern in a mono field would read one step louder than the form around it.
+     The field owns its whole box, so a token is honest here. */
+  .mono { font-family: var(--font-mono); font-size: var(--text-11-5); }
+
+  .multiline {
+    block-size: auto;
+    padding-block: var(--space-4);
+    line-height: var(--leading-snug);
+    resize: vertical;
+  }
+}

@@ -1,9 +1,9 @@
 /**
  * The style layer: what a colour is allowed to be, and who is allowed to win.
  *
- * Origin — these tokens were ported whole from a build that shipped them, so
- * the ladder measurement below is a FINDING rather than an intention. The
- * things this template has not built are marked where they appear.
+ * Origin — the ladder below arrived measured rather than chosen, so it is a
+ * FINDING and not an intention. The things this template has not built are
+ * marked where they appear.
  *
  * # Cascade layers are the tier model, not tidiness
  *

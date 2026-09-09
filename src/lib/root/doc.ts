@@ -6,57 +6,55 @@
  *
  * Every other tier is written so that this one file is the only place a choice
  * is made. `services` takes the client rather than importing one precisely so
- * that the decision lands here and nowhere else — that is the payoff of the
- * parameter rule, and this is where it is collected.
+ * the decision lands here; this is where it is collected.
  *
- * # One decision, and nothing above it changes
+ * # It TAKES what it needs; it does not read it
  *
- *     an API origin is configured   -> the fetch adapter
- *     absent                        -> the memory adapter over fixtures
+ * No environment variable, no cookie, no query string. `createRoot` is a
+ * function of its arguments, and that is what keeps this tier framework-free —
+ * so it travels to the sibling templates unchanged.
  *
- * Nothing above this file differs between the two. That is the property worth
- * verifying rather than asserting, and the way to verify it is to point the
- * build at a real server and watch a screen render its refusal through the same
- * path the fixtures use.
+ * Reading a cookie is a framework's job and differs in every one of them.
+ * Pushing that read up into the caller means the difference between the
+ * templates is a few lines in a route handler rather than a rewritten tier.
  *
- * # SERVED is a list, not a boolean
+ * # One root per INTERACTION, not per request
  *
- * A backend arrives one endpoint at a time. A single "do we have a server" flag
- * means the FIRST real endpoint breaks every screen depending on the ones still
- * unbuilt — because at that point there is no fallback, by design.
+ * This is the whole reason the correlation id is worth carrying. A click that
+ * fans out into four requests is one interaction, and all four failures name
+ * it. Build a root per request instead and the id degenerates into a second
+ * request id — the same information twice, under two names.
  *
- *     hasServer: boolean     the first real endpoint breaks eleven screens
- *     SERVED: Domain[]       a name moves into the list the day it is served
+ * `lib/runtime`'s `beginInteraction` mints one; the caller hands it here.
  *
- * Per-domain, graduating a domain is one line in one place. Print it at startup
- * so the answer to *"is this screen real?"* needs no investigation.
+ * # A `Root` is four facts, and three of them are for the screen
  *
- * **Two questions, not one.** *Is this domain served* is about the backend's
- * progress. *Is this session real* is about who is asking — and a session that
- * is fake in one domain cannot be real in another, because reading fixture data
- * from a live server would 404 and reading real data as a fixture persona would
- * be a disclosure. One prefix on the token carries the distinction.
+ *     client          the only thing services take
+ *     correlationId   what every failure from this root will name
+ *     usingFixtures   transport-level PROVENANCE
+ *     underChaos      whether the states you are seeing were forced
  *
- * # Why fixtures live here rather than beside the service
+ * `usingFixtures` matters because *nobody looked* and *a fixture answered* are
+ * different claims, and a screen that cannot distinguish them will make the
+ * more flattering one. `underChaos` matters for the same reason from the other
+ * side: a forced failure that looks real is an afternoon somebody spends
+ * chasing it.
  *
- * A fixture is not part of a domain's contract; it is part of this
- * application's configuration. Putting a domain's fixtures inside its service
- * would make the service import a fake — exactly the coupling the port removes
- * — and would put the answer to *"what does this build do without a server"* in
- * every domain instead of one list.
+ * # The route table is empty, and that is the honest state
  *
- * # Whether the build is on fixtures is a string a screen renders
+ * There is no domain in a template, so there is nothing a fixture could
+ * reproduce. Every request comes back as an unserved route rather than as a
+ * plausible answer — *this fixture was never asked*, which is what
+ * `lib/http`'s adapters spec means by refusing to call it a 404.
  *
- * A build on fixtures says so, on the page. A fake that lies convincingly is
- * how a demo becomes a bug report, and the honest version costs one string.
+ * # Deliberately absent
  *
- * # Empty
+ * **A `SERVED` list.** Graduating domain-by-domain as a backend grows is real
+ * and belongs to a product, not to a template with no domains. When it exists
+ * it is one array here and a startup line that prints it, so *is this screen
+ * real* needs no investigation.
  *
- * No adapter, no fixtures, no session. There is nothing to compose: neither
- * adapter exists, no domain exists, and a composition root over an empty set is
- * a file that would have to be rewritten the moment anything real arrived.
- *
- * Everything above is an intention. `protocols/fixtures.md` holds the version
- * that has been paid for.
+ * **A provider.** Handing a root down a component tree is a framework's
+ * question. This tier makes one; where it is put is above.
  */
 export {};

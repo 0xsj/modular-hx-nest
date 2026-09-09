@@ -1,0 +1,7 @@
+1e2bf4ab136aa086fcf08cd4ca428173aa96648bf4b567c9887faab05aeb2932  custody/evidence/0001/01-specification.md
+6a74ff97f9249cd89e5b27dc5abd20f65325ae6b6f5162cf1cc5c8441c1c3350  custody/evidence/0001/02-public-api.d.ts
+139f8c69874d80d54161c3fc9410f8b0e41ac691bd5f4acacd611ce32acbccf6  custody/evidence/0001/03-grant.txt
+206e83c0edf99522e502011962424d06ebfa01a21af377e792773ddb348129c5  custody/evidence/0001/suite-as-written.test.ts
+e6bad62822c1a19c18905a6757168603af10e562fcb3e30d14306dd6bec01d94  src/lib/kernel/failure.ts
+840f080721a4f717f01c65854c2dd76c1a85a38968d9ddf73a156b4335f4d749  src/lib/kernel/failure.test.ts
+5e382b3d0315c416e13d84d86e4b3e201dadd1673489875938ff5be2dd582ab5  src/lib/kernel/failure.doc.ts

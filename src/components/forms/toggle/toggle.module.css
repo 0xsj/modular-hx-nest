@@ -1,0 +1,36 @@
+@layer primitive {
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    border: 1px solid var(--line-strong);
+    background: var(--surface-panel);
+    color: var(--ink-2);
+    font-size: var(--text-12);
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+    transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
+  }
+  .toggle:hover { background: var(--surface-hover); color: var(--ink); }
+
+  /* Styled on aria-pressed, NOT data-state.
+     `data-state` is written by every primitive in the library, so a Toggle
+     wrapped in another primitive's trigger has that primitive's open/closed
+     merged onto the same element and the pressed rule silently stops matching —
+     the control still announces itself correctly and just never looks pressed.
+     `aria-pressed` is this component's own attribute and cannot collide. */
+  .toggle[aria-pressed="true"] {
+    background: var(--accent-tint);
+    border-color: var(--accent-line);
+    color: var(--accent);
+  }
+  .toggle[data-disabled] { opacity: 0.55; cursor: not-allowed; }
+
+  .sm   { block-size: var(--control-sm); padding-inline: var(--space-6); font-size: var(--text-11-5); }
+  .md   { block-size: var(--control-md); padding-inline: var(--space-7); }
+  .icon { block-size: var(--control-md); inline-size: var(--control-md); padding-inline: 0; flex: none; }
+
+  .square { border-radius: var(--radius-2); }
+  .pill   { border-radius: var(--radius-pill); }
+}

@@ -1,5 +1,6 @@
 import { For, Show, createEffect, createSignal } from "solid-js";
 import { Case, Chip, Row, Section } from "../_components/section";
+import { Swatches } from "../_components/swatches";
 import { auditThemes, collectTokens, type Audit, type Check, type Theme, type Token } from "../_lib/tokens";
 import s from "../_components/sink.module.css";
 
@@ -44,45 +45,7 @@ function AuditTable(props: { rows: Check[]; theme: Theme }) {
   );
 }
 
-function Swatches(props: { tokens: string[] }) {
-  return (
-    <div class={s.swatches}>
-      <For each={props.tokens}>
-        {(t) => (
-          <div class={s.swatch}>
-            <div class={s.swatchChip}>
-              <div class={s.swatchFill} style={{ background: `var(${t})` }} />
-            </div>
-            <div class={s.swatchLabel}>{t}</div>
-          </div>
-        )}
-      </For>
-    </div>
-  );
-}
-
-function TokenGrid(props: { tokens: Token[]; showPointer?: boolean }) {
-  return (
-    <div class={s.swatches}>
-      <For each={props.tokens}>
-        {(t) => (
-          <div class={s.swatch}>
-            <div class={s.swatchChip}>
-              <div class={s.swatchFill} style={{ background: `var(${t.name})` }} />
-            </div>
-            <div class={s.swatchLabel}>{t.name}</div>
-            <Show when={props.showPointer}>
-              <div class={s.swatchPoints}>{t.authored}</div>
-            </Show>
-            <div class={s.swatchValue}>{t.resolved}</div>
-          </div>
-        )}
-      </For>
-    </div>
-  );
-}
-
-export function TokensSection(props: { revision: number }) {
+export function TokensSection() {
   const [tokens, setTokens] = createSignal<Token[]>([]);
   const [audit, setAudit] = createSignal<Audit>({ dark: [], light: [], skipped: 0 });
 
@@ -97,7 +60,6 @@ export function TokensSection(props: { revision: number }) {
      wrong. `createEffect` does not run during SSR, which is what keeps
      `document` out of the server render. */
   createEffect(() => {
-    props.revision;
     read();
   });
 
@@ -139,11 +101,11 @@ export function TokensSection(props: { revision: number }) {
       </Case>
 
       <Case title="Surfaces">
-        <Swatches tokens={SURFACES} />
+        <Swatches ramps={[{ name: "", tokens: SURFACES }]} />
       </Case>
 
       <Case title="Accent and status" note="the accent is also the healthy state, so nothing is hue alone">
-        <Swatches tokens={STATUS} />
+        <Swatches ramps={[{ name: "", tokens: STATUS }]} />
         <Row label="never hue alone">
           <Chip tone="accent" glyph="●">ok</Chip>
           <Chip tone="warn" glyph="▲">warning</Chip>
@@ -168,7 +130,7 @@ export function TokensSection(props: { revision: number }) {
         </p>
         <Show when={tokens().length} fallback={<p class={s.unread}>not read yet — this runs on the client</p>}>
           <div class={s.count}>{colours("palette").length} colours</div>
-          <TokenGrid tokens={colours("palette")} />
+          <Swatches ramps={[{ name: "", tokens: colours("palette").map((t) => t.name) }]} />
         </Show>
       </Case>
 
@@ -180,7 +142,7 @@ export function TokensSection(props: { revision: number }) {
         </p>
         <Show when={tokens().length} fallback={<p class={s.unread}>not read yet — this runs on the client</p>}>
           <div class={s.count}>{colours("semantic").length} colours</div>
-          <TokenGrid tokens={colours("semantic")} showPointer />
+          <Swatches ramps={[{ name: "", tokens: colours("semantic").map((t) => t.name) }]} />
         </Show>
       </Case>
 

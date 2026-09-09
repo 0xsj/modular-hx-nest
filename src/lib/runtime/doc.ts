@@ -1,65 +1,68 @@
 /**
  * runtime — state the shell owns, which no server has an opinion about.
  *
- *     runtime  may import  kernel · solid-js
- *     runtime  ✗ http · services · root
+ * The tier boundary is a question with a short answer: **could a server answer
+ * this?** Whether the sidebar is compact is not a fact about an organisation.
+ * No endpoint returns it, no other person would agree with it, and it survives
+ * a reload only because this browser remembered.
  *
- * This is the one tier below the components that is allowed to touch the
- * framework, because what it holds is browser state and there is no
- * framework-free way to subscribe to it.
- *
- * # The boundary is a question with a short answer
- *
- * **Could a server answer this?** Whether a sidebar is hidden is not a fact
- * about an organisation. No endpoint returns it, no other person would agree
- * with it, and it survives a reload only because this browser remembered.
- *
- * That is also why a query cache is the wrong tool for it: a cache caches
+ * That is also why a query cache is the wrong tool for it — a cache caches
  * answers, and there is no question here.
  *
- * # An external store is READ as one, not mirrored into state
+ * # One framework file, and the rest is a plain state machine
  *
- * The shape everybody writes first holds a signal and sets it from an effect on
- * mount. It works, and it renders once with a value it knows is provisional
- * before rendering again with the right one — and every consumer pays for the
- * first.
+ *     store · theme · density · interaction    plain. No framework import
+ *     signals                                  the binding, and only this
  *
- * The three questions any external store has to answer are the same in every
- * framework, and worth stating in those terms rather than in one framework's:
+ * The split is deliberate rather than tidy. A store, its persistence and its
+ * three-state machine are the parts worth getting right; a subscription binding
+ * is a few lines and differs per framework. Keeping them apart means the
+ * interesting half is identical everywhere and the cheap half is the only thing
+ * that varies.
  *
- *     subscribe    how do I hear that it changed
- *     read         what is it now, in this browser
- *     server read  what does the server render, having no browser
+ * # The server must see the INITIAL value, not the live one
  *
- * The third is the one that gets forgotten and the one that decides whether the
- * first paint is wrong.
+ * `Store.server()` exists for that and `signals.ts` uses it. A module-level
+ * mutable value read during a server render is shared across requests — one
+ * caller's preference served to the next — and it works perfectly in
+ * development, where one person loads pages one at a time. That is what makes
+ * it dangerous rather than obvious.
  *
- * # A module-level mutable value is a cross-request leak on the server
+ * # Preferences are read after mount, never during render
  *
- * A `let` at module scope is shared across requests in a server process, so one
- * caller's value is served to the next. It works perfectly in development,
- * where one person loads pages one at a time, which is what makes it worth a
- * paragraph rather than a comment.
+ * The server has no storage. A value read during render is a hydration
+ * mismatch, and it presents as a flash of the wrong theme that then corrects
+ * itself — which reads as a CSS problem and is not one.
  *
- * A store here is safe only while the server never reads its mutable half. That
- * is a property of a specific file rather than of the pattern, and it is the
- * first thing to check about anything added.
+ * # Three states for a theme, and the third is the one that gets dropped
  *
- * # Where the theme and the density would live
+ *     system   NO attribute. prefers-color-scheme decides
+ *     light    data-theme="light"
+ *     dark     data-theme="dark"
  *
- * `styles/tokens/shape.css` already reads `[data-density="compact"]`, and
- * `styles/semantic.css` already reads `[data-theme]`. Both attributes are the
- * store — they have to be, because CSS has to read them — so the job here is to
- * subscribe to the document rather than to keep a second copy in step.
+ * `system` is the ABSENCE of the attribute rather than a third value, because
+ * the semantic layer's guard is `:root:not([data-theme="dark"])` — a third
+ * value would satisfy it by accident and break the day somebody writes a
+ * `[data-theme]` rule assuming the attribute names a palette. It is the same
+ * mistake the product refuses one tier down: an unattempted check is not a
+ * check that returned nothing.
  *
- * A control that ADOPTS the document's value on mount and writes only on intent
- * is correct. One that ASSERTS its own default on every mount erases whatever
- * was already there, after first paint, so the page visibly flips. The second
- * is one line shorter and almost always wrong.
+ * # Density changes tokens, not components
  *
- * # Empty
+ * `styles/tokens/shape.css` overrides three control heights under
+ * `[data-density="compact"]`. Nothing else knows density exists. The
+ * alternative — a `density` prop threaded through every control — is the
+ * version that rots: one component forgets and the screen is half compact.
  *
- * No store, no control, no attribute is set by anything. A tier arrives with
- * its first caller, and the shell that would be that caller does not exist.
+ * # An interaction is a user action, not a request
+ *
+ * This is what makes a correlation id worth carrying. A click that fans out
+ * into four requests is ONE interaction, and all four failures should name it.
+ * Scoped per request the id is just a second request id; scoped per mount it
+ * says only which screen was open.
+ *
+ * It is deliberately not minted at module load — on a server that would be one
+ * id shared by every request. The empty string means *none has begun*, and a
+ * caller can see that.
  */
 export {};

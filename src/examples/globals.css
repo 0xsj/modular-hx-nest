@@ -1,0 +1,6 @@
+/* The only file that carries the layer order statement. Order of these imports
+   is the order the browser sees the layers established in — see layout.tsx. */
+@import "../styles/layers.css";
+@import "../styles/reset.css";
+@import "../styles/tokens/index.css";
+@import "../styles/base.css";

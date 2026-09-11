@@ -1,136 +1,160 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+// @vitest-environment happy-dom
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createStore, persisted } from "./store";
-import { THEMES, applyTheme, resolvedTheme, theme } from "./theme";
-import { DENSITIES, applyDensity, density } from "./density";
-import { beginInteraction, currentInteraction, endInteraction, interaction } from "./interaction";
+import { applyTheme, resolvedTheme, theme, hydrateTheme } from "./theme";
+import { applyDensity, density, hydrateDensity } from "./density";
+import {
+  beginInteraction,
+  currentInteraction,
+  endInteraction,
+  interaction,
+} from "./interaction";
 
-/* Light tests, written with the implementation in view — enough to catch a
- * regression in the parts that are easy to get wrong and invisible when wrong. */
-
-afterEach(() => {
+beforeEach(() => {
+  localStorage.clear();
+  delete document.documentElement.dataset.theme;
+  delete document.documentElement.dataset.density;
   theme.set("system");
   density.set("comfortable");
   endInteraction();
-  delete document.documentElement.dataset.theme;
-  delete document.documentElement.dataset.density;
-  localStorage.clear();
 });
 
-describe("store", () => {
-  it("does not notify when the value did not change", () => {
+describe("the store", () => {
+  it("notifies on a change", () => {
+    const s = createStore(1);
+    const seen = vi.fn();
+    s.subscribe(seen);
+    s.set(2);
+    expect(seen).toHaveBeenCalledTimes(1);
+    expect(s.get()).toBe(2);
+  });
+
+  it("does NOT notify on a no-op write — a fresh notification per render is a loop", () => {
     const s = createStore("a");
-    const listener = vi.fn();
-    s.subscribe(listener);
+    const seen = vi.fn();
+    s.subscribe(seen);
     s.set("a");
-    expect(listener, "a set to the same value is not a change").not.toHaveBeenCalled();
-    s.set("b");
-    expect(listener).toHaveBeenCalledTimes(1);
+    expect(seen).not.toHaveBeenCalled();
   });
 
   it("unsubscribes", () => {
     const s = createStore(0);
-    const listener = vi.fn();
-    s.subscribe(listener)();
+    const seen = vi.fn();
+    s.subscribe(seen)();
     s.set(1);
-    expect(listener).not.toHaveBeenCalled();
+    expect(seen).not.toHaveBeenCalled();
   });
 
-  it("server() keeps returning the initial value after a set", () => {
-    const s = createStore("initial");
+  it("the server snapshot is the initial value, whatever the client has done", () => {
+    const s = createStore("default");
     s.set("changed");
-    expect(
-      s.server(),
-      "a server render must not see a mutation from another request",
-    ).toBe("initial");
+    expect(s.server()).toBe("default");
   });
 });
 
-describe("persisted", () => {
-  it("falls back when the stored value is not in the valid set", () => {
+describe("persistence tolerates every way storage fails", () => {
+  const p = persisted("k", "fallback", ["fallback", "other"] as const);
+
+  it("falls back on an absent value", () => {
+    expect(p.read()).toBe("fallback");
+  });
+
+  it("falls back on a value that is not in the set", () => {
     localStorage.setItem("k", "nonsense");
-    expect(persisted("k", "a", ["a", "b"] as const).read()).toBe("a");
+    expect(p.read()).toBe("fallback");
   });
 
-  it("survives storage that throws", () => {
-    const spy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
-      throw new Error("private mode");
-    });
-    expect(
-      persisted("k", "a", ["a", "b"] as const).read(),
-      "a preference is not worth an exception",
-    ).toBe("a");
+  it("does not throw when storage itself throws", () => {
+    const spy = vi
+      .spyOn(Storage.prototype, "getItem")
+      .mockImplementation(() => {
+        throw new Error("denied");
+      });
+    expect(() => p.read()).not.toThrow();
+    expect(p.read()).toBe("fallback");
     spy.mockRestore();
+
+    const spy2 = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new Error("quota");
+      });
+    expect(() => p.write("other")).not.toThrow();
+    spy2.mockRestore();
   });
 });
 
-describe("theme", () => {
-  it("system REMOVES the attribute rather than writing a third value", () => {
+describe("theme has three states and the third is not the absence of a choice", () => {
+  it("an explicit choice stamps the attribute", () => {
     applyTheme("dark");
     expect(document.documentElement.dataset.theme).toBe("dark");
-    applyTheme("system");
-    expect(
-      "theme" in document.documentElement.dataset,
-      "a third attribute value would satisfy the :not() guard by accident",
-    ).toBe(false);
   });
 
-  it("resolves system against the media query, and never overrides an explicit choice", () => {
+  it("`system` REMOVES it, so the token layer's media query takes over", () => {
+    applyTheme("light");
+    applyTheme("system");
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+  });
+
+  it("the resolved theme is not the choice", () => {
     vi.stubGlobal("matchMedia", () => ({ matches: true }));
     expect(resolvedTheme("system")).toBe("dark");
-    expect(resolvedTheme("light"), "an explicit choice ignores the OS").toBe("light");
+    expect(resolvedTheme("light")).toBe("light"); // a choice wins over the system
     vi.unstubAllGlobals();
   });
 
-  it("writing the store applies the attribute", () => {
-    theme.set("light");
-    expect(document.documentElement.dataset.theme).toBe("light");
-  });
-
-  it("has exactly three states", () => {
-    expect([...THEMES]).toEqual(["system", "light", "dark"]);
+  it("hydrating reads the stored choice and applies it", () => {
+    localStorage.setItem("theme", "dark");
+    hydrateTheme();
+    expect(theme.get()).toBe("dark");
+    expect(document.documentElement.dataset.theme).toBe("dark");
   });
 });
 
-describe("density", () => {
-  it("comfortable removes the attribute; compact sets it", () => {
+describe("density is a token override", () => {
+  it("compact stamps the attribute the token layer keys on", () => {
     applyDensity("compact");
     expect(document.documentElement.dataset.density).toBe("compact");
-    applyDensity("comfortable");
-    expect("density" in document.documentElement.dataset).toBe(false);
   });
 
-  it("has exactly two states", () => {
-    expect([...DENSITIES]).toEqual(["comfortable", "compact"]);
+  it("comfortable removes it rather than writing a default", () => {
+    applyDensity("compact");
+    applyDensity("comfortable");
+    expect(document.documentElement.dataset.density).toBeUndefined();
+  });
+
+  it("hydrating reads the stored choice", () => {
+    localStorage.setItem("density", "compact");
+    hydrateDensity();
+    expect(density.get()).toBe("compact");
   });
 });
 
-describe("interaction", () => {
-  it("starts empty — no id is minted at module load", () => {
-    expect(
-      interaction.server(),
-      "an id minted at module load is shared by every server request",
-    ).toBe("");
+describe("the interaction id", () => {
+  it("is empty until one begins — never minted at module load", () => {
+    expect(interaction.get()).toBe("");
   });
 
-  it("begin mints and stores the same id", () => {
+  it("beginning one returns the id it set, so the two cannot drift", () => {
     const id = beginInteraction();
-    expect(id).not.toBe("");
-    expect(interaction.get(), "the returned id and the stored one cannot drift").toBe(id);
-  });
-
-  it("current JOINS an interaction under way rather than starting a new one", () => {
-    const first = beginInteraction();
-    expect(currentInteraction()).toBe(first);
-  });
-
-  it("current STARTS one when none has begun", () => {
-    endInteraction();
-    const id = currentInteraction();
-    expect(id).not.toBe("");
+    expect(id).toBeTruthy();
     expect(interaction.get()).toBe(id);
   });
 
-  it("two interactions are different", () => {
+  it("two interactions differ", () => {
     expect(beginInteraction()).not.toBe(beginInteraction());
+  });
+
+  it("current JOINS the one under way rather than starting another", () => {
+    const id = beginInteraction();
+    expect(currentInteraction()).toBe(id);
+    expect(currentInteraction()).toBe(id);
+  });
+
+  it("and starts one when none is under way", () => {
+    expect(interaction.get()).toBe("");
+    const id = currentInteraction();
+    expect(id).toBeTruthy();
+    expect(interaction.get()).toBe(id);
   });
 });

@@ -1,83 +1,116 @@
 import { splitProps, type JSX } from "solid-js";
+type CSSProperties = JSX.CSSProperties;
 
-/* Spacing props shared by the layout group.
+/* Shorthand style props, and the two rules that keep them from becoming a
+ * utility layer.
  *
- * The steps ARE the scale — a prop takes a step, never a length, so a screen
- * cannot introduce a thirteenth value. `0` is the one literal, because there
- * is no `--space-0` token and there should not be: zero is not a size. */
-export const SPACE_STEPS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
+ *   1. They resolve to the EXISTING tokens. `p={3}` is `var(--space-3)`, not a
+ *      number this file decided on. There is no second scale to keep in step.
+ *   2. They emit an inline style, so nothing is added to the cascade. No
+ *      generated stylesheet, no new layer, no specificity to reason about — and
+ *      `@layer primitive` is untouched by a caller adjusting a gap.
+ *
+ * Scope is deliberately SPACING AND FLOW ONLY. No colour, no type, no borders,
+ * no radii. Those are a component's own decisions and belong in its module,
+ * where they can be reviewed as a set; a prop for them would let a screen
+ * restyle a primitive from the outside, which is the thing the layer model
+ * exists to prevent.
+ */
 
+export const SPACE_STEPS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
 export type Space = (typeof SPACE_STEPS)[number];
-/** Margins additionally take `auto`, which is how centring and push-apart are
- *  expressed. Padding has no such value. */
 export type Margin = Space | "auto";
 
+/* The edge shorthands are LOGICAL, not physical.
+ *
+ * `pl` is inline-start, not left. In a left-to-right document they are the same
+ * thing, which is why the familiar letters are kept; in a right-to-left one the
+ * padding follows the text instead of staying on the west side of the screen.
+ * Physical names would be a lie that only shows up in a language nobody on the
+ * team reads. */
 export type SpaceProps = {
   p?: Space;
-  /** Inline axis — both sides, in writing-direction terms. */
   px?: Space;
-  /** Block axis. */
   py?: Space;
   pt?: Space;
   pb?: Space;
-  /** Inline START — the left edge in a left-to-right language, the right in a
-   *  right-to-left one. There is deliberately no `pl`; see doc.ts. */
-  ps?: Space;
-  pe?: Space;
+  pl?: Space;
+  pr?: Space;
   m?: Margin;
   mx?: Margin;
   my?: Margin;
   mt?: Margin;
   mb?: Margin;
-  ms?: Margin;
-  me?: Margin;
+  ml?: Margin;
+  mr?: Margin;
+  gap?: Space;
+  gapX?: Space;
+  gapY?: Space;
 };
 
-/* Order is load-bearing: these become style properties in insertion order, so
- * the broadest has to be written first or `p={4} pt={0}` would apply the 4
- * after the 0 and silently ignore the override. */
-const PROPERTY: Record<keyof SpaceProps, string> = {
-  p: "padding",
-  px: "padding-inline",
-  py: "padding-block",
-  pt: "padding-block-start",
-  pb: "padding-block-end",
-  ps: "padding-inline-start",
-  pe: "padding-inline-end",
-  m: "margin",
-  mx: "margin-inline",
-  my: "margin-block",
-  mt: "margin-block-start",
-  mb: "margin-block-end",
-  ms: "margin-inline-start",
-  me: "margin-inline-end",
-};
+const SPACE_KEYS = [
+  "p",
+  "px",
+  "py",
+  "pt",
+  "pb",
+  "pl",
+  "pr",
+  "m",
+  "mx",
+  "my",
+  "mt",
+  "mb",
+  "ml",
+  "mr",
+  "gap",
+  "gapX",
+  "gapY",
+] as const;
 
-/* Written out rather than derived from `PROPERTY`, so the ORDER above is the
-   order used here — `Object.keys` order is a guarantee about the object and
-   not about the intent, and this one is load-bearing. */
-export const SPACE_KEYS = [
-  "p", "px", "py", "pt", "pb", "ps", "pe",
-  "m", "mx", "my", "mt", "mb", "ms", "me",
-] as const satisfies readonly (keyof SpaceProps)[];
+/** `0` is the literal zero rather than `var(--space-0)`, which does not exist —
+ *  the scale starts at 1 because a zero-sized step is not a design decision. */
+const value = (v: Space | Margin | undefined): string | undefined =>
+  v === undefined
+    ? undefined
+    : v === "auto"
+      ? "auto"
+      : v === 0
+        ? "0"
+        : `var(--space-${v})`;
 
-const length = (value: Space | Margin): string =>
-  value === "auto" ? "auto" : value === 0 ? "0" : `var(--space-${value})`;
-
-/** Build the style object. Call it INSIDE the `style` prop rather than above
- *  the return: that position is tracked, so a step that changes updates the
- *  declaration instead of being read once at construction. */
-export function spaceStyle(props: SpaceProps): JSX.CSSProperties {
-  const style: Record<string, string> = {};
-  for (const key of SPACE_KEYS) {
-    const value = props[key];
-    if (value !== undefined) style[PROPERTY[key]] = length(value);
-  }
-  return style;
+export function spaceStyle(values: SpaceProps): CSSProperties {
+  const v = value;
+  const style: CSSProperties = {
+    padding: v(values.p),
+    "padding-inline": v(values.px),
+    "padding-block": v(values.py),
+    "padding-block-start": v(values.pt),
+    "padding-block-end": v(values.pb),
+    "padding-inline-start": v(values.pl),
+    "padding-inline-end": v(values.pr),
+    margin: v(values.m),
+    "margin-inline": v(values.mx),
+    "margin-block": v(values.my),
+    "margin-block-start": v(values.mt),
+    "margin-block-end": v(values.mb),
+    "margin-inline-start": v(values.ml),
+    "margin-inline-end": v(values.mr),
+    gap: v(values.gap),
+    "column-gap": v(values.gapX),
+    "row-gap": v(values.gapY),
+  };
+  // In a browser, assigning gap and then clearing an absent rowGap/columnGap
+  // clears the shorthand too. Omit absent declarations, rather than asking
+  // the binding to write empty longhands over a supplied shorthand on client mount.
+  return Object.fromEntries(
+    Object.entries(style).filter(([, value]) => value !== undefined),
+  );
 }
 
-/** Take the spacing props off, leaving everything the element itself accepts.
- *  Returns Solid's proxies, so reactivity survives the split. */
+/** Split the space values off, so the rest can be spread onto a DOM element
+ *  without React warning about attributes it does not recognise. */
 export function splitSpace<T extends SpaceProps>(props: T) {
-  return splitProps(props, SPACE_KEYS);
+  const [local, rest] = splitProps(props, SPACE_KEYS);
+  return [() => spaceStyle(local), rest] as const;
 }

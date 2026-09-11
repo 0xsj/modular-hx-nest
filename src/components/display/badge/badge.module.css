@@ -3,34 +3,40 @@
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    /* Padding, not width. A badge is as wide as its word — a fixed width
-       either clips a long status or pads a short one into a button shape. */
-    padding: 2px var(--space-3);
+    padding: 1px var(--space-4);
     border-radius: var(--radius-pill);
-    border: 1px solid transparent;
-    font-size: var(--text-10);
+    border: 1px solid;
+    font-size: var(--text-11);
     font-weight: var(--weight-medium);
-    letter-spacing: var(--tracking-label);
-    line-height: var(--leading-tight);
-    /* It sits in running text and in table cells; neither should reflow when
-       a badge appears. */
     white-space: nowrap;
-    vertical-align: baseline;
+  }
+  .glyph {
+    font-size: var(--text-9);
   }
 
-  .glyph { font-size: var(--text-9); line-height: 1; }
-
-  .neutral { background: var(--fill); border-color: var(--line); color: var(--ink-2); }
-  .accent  { background: var(--accent-tint); border-color: var(--accent-line); color: var(--accent); }
-  .info    { background: var(--info-tint);   border-color: var(--info-line);   color: var(--info); }
-  .warn    { background: var(--warn-tint);   border-color: var(--warn-line);   color: var(--warn); }
-  .crit    { background: var(--crit-tint);   border-color: var(--crit-line);   color: var(--crit); }
-
-  /* Solid inverts the pair rather than adding a second palette. */
-  .solid { color: var(--fill-ink); border-color: transparent; }
-  .solid.neutral { background: var(--ink-3); }
-  .solid.accent  { background: var(--accent); }
-  .solid.info    { background: var(--info); }
-  .solid.warn    { background: var(--warn); }
-  .solid.crit    { background: var(--crit); }
+  .neutral {
+    color: var(--ink-3);
+    background: var(--surface-hover);
+    border-color: var(--line);
+  }
+  .accent {
+    color: var(--accent);
+    background: var(--accent-tint);
+    border-color: var(--accent-line);
+  }
+  .warn {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border-color: var(--warn-line);
+  }
+  .crit {
+    color: var(--crit);
+    background: var(--crit-tint);
+    border-color: var(--crit-line);
+  }
+  .info {
+    color: var(--info);
+    background: var(--info-tint);
+    border-color: var(--info-line);
+  }
 }

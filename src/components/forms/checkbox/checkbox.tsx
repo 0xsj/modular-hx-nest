@@ -1,51 +1,78 @@
-import { Checkbox as Ark } from "@ark-ui/solid";
+import { Checkbox as Ark } from "@ark-ui/solid/checkbox";
 import { createEffect, splitProps, type ComponentProps } from "solid-js";
 import { Check, Minus } from "~/components/utility";
 import { cn } from "~/lib/kernel";
+import {
+  bindNativeChoiceReset,
+  nativeChoiceStyle,
+} from "../_shared/native-choice";
 import s from "./checkbox.module.css";
-
-export type CheckboxProps = ComponentProps<typeof Ark.Root>;
-
-/** Three states, and the third is not a styling of the other two. */
-/* `id` addresses the CONTROL, not the root.
-   The library treats a root `id` as a SEED and derives the real ids from it
-   (`id` -> `checkbox:id`, input `checkbox:id:input`), so a caller who writes
-   `<Label for={id}>` beside this ends up pointing at nothing — no accessible
-   name, and the words are not a hit target. Mapping it onto `ids.hiddenInput`
-   moves both the input's id and the root's own `for` at once, and makes `id`
-   mean here what it means on every native control. */
+export type CheckedState = boolean | "indeterminate";
+export type CheckboxProps = Omit<
+  ComponentProps<typeof Ark.Root>,
+  "onCheckedChange"
+> & {
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean | "true" | "false";
+  onCheckedChange?: (value: CheckedState) => void;
+};
 export function Checkbox(props: CheckboxProps) {
-  const [local, rest] = splitProps(props, ["class", "id"]);
+  const [local, rest] = splitProps(props, [
+    "class",
+    "id",
+    "onCheckedChange",
+    "aria-label",
+    "aria-labelledby",
+    "aria-describedby",
+    "aria-invalid",
+  ]);
   return (
     <Ark.Root
+      style={{ position: "relative" }}
       {...rest}
-      ids={local.id ? { hiddenInput: local.id } : undefined}
-      class={cn(s.checkbox, local.class)}
+      ids={
+        local.id
+          ? {
+              hiddenInput: local.id,
+            }
+          : undefined
+      }
+      onCheckedChange={(d) => local.onCheckedChange?.(d.checked)}
+      class={s.root}
     >
-      <Ark.Control class={s.control}>
-        {/* Both glyphs are present and `data-state` decides which shows.
-            Indeterminate is a STATE, not a variant: a variant is chosen by the
-            author, a state comes from the data. */}
+      <Ark.Control class={cn(s.checkbox, local.class)}>
         <Ark.Indicator class={s.indicator}>
-          <Check size={12} stroke-width={3} aria-hidden="true" />
+          <Check size={12} stroke-width={3} />
         </Ark.Indicator>
         <Ark.Indicator indeterminate class={s.indicator}>
-          <Minus size={12} stroke-width={3} aria-hidden="true" />
+          <Minus size={12} stroke-width={3} />
         </Ark.Indicator>
       </Ark.Control>
-      {/* The library draws the third state with `data-state` but never syncs
-          the input, so the accessibility tree announces `indeterminate` as
-          plain unchecked — the state is visible and unannounced. `indeterminate`
-          is a PROPERTY with no attribute form, so it can only be set here.
-          Read from the live api rather than the prop, so an uncontrolled
-          checkbox is covered too. */}
       <Ark.Context>
         {(api) => {
           let input!: HTMLInputElement;
+          bindNativeChoiceReset(
+            () => input,
+            () => ({
+              checked: api().checked,
+              indeterminate: api().indeterminate,
+            }),
+          );
           createEffect(() => {
-            input.indeterminate = api().indeterminate;
+            if (input) input.indeterminate = api().indeterminate;
           });
-          return <Ark.HiddenInput ref={input} />;
+          return (
+            <Ark.HiddenInput
+              style={nativeChoiceStyle}
+              ref={input}
+              aria-label={local["aria-label"]}
+              aria-labelledby={local["aria-labelledby"]}
+              aria-describedby={local["aria-describedby"]}
+              aria-invalid={local["aria-invalid"]}
+            />
+          );
         }}
       </Ark.Context>
     </Ark.Root>

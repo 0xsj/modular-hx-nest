@@ -1,12 +1,12 @@
 /** The smallest store that satisfies a framework's subscription contract.
  *
  *  Framework-free on purpose: every sibling binds to it differently, and the
- *  binding is a few lines each. What is worth sharing is the state machine and
- *  the persistence, not the binding.
+ *  binding is three lines each. What is worth sharing is the state machine and
+ *  the persistence, not the hook.
  *
- *  `get` must return a STABLE value between changes. A store returning a fresh
- *  object each call is a render loop, which is the failure this shape is
- *  otherwise prone to. */
+ *  `getSnapshot` must return a STABLE value between changes. A store returning
+ *  a fresh object each call is a render loop, which is the failure this shape
+ *  is otherwise prone to. */
 export type Store<T> = {
   get: () => T;
   set: (next: T) => void;
@@ -16,7 +16,10 @@ export type Store<T> = {
   server: () => T;
 };
 
-export function createStore<T>(initial: T, onChange?: (value: T) => void): Store<T> {
+export function createStore<T>(
+  initial: T,
+  onChange?: (value: T) => void,
+): Store<T> {
   let value = initial;
   const listeners = new Set<() => void>();
 
@@ -26,7 +29,7 @@ export function createStore<T>(initial: T, onChange?: (value: T) => void): Store
       if (Object.is(next, value)) return; // no notification without a change
       value = next;
       onChange?.(value);
-      for (const listener of listeners) listener();
+      for (const l of listeners) l();
     },
     subscribe: (listener) => {
       listeners.add(listener);

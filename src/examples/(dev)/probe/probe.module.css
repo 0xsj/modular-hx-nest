@@ -1,0 +1,103 @@
+@layer screen {
+  .page {
+    min-block-size: 100vh;
+    background: var(--surface-ground);
+    padding: var(--space-9) var(--space-8);
+  }
+  .inner {
+    max-inline-size: 680px;
+    margin: 0 auto;
+    display: grid;
+    gap: var(--space-7);
+  }
+  .title {
+    font-size: var(--text-22);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
+  }
+  .blurb {
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  .badge {
+    padding: 1px var(--space-4);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-9);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  .fixture {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+  .chaos {
+    color: var(--crit);
+    background: var(--crit-tint);
+    border: 1px solid var(--crit-line);
+  }
+  .cid {
+    color: var(--ink-4);
+    background: var(--surface-hover);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .stage {
+    padding: var(--space-8);
+    background: var(--surface-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    display: grid;
+    gap: var(--space-4);
+  }
+  .state {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-4);
+  }
+  .row {
+    font-size: var(--text-13);
+    color: var(--ink);
+  }
+  .quiet {
+    font-size: var(--text-13);
+    color: var(--ink-3);
+  }
+  .crit {
+    font-size: var(--text-13);
+    color: var(--crit);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-4);
+    overflow-wrap: anywhere;
+  }
+
+  .links {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .link {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-3);
+  }
+  .link:hover {
+    color: var(--accent);
+  }
+}

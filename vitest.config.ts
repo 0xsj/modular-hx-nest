@@ -30,6 +30,9 @@ export default defineConfig({
        nothing to do with the component. Processing them makes the class names
        real. Their TEXT is still never asserted; see button/doc.ts §6. */
     css: true,
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: [
+      "src/**/*.{test,spec}.{ts,tsx}",
+      "tools/architecture/check.test.ts",
+    ],
   },
 });

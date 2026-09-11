@@ -6,9 +6,6 @@
     font-size: var(--text-12);
     font-weight: var(--weight-medium);
     color: var(--ink-2);
-    /* A double-click on a label selects its text everywhere, and nobody has
-       ever wanted that. */
-    user-select: none;
+    cursor: default;
   }
-  .label[data-disabled] { opacity: 0.55; }
 }

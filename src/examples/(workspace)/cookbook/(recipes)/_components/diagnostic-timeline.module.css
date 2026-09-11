@@ -1,0 +1,16 @@
+@layer screen {
+  .filter {
+    inline-size: min(100%, 360px);
+  }
+  .timeline {
+    max-block-size: 420px;
+    overflow: auto;
+  }
+  .events {
+    min-inline-size: 640px;
+    overflow-wrap: normal;
+  }
+  .identifier {
+    overflow-wrap: anywhere;
+  }
+}

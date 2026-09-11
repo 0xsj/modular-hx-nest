@@ -19,21 +19,21 @@
  *     found        the only one anybody ever sees
  *
  * Forcing emptiness is the axis nobody asks for and the one worth most, because
- * *three states, not two* is a rule the fixtures themselves hide.
+ * `three states, not two` is a rule the fixtures themselves hide.
  *
  * # It is NOT a fixture, and the distinction is load-bearing
  *
  * A fixture reproduces what the server DOES. Chaos forces what it COULD.
- * Collapsing the two would turn *a fixture must reproduce refusals* into *a
- * fixture returns whatever is convenient*, which is the discipline
+ * Collapsing the two would turn `a fixture must reproduce refusals` into `a
+ * fixture returns whatever is convenient`, which is the discipline
  * `protocols/fixtures.md` exists to hold. So this never edits a route table.
  *
  * # `hang` is not a timeout, and saying so matters
  *
  * Chaos wraps the client rather than living inside it, so nothing here can trip
- * the transport's own time budget. `hang` produces a promise that never settles
- * — the stuck spinner, a screen with no timeout of its own. For the failure a
- * real elapsed budget produces, use `fail: "timeout"`.
+ * the transport's own time budget. `hang` produces a promise that never
+ * settles — the stuck spinner, a screen with no timeout of its own. For the
+ * failure a real elapsed budget produces, use `fail: "timeout"`.
  *
  * It still honours cancellation: an aborted signal resolves as `canceled`,
  * because a hang that ignores abort is a leak rather than a test.
@@ -57,9 +57,9 @@
  *
  * # Safety is structural
  *
- * `withChaos` returns the client untouched in a production build — the wrapper
- * is never applied, so reaching a live user takes a deliberate edit to that
- * line rather than a mis-set flag. The composition root should be the only
+ * `withChaos` returns the client untouched when `NODE_ENV` is production — the
+ * wrapper is never applied, so reaching a live user takes a deliberate edit to
+ * that line rather than a mis-set flag. The composition root should be the only
  * caller, and a surface running under a plan should say so visibly: a forced
  * failure that looks real is an afternoon somebody spends chasing it.
  */

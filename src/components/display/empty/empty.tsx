@@ -1,10 +1,9 @@
-import { Show, type JSX } from "solid-js";
+import type { JSX } from "solid-js";
+import { createMemo } from "solid-js";
 import { cn } from "~/lib/kernel";
 import s from "./empty.module.css";
-
 export type EmptyProps = {
-  /** What is absent, in the product's nouns. "No cameras yet", never
-   *  "No data" — see doc.ts. */
+  /** What is absent, said plainly. "No targets yet", not "No data". */
   title: string;
   body?: JSX.Element;
   /** The thing to do about it, when there is one. */
@@ -12,18 +11,19 @@ export type EmptyProps = {
   class?: string;
 };
 
-/** LOOKED AND FOUND NOTHING. Not "nobody looked" — that is a failure, and it
- *  has its own rendering. */
+/** Looked, and found nothing — which is an ANSWER and should read like one.
+ *
+ *  Distinct from a failure surface on purpose: an empty list is a successful
+ *  request, and rendering it in error styling teaches people to treat a working
+ *  system as broken. */
 export function Empty(props: EmptyProps) {
+  const _bodySlot = createMemo(() => props.body);
+  const _actionSlot = createMemo(() => props.action);
   return (
     <div class={cn(s.empty, props.class)}>
       <p class={s.title}>{props.title}</p>
-      <Show when={props.body}>
-        <p class={s.body}>{props.body}</p>
-      </Show>
-      <Show when={props.action}>
-        <div class={s.action}>{props.action}</div>
-      </Show>
+      {_bodySlot() ? <p class={s.body}>{_bodySlot()}</p> : null}
+      {_actionSlot() ? <div class={s.action}>{_actionSlot()}</div> : null}
     </div>
   );
 }

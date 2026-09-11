@@ -1,0 +1,33 @@
+@layer screen {
+  .search {
+    display: flex;
+    align-items: end;
+    gap: var(--space-4);
+    flex: 1 1 260px;
+    min-inline-size: 0;
+  }
+  .search > :first-child {
+    flex: 1;
+    min-inline-size: 0;
+  }
+  .choice {
+    flex: 1 1 140px;
+    min-inline-size: 0;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    gap: var(--space-6);
+  }
+  .address {
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+    padding: var(--space-5);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+  }
+  .issues {
+    margin: 0;
+    padding-inline-start: var(--space-6);
+  }
+}

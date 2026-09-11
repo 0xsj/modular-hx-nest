@@ -1,0 +1,112 @@
+@layer primitive {
+  .card {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-3);
+    background: var(--surface-panel);
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .header {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    padding: var(--space-6);
+  }
+  .heading {
+    display: grid;
+    gap: var(--space-3);
+    flex: 1 1 120px;
+    min-inline-size: 0;
+  }
+  .leading {
+    flex: none;
+  }
+  .title {
+    min-inline-size: 0;
+  }
+  .description {
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+  }
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--space-5);
+    padding: var(--space-6);
+    flex: 1;
+    min-inline-size: 0;
+  }
+  .header + .body {
+    padding-block-start: 0;
+  }
+  .footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-start: auto;
+    padding: var(--space-5) var(--space-6);
+    border-block-start: 1px solid var(--line);
+  }
+  .media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--surface-sunk);
+  }
+  .media:first-child {
+    border-start-start-radius: calc(var(--radius-3) - 1px);
+    border-start-end-radius: calc(var(--radius-3) - 1px);
+  }
+  .media > :is(img, video, svg) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .action {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  .link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-3);
+  }
+  .link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-1);
+  }
+  .card:has(.link:hover) {
+    border-color: var(--line-heavy);
+  }
+  .card:has(.link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+}

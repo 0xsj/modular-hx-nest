@@ -1,63 +1,76 @@
 /**
- * http — the only tier that knows HTTP exists.
+ * http — the transport PORT and its two adapters. The only tier that knows HTTP.
  *
- *     http  may import  kernel
- *     http  ✗ solid-js · services · components · routes
+ * # The port returns `Result`, and that is the load-bearing choice
  *
- * Above this line the application deals in values. No `Response`, no status
- * number, no `res.json()` and no header name appears in a service, an action or
- * a component.
+ * An HTTP call failing is routine, not exceptional, so it belongs in the type.
+ * Three things follow, and the third is the one that matters most:
  *
- * # The port is the seam, and it is a TYPE
+ *   · a service is a one-liner — there is no try/catch wrapper per call
+ *   · the memory adapter reproduces the server's REFUSALS by returning them,
+ *     which is what a fixture is actually for
+ *   · nothing below the framework edge throws, so there is exactly one place in the
+ *     tree where control flow becomes invisible
  *
- * `port.ts` is the whole of what exists here today. Everything above depends on
- * `HttpClient` and never on something that satisfies it, which is what confines
- * the choice of adapter to one file — and it is why the type is worth having
- * before either adapter does.
+ * `lib/root` remains the only file that picks an implementation.
  *
- * # Two adapters, one port, and the screen cannot tell
+ * Successful JSON is still unknown data. Services apply response readers after
+ * either adapter answers; see response.doc.ts. Readers validate and project
+ * domain DTOs, and can map a different backend's success envelope. Malformed
+ * success bodies are internal / invalid_response, not user input errors.
  *
- *     fetch-client   the real transport            NOT WRITTEN
- *     memory-client  fixtures, no network          NOT WRITTEN
+ * Optional CallOptions.trace is an explicit observation scope. withDiagnostics
+ * records transport outcomes without inspecting addresses or payloads; response
+ * decoders record their own stage. Roots put the decorator outside fault
+ * injection, so simulated transport failures are visible too. No trace means
+ * no recording, and a broken recorder cannot change the request's Result.
  *
- * `lib/root` is the only place that picks. That is what makes running the whole
- * application with no server a supported MODE rather than a stub — see
- * `protocols/fixtures.md`, which states the four properties that keep the two
- * indistinguishable from above, and what each one costs when it is lost.
+ * # `envelope.ts` is the only file that may name a wire key, a header or a status
  *
- * The short version, so it is not lost between here and the day they are
- * written: same error values, non-zero latency by default, falling off the end
- * of the route list is a 404, and the bearer arrives the same way. A fixture
- * more helpful than the server is the wrong kind of wrong.
+ * Everything above it sees only `Failure`. That is what makes a closed union
+ * safe against a server nobody here controls: `failureFromResponse` is TOTAL —
+ * every response becomes exactly one failure, it never throws on a malformed
+ * body, and an unrecognised server `kind` is preserved in `type` rather than
+ * discarded. The client is never wrong at runtime, only less specific, and
+ * adding a kind later is a deliberate act that lights up every `switch`.
  *
- * # Why not fetch in each service
+ * `ClientConfig.decodeFailure` replaces the decoder wholesale for a backend
+ * that speaks differently, so a product never edits this tier to adopt the
+ * template. The default also reads `detail`/`title` as message fallbacks, so an
+ * RFC 9457 problem document works with no custom decoder.
  *
- * Every request needs the same six things regardless of which endpoint it hits:
- * base URL resolution, an auth header, a timeout, JSON serialisation,
- * query-string building, and the success/failure decision. None of those is
- * about any one domain. Pushed into the services they become a copy per domain,
- * and changing the timeout policy becomes an edit whose drift is invisible
- * until one endpoint behaves differently under a flaky network.
+ * There is deliberately no equivalent seam on the memory adapter. It never
+ * decodes a `Response` — its routes return failures directly — so there is
+ * nothing for a decoder to do. The asymmetry is the shape of the problem, not
+ * an oversight.
  *
- * # An envelope module is where the wire keys go, and it does not exist
+ * # The timeout is `AbortSignal.timeout`, and this is not a style choice
  *
- * Exactly one file should be permitted to name a wire key, so a change to the
- * error shape is a change to one file rather than a search. It is not written,
- * because it cannot be honestly written without a server to read: the shape,
- * whether the kind is a top-level key or nested, and whether a request id
- * arrives in the body or only in a header are facts about a backend, and
- * inventing them here would produce a decoder that agrees with nothing.
+ * Aborting a controller by hand raises an `AbortError`, which is
+ * indistinguishable from the caller's own cancellation — so every timeout gets
+ * classified `canceled`, and `canceled` is never retried. Measured: an earlier
+ * draft of this file had exactly that defect, and its `TimeoutError` branch was
+ * dead code that could not fire. `AbortSignal.timeout` raises `TimeoutError`,
+ * and the caller's signal is COMBINED with it rather than replaced.
  *
- * `protocols/fixtures.md` puts it as *transcribe; do not invent*. This is the
- * upstream case of the same rule.
+ * Transport errors are matched by `name` rather than `instanceof DOMException`,
+ * because under a test DOM the global is the test environment's and `fetch`
+ * throws the runtime's.
  *
- * # Why an error tier throws rather than returns
+ * # A JSON parse failure on a 2xx is ours, not the network's
  *
- * Recorded now because it is cheap now and contested later. A fetch wrapper
- * wants to throw and a form wants a value, so the conversion happens once at a
- * boundary rather than in a catch block per action. A cache library is built
- * around the throw, which is the other reason not to fight it.
+ * It is decoded outside the transport `catch` on purpose. Folded in, a contract
+ * break would be labelled `unavailable` — which is retryable, so the client
+ * would hammer an endpoint that is answering perfectly well with the wrong
+ * shape.
  *
- * That is an intention. Nothing here throws yet.
+ * # An unserved fixture route is `internal`, not `not_found`
+ *
+ * A real server 404s for a path it does not serve, so the first version of this
+ * returned `not_found`. That was wrong: the fixture failing to answer is a
+ * FIXTURE bug, not a server behaviour being reproduced, and labelling it 404
+ * let `optional` report "looked and found nothing" about a route that had never
+ * been asked. It is `internal` with `type: "unserved_route"`. A screen that
+ * wants to exercise a 404 registers a route that returns one.
  */
 export {};

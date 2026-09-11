@@ -1,58 +1,62 @@
 /**
- * services — one directory per domain, and no framework anywhere in it.
+ * services — one directory per domain, and the only tier that names an endpoint.
  *
- *     services  may import  kernel · http (the TYPE only)
- *     services  ✗ solid-js · components · routes · root
+ * # A service is plain async TypeScript
  *
- * A service is a set of plain async functions that take an `HttpClient` and
- * return a promise. It does not create a client, does not read configuration,
- * and does not know whether it is talking to a server or to fixtures.
+ * It takes the client as its FIRST ARGUMENT and never imports one. That single
+ * rule is what confines the choice of adapter to `lib/root`, and it is what
+ * keeps this tier byte-identical to the sibling templates. The moment a service
+ * imports a framework, a router, or a client instance, it has become a binding.
  *
- * # Why the client is a parameter and not an import
+ * # Five things a service does, and nothing else
  *
- * The moment a service imports a concrete client, the choice of adapter is made
- * in every service instead of one place, and running the application on
- * fixtures stops being a mode and becomes a code change. Passing it in also
- * means a function can be called with a stub in a test without a module mock.
+ *   1. names the endpoint — the only tier permitted to
+ *   2. declares what it can fail with: every transport kind, plus the DOMAIN
+ *      kinds this operation actually promises
+ *   3. narrows, in one line, so the caller's switch is three cases and not ten
+ *   4. says whether absence is an answer, for a read where it might be
+ *   5. validates, when it can produce the same shape the server would
+ *      — input errors are invalid; a malformed success is internal /
+ *        invalid_response. Consumed success bodies start as unknown and pass
+ *        through a domain response reader, including memory-fixture responses.
+ *        Readers explicitly select public fields instead of spreading payloads.
  *
- * **This single rule is what makes the tier portable.** A service that imports
- * `solid-js` has become a binding, and the three sibling templates then have
- * three service tiers instead of one. `protocols/enforcement.md` calls this the
- * load-bearing rule in a multi-framework series and gives it a check:
+ * It does not fetch, cache, render, decide which adapter to use, or know that a
+ * status code exists.
  *
- *     { "from": "lib/services/**", "deny": ["solid-js"],
- *       "message": "a service is plain async code — importing the framework
- *                   makes it a binding (S7)" }
+ * # It takes `CallOptions` last, and that is what makes cancellation possible
  *
- * No runner exists, so that check is currently a preference. Naming it here is
- * not the same as enforcing it, and the difference is the whole point of that
- * protocol.
+ * The port has always accepted an `AbortSignal`. For a while no service exposed
+ * one, so nothing above the transport could supply it — and the `canceled` kind
+ * was defended carefully at every tier while being unreachable from any screen.
  *
- * # Nothing above this tier names a URL, a status code or a header
+ * `CallOptions` is a strict SUBSET of the transport's own options: a caller may
+ * cancel or attach an explicit diagnostic trace, and may not set a header, a
+ * path or a query. Those belong to the
+ * service, which is the only tier permitted to name them. Widening it to the
+ * full request options would hand a screen the endpoint back.
  *
- * This is the only tier that names an endpoint. That is what makes it the
- * boundary worth guarding: a screen that knows a path has taken a dependency on
- * the backend's routing, and it will be the thing that breaks when the route
- * moves.
+ * A composition threads it into every call it makes — a signal honoured by one
+ * of two parallel requests is a cancellation that half worked.
+ * The same trace goes to both request options and the success decoder, so a
+ * transport success does not hide a later contract rejection. Caller-owned
+ * operation spans can also capture input validation and final domain outcomes.
  *
- * # The types are the wire shape, in the wire's spelling
+ * # `example/` is a specimen and should be deleted
  *
- * Whatever casing the server sends is the casing used here. A rename at this
- * tier is a second vocabulary to keep in step, and it drifts. If that ever
- * becomes intolerable, the translation belongs in one mapping function per
- * domain, not spread through components.
+ * A template has no domain. What ships is one worked directory showing the five
+ * rules on one small shape, because the rules are subtle and prose does not
+ * convey them — a reader wants to see `narrow` used once, and `optional` used
+ * once, more than they want another paragraph.
  *
- * Optional, not nullable. Absent means the fact is not there — and absent and
- * "set to nothing" are different facts, which is the rule the whole tier model
- * runs on.
+ * Delete it when the first real domain arrives. Nothing in `lib` depends on it;
+ * its only callers are the two dev screens, which exist to be replaced.
  *
- * # Empty, and deliberately so
+ * # Why the failure type is an ALIAS per tier and not per function
  *
- * There are no domains, because there is no server and no screen. A domain
- * directory invented now would model an endpoint nobody has served and a shape
- * nobody has sent, and every screen built against it would be built against a
- * contract nobody keeps.
- *
- * A domain arrives with the first caller that needs it.
+ * `ReadFailure` and `WriteFailure` are named once and reused. Spelled at each
+ * signature they drift, and the drift is invisible: two reads promising slightly
+ * different sets is not a compile error anywhere, it is just two callers writing
+ * different switches for the same operation.
  */
 export {};

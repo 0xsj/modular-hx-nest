@@ -1,7 +1,7 @@
-import type { FailureKind } from "~/lib/kernel";
+import type { FailureKind } from "../kernel";
 
 /** What to do to one matching request. Every field is independent; several may
- *  apply at once, and they are applied in the order documented on `withChaos`. */
+ *  apply at once, and they are applied in the order documented on `Effect`. */
 export type Effect = {
   /** Return this failure kind instead of calling through. */
   fail?: FailureKind;
@@ -22,7 +22,7 @@ export type Effect = {
    *  case: a screen with no timeout of its own hangs forever. For the failure a
    *  real timeout produces, use `fail: "timeout"`.
    *
-   *  Cancellation is still honoured: an aborted signal resolves, as `canceled`. */
+   *  Honoured cancellation: an aborted signal still resolves, as `canceled`. */
   hang?: boolean;
   /** 0..1. How often this effect applies. Deterministic given the plan's seed,
    *  so a probabilistic run replays identically. Absent means always. */
@@ -39,16 +39,20 @@ export type Plan = {
   seed?: number;
 };
 
-/** `"GET /items/*"` → a matcher. `*` covers one or more path segments. */
-export function matches(pattern: string, method: string, path: string): boolean {
+/** `"GET /targets/*"` → a matcher. `*` covers one or more path segments. */
+export function matches(
+  pattern: string,
+  method: string,
+  path: string,
+): boolean {
   if (pattern === "*") return true;
-  const [patternMethod, ...rest] = pattern.split(" ");
-  const patternPath = rest.join(" ");
-  if (patternMethod.toUpperCase() !== method.toUpperCase()) return false;
-  if (!patternPath) return true;
+  const [pMethod, ...rest] = pattern.split(" ");
+  const pPath = rest.join(" ");
+  if (pMethod.toUpperCase() !== method.toUpperCase()) return false;
+  if (!pPath) return true;
   const rx = new RegExp(
     "^" +
-      patternPath
+      pPath
         .split("*")
         .map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
         .join("[^?]*") +
@@ -57,7 +61,11 @@ export function matches(pattern: string, method: string, path: string): boolean 
   return rx.test(path);
 }
 
-export function effectFor(plan: Plan, method: string, path: string): Effect | undefined {
+export function effectFor(
+  plan: Plan,
+  method: string,
+  path: string,
+): Effect | undefined {
   for (const [pattern, effect] of plan.rules) {
     if (matches(pattern, method, path)) return effect;
   }
@@ -76,4 +84,5 @@ export function rng(seed: number): () => number {
   };
 }
 
-export const isActive = (plan: Plan | undefined): boolean => Boolean(plan?.rules.length);
+export const isActive = (plan: Plan | undefined): boolean =>
+  Boolean(plan?.rules.length);

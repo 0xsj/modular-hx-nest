@@ -84,13 +84,22 @@ describe("failure: the kind sets", () => {
         transport !== domain,
         `every member of the closed set FAILURE_KINDS must land on exactly one side of the transport/domain split (kind: ${kind})`,
       ).toBe(true);
-      expect(transport).toBe((F.TRANSPORT_KINDS as readonly string[]).includes(kind));
+      expect(transport).toBe(
+        (F.TRANSPORT_KINDS as readonly string[]).includes(kind),
+      );
       expect(domain).toBe((F.DOMAIN_KINDS as readonly string[]).includes(kind));
     },
   );
 
   it("isFailureKind rejects every kind-shaped string outside FAILURE_KINDS", () => {
-    for (const bogus of ["not_a_kind", "Internal", "TIMEOUT", "", "not_found ", "rateLimited"]) {
+    for (const bogus of [
+      "not_a_kind",
+      "Internal",
+      "TIMEOUT",
+      "",
+      "not_found ",
+      "rateLimited",
+    ]) {
       expect(
         F.isFailureKind(bogus),
         `"${bogus}" is not a member of the closed set and must not be recognised as one`,
@@ -99,7 +108,16 @@ describe("failure: the kind sets", () => {
   });
 
   it("isFailureKind rejects every non-string value", () => {
-    for (const value of [42, true, null, undefined, {}, [], Symbol("x"), () => {}]) {
+    for (const value of [
+      42,
+      true,
+      null,
+      undefined,
+      {},
+      [],
+      Symbol("x"),
+      () => {},
+    ]) {
       expect(
         F.isFailureKind(value),
         `a non-string can never be a FailureKind, so isFailureKind must fail closed on ${String(value)}`,
@@ -122,7 +140,7 @@ describe("failure: constructors", () => {
   });
 
   it("each constructor passes message through unchanged", () => {
-    const weird = "  the server said: \"rate limit\" \n\t(retry later) ";
+    const weird = '  the server said: "rate limit" \n\t(retry later) ';
     for (const { kind, make } of ALL) {
       expect(
         make(weird).message,
@@ -133,8 +151,14 @@ describe("failure: constructors", () => {
 
   it("invalid always carries a fields object, even when none is supplied", () => {
     const f = F.invalid("bad input");
-    expect(hasKey(f, "fields"), "fields must never be absent on invalid (F6)").toBe(true);
-    expect(f.fields, "an unsupplied fields argument defaults to empty, not undefined").toEqual({});
+    expect(
+      hasKey(f, "fields"),
+      "fields must never be absent on invalid (F6)",
+    ).toBe(true);
+    expect(
+      f.fields,
+      "an unsupplied fields argument defaults to empty, not undefined",
+    ).toEqual({});
   });
 
   it.each(ALL.filter((e) => e.kind !== "invalid"))(
@@ -163,12 +187,21 @@ describe("failure: constructors", () => {
     "$kind omits unsupplied metadata rather than storing it as present-but-undefined",
     ({ kind, make }) => {
       const f = make("x");
-      const expectedKeys = kind === "invalid" ? ["fields", "kind", "message"] : ["kind", "message"];
+      const expectedKeys =
+        kind === "invalid"
+          ? ["fields", "kind", "message"]
+          : ["kind", "message"];
       expect(
         keysOf(f),
         `a constructor must never invent metadata: a failure that crossed JSON must equal one that did not, which only holds if unsupplied fields are absent rather than undefined (F8) — kind ${kind}`,
       ).toEqual(expectedKeys);
-      for (const optional of ["type", "requestId", "correlationId", "status", "cause"]) {
+      for (const optional of [
+        "type",
+        "requestId",
+        "correlationId",
+        "status",
+        "cause",
+      ]) {
         expect(
           hasKey(f, optional),
           `unsupplied optional field "${optional}" must be absent, not present with value undefined (F8) — kind ${kind}`,
@@ -192,13 +225,24 @@ describe("failure: constructors", () => {
     expect(f.status).toBe(401);
     expect(f.cause).toBe(cause);
     expect(keysOf(f)).toEqual(
-      ["cause", "correlationId", "kind", "message", "requestId", "status", "type"].sort(),
+      [
+        "cause",
+        "correlationId",
+        "kind",
+        "message",
+        "requestId",
+        "status",
+        "type",
+      ].sort(),
     );
   });
 
   it("rateLimited stores a supplied retryAfter, and invalid stores supplied fields, verbatim", () => {
     const rl = F.rateLimited("slow down", 30);
-    expect(hasKey(rl, "retryAfter"), "a supplied retryAfter must be stored (F7)").toBe(true);
+    expect(
+      hasKey(rl, "retryAfter"),
+      "a supplied retryAfter must be stored (F7)",
+    ).toBe(true);
     expect(rl.retryAfter).toBe(30);
 
     const inv = F.invalid("bad payload", { email: "must be an email" });
@@ -237,7 +281,10 @@ describe("failure: recognition", () => {
     ["an array", ["internal"]],
     ["an object with no kind", { message: "x" }],
     ["an object whose kind is unknown", { kind: "teapot", message: "x" }],
-    ["an object with a known kind but a numeric message", { kind: "internal", message: 42 }],
+    [
+      "an object with a known kind but a numeric message",
+      { kind: "internal", message: 42 },
+    ],
     ["an object with a known kind and a missing message", { kind: "internal" }],
   ] as const)("isFailure rejects %s", (_label, value) => {
     expect(
@@ -259,7 +306,7 @@ describe("failure: recognition", () => {
   it("isDomain agrees with isDomainKind for every constructible failure", () => {
     // The spec pins the formula for isTransport explicitly (F11); isDomain is
     // inferred to mirror it symmetrically. Flagged as an inference.
-    for (const { kind, make } of ALL) {
+    for (const { make } of ALL) {
       const f = make("x");
       expect(F.isDomain(f)).toBe(F.isDomainKind(f.kind));
     }
@@ -272,7 +319,9 @@ describe("failure: recognition", () => {
 
 describe("failure: cause chain", () => {
   it("because copies every field except cause, and does not mutate the original", () => {
-    const original = F.rateLimited("too many requests", 30, { requestId: "req-1" });
+    const original = F.rateLimited("too many requests", 30, {
+      requestId: "req-1",
+    });
     const cause = F.unavailable("upstream down");
     const result = F.because(original, cause);
 
@@ -304,35 +353,29 @@ describe("failure: cause chain", () => {
     expect(chain[2]).toBe(root);
   });
 
-  it(
-    "chain terminates when a failure is its own cause",
-    () => {
-      const self = F.internal("self-referential") as F.Failure & { cause?: F.Failure };
-      self.cause = self;
-      let result: F.Failure[] | undefined;
-      expect(() => {
-        result = F.chain(self);
-      }, "a cyclic cause must not hang or overflow the stack (F14)").not.toThrow();
-      expect(Array.isArray(result)).toBe(true);
-    },
-    2000,
-  );
+  it("chain terminates when a failure is its own cause", () => {
+    const self = F.internal("self-referential") as F.Failure & {
+      cause?: F.Failure;
+    };
+    self.cause = self;
+    let result: F.Failure[] | undefined;
+    expect(() => {
+      result = F.chain(self);
+    }, "a cyclic cause must not hang or overflow the stack (F14)").not.toThrow();
+    expect(Array.isArray(result)).toBe(true);
+  }, 2000);
 
-  it(
-    "chain terminates when two failures cause each other",
-    () => {
-      const a = F.internal("a") as F.Failure & { cause?: F.Failure };
-      const b = F.internal("b") as F.Failure & { cause?: F.Failure };
-      a.cause = b;
-      b.cause = a;
-      let result: F.Failure[] | undefined;
-      expect(() => {
-        result = F.chain(a);
-      }, "a mutual cause cycle must not hang or overflow the stack (F14)").not.toThrow();
-      expect(Array.isArray(result)).toBe(true);
-    },
-    2000,
-  );
+  it("chain terminates when two failures cause each other", () => {
+    const a = F.internal("a") as F.Failure & { cause?: F.Failure };
+    const b = F.internal("b") as F.Failure & { cause?: F.Failure };
+    a.cause = b;
+    b.cause = a;
+    let result: F.Failure[] | undefined;
+    expect(() => {
+      result = F.chain(a);
+    }, "a mutual cause cycle must not hang or overflow the stack (F14)").not.toThrow();
+    expect(Array.isArray(result)).toBe(true);
+  }, 2000);
 
   it("rootCause is the failure itself when there is no cause", () => {
     const f = F.conflict("version mismatch");
@@ -358,7 +401,8 @@ describe("failure: cause chain", () => {
 
 describe("failure: retry classification", () => {
   it.each(ALL)("isRetryable($kind)", ({ kind, make }) => {
-    const expected = kind === "rate_limited" || kind === "unavailable" || kind === "timeout";
+    const expected =
+      kind === "rate_limited" || kind === "unavailable" || kind === "timeout";
     expect(
       F.isRetryable(make("x")),
       `exactly rate_limited, unavailable and timeout are retryable (F16) — kind ${kind}`,
@@ -418,9 +462,10 @@ describe("failure: narrowing", () => {
     const disallowed = F.conflict("version mismatch");
     const mapper = F.narrow("not_found");
     const result = mapper(disallowed);
-    expect(result.kind, "an operation's signature must not gain a kind it did not declare (F23)").toBe(
-      "internal",
-    );
+    expect(
+      result.kind,
+      "an operation's signature must not gain a kind it did not declare (F23)",
+    ).toBe("internal");
     expect(result.cause).toBe(disallowed);
   });
 
@@ -435,7 +480,10 @@ describe("failure: narrowing", () => {
     const result = mapper(disallowed);
 
     expect(result.kind).toBe("internal");
-    expect(result.type, "the fold must preserve type onto the replacement (F24)").toBe("resource_gone");
+    expect(
+      result.type,
+      "the fold must preserve type onto the replacement (F24)",
+    ).toBe("resource_gone");
     expect(result.requestId).toBe("req-9");
     expect(result.correlationId).toBe("corr-9");
     expect(result.status).toBe(404);
@@ -473,7 +521,9 @@ describe("failure: assertNever", () => {
   });
 
   it("assertNever throws when reached with a context string", () => {
-    expect(() => F.assertNever("unexpected" as never, "some switch statement")).toThrow();
+    expect(() =>
+      F.assertNever("unexpected" as never, "some switch statement"),
+    ).toThrow();
   });
 });
 
@@ -544,7 +594,11 @@ describe("result: combinators", () => {
     });
     expect(calls).toBe(1);
     expect(mapped.ok).toBe(false);
-    expect((mapped as R.Err<never, string>).error).toBe("internal server error, or whatever message boom carried" .length >= 0 ? (mapped as R.Err<never, string>).error : "");
+    expect((mapped as R.Err<never, string>).error).toBe(
+      "internal server error, or whatever message boom carried".length >= 0
+        ? (mapped as R.Err<never, string>).error
+        : "",
+    );
   });
 
   it("mapErr does not call f on an Ok, and preserves its value", () => {
@@ -554,7 +608,9 @@ describe("result: combinators", () => {
       calls++;
       return e;
     });
-    expect(calls, "mapErr must not invoke f on the success branch (R4)").toBe(0);
+    expect(calls, "mapErr must not invoke f on the success branch (R4)").toBe(
+      0,
+    );
     expect(mapped.ok).toBe(true);
     expect((mapped as R.Ok<typeof value>).value).toBe(value);
   });
@@ -579,7 +635,9 @@ describe("result: combinators", () => {
       called = true;
       return R.ok(v);
     });
-    expect(called, "andThen must not invoke f on the failure branch (R5)").toBe(false);
+    expect(called, "andThen must not invoke f on the failure branch (R5)").toBe(
+      false,
+    );
     expect(result.ok).toBe(false);
     expect((result as R.Err<number>).error).toBe(error);
   });
@@ -652,7 +710,10 @@ describe("result: immutability", () => {
       "no combinator may mutate the result it was called on (R8)",
     ).toBe(true);
     expect(original.value).toBe(value);
-    expect(value.count, "the wrapped value itself must not be mutated in place").toBe(1);
+    expect(
+      value.count,
+      "the wrapped value itself must not be mutated in place",
+    ).toBe(1);
   });
 
   it("no combinator mutates the Err it was called on", () => {
@@ -695,10 +756,13 @@ describe("result: serialization boundary", () => {
   it("fromJSON(ok.toJSON()) round-trips to an equivalent Ok", () => {
     const original = R.ok({ hello: "world" });
     const reconstructed = R.fromJSON(original.toJSON());
-    expect(reconstructed.ok, "fromJSON must answer ok identically to the original (R10)").toBe(
-      original.ok,
+    expect(
+      reconstructed.ok,
+      "fromJSON must answer ok identically to the original (R10)",
+    ).toBe(original.ok);
+    expect((reconstructed as R.Ok<{ hello: string }>).value).toEqual(
+      original.value,
     );
-    expect((reconstructed as R.Ok<{ hello: string }>).value).toEqual(original.value);
   });
 
   it("fromJSON(err.toJSON()) round-trips to an equivalent Err", () => {

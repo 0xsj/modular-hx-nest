@@ -1,2 +1,9 @@
-export { AlertDialog, AlertDialogContent } from "./alert-dialog";
-export type { AlertDialogContentProps, AlertDialogProps } from "./alert-dialog";
+export {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogTrigger,
+  type AlertDialogContentProps,
+  type AlertDialogProps,
+} from "./alert-dialog";

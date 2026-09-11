@@ -1,0 +1,48 @@
+@layer composition {
+  .page {
+    min-block-size: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: var(--space-8);
+    background: var(--surface-ground);
+  }
+
+  .column {
+    inline-size: 100%;
+    max-inline-size: 400px;
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .brand {
+    justify-self: center;
+  }
+
+  .card {
+    display: grid;
+    gap: var(--space-6);
+    padding: var(--space-8);
+  }
+
+  .head {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .title {
+    font-size: var(--text-18);
+    font-weight: var(--weight-bold);
+    color: var(--ink);
+    margin: 0;
+  }
+  .description {
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+  }
+  .foot {
+    justify-self: center;
+    font-size: var(--text-11-5);
+    color: var(--ink-4);
+    text-align: center;
+  }
+}

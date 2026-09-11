@@ -1,0 +1,35 @@
+@layer composition {
+  .card {
+    background: var(--surface-panel);
+  }
+  .label {
+    font-size: var(--text-13);
+    font-weight: var(--weight-strong);
+    cursor: pointer;
+  }
+  .label::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-3);
+  }
+  .description {
+    color: var(--ink-3);
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+  }
+  .card:has([data-state="checked"]) {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .card:has(:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .card:not(:has(:disabled)):hover {
+    border-color: var(--accent);
+  }
+  .card:has(:disabled) .label {
+    cursor: not-allowed;
+  }
+}

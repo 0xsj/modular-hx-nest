@@ -1,0 +1,40 @@
+@layer composition {
+  .nav {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .group {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .groupLabel {
+    font-size: var(--text-10);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+    padding-inline: var(--space-4);
+    margin-block-end: var(--space-2);
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-2);
+  }
+
+  .item[aria-current="page"] {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+  .icon {
+    flex: none;
+    color: var(--ink-4);
+  }
+  .item[aria-current="page"] .icon {
+    color: var(--accent);
+  }
+}

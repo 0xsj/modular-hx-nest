@@ -1,0 +1,56 @@
+@layer primitive {
+  .surface {
+    display: grid;
+    gap: var(--space-6);
+    padding: var(--space-8);
+    max-inline-size: var(--measure);
+  }
+  .title {
+    font-size: var(--text-18);
+    font-weight: var(--weight-bold);
+    color: var(--ink);
+    margin: 0;
+  }
+  .body {
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+    margin: 0;
+  }
+
+  .refs {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+  }
+  .ref {
+    display: flex;
+    gap: var(--space-4);
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .refLabel {
+    font-size: var(--text-10);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+    min-inline-size: 92px;
+  }
+  .refValue {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+
+  .actions {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .quiet {
+    font-size: var(--text-11);
+    line-height: var(--leading-body);
+    color: var(--ink-4);
+  }
+}

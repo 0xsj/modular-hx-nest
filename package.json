@@ -1,26 +1,37 @@
 {
-  "name": "example-basic",
+  "name": "flover-solid",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "start": "node .output/server/index.mjs",
-    "preview": "vite preview",
+    "preview": "node .output/server/index.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test:unit": "vitest run",
+    "test:architecture": "vitest run tools/architecture/check.test.ts",
+    "check:architecture": "node tools/architecture/cli.mjs",
+    "test:resilience": "node tools/resilience/test.mjs",
+    "test:resilience:mutations": "node tools/resilience/mutate.mjs",
+    "test:browser": "node tools/browser/run.mjs"
   },
   "dependencies": {
     "@ark-ui/solid": "5.39.1",
-    "@solidjs/meta": "^0.29.4",
-    "@solidjs/router": "^1.0.0",
-    "@solidjs/start": "^2.0.0",
+    "@solidjs/meta": "0.29.4",
+    "@solidjs/router": "1.0.0",
+    "@solidjs/start": "2.0.0",
     "@tanstack/solid-query": "5.102.8",
     "class-variance-authority": "0.7.1",
     "lucide-solid": "1.43.0",
-    "nitro": "^3.0.260610-beta",
-    "solid-js": "^1.9.14",
-    "vite": "^8.0.0"
+    "nitro": "3.0.260610-beta",
+    "solid-js": "1.9.14",
+    "vite": "8.1.4",
+    "@internationalized/date": "3.12.3",
+    "cytoscape": "3.34.2"
   },
   "engines": {
     "node": ">=24"
@@ -30,6 +41,17 @@
     "happy-dom": "20.14.0",
     "typescript": "5.9.3",
     "vite-plugin-solid": "2.11.14",
-    "vitest": "5.0.0"
-  }
+    "vitest": "5.0.0",
+    "@types/node": "24.13.3",
+    "@types/cytoscape": "3.21.9",
+    "playwright": "1.63.0",
+    "axe-core": "4.13.0",
+    "eslint": "9.39.4",
+    "eslint-plugin-solid": "0.18.0",
+    "typescript-eslint": "8.70.0",
+    "prettier": "3.9.6",
+    "source-map-js": "1.2.1"
+  },
+  "private": true,
+  "version": "0.1.0"
 }

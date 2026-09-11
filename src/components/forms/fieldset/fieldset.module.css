@@ -1,25 +1,35 @@
 @layer primitive {
   .fieldset {
-    /* Both from 1995, and every browser still ships them. */
-    border: 0;
-    padding: 0;
-    margin: 0;
-    /* THE one that matters. A fieldset has `min-inline-size: min-content` in
-       the UA stylesheet, which `width` cannot override — so the element refuses
-       to shrink inside a flex or grid parent and presents as an unexplainable
-       horizontal overflow in a layout that is correct everywhere else. Nothing
-       in the author's CSS mentions a minimum, which is why it is invisible. */
-    min-inline-size: 0;
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    padding: var(--space-6);
+    min-inline-size: 0; /* a fieldset defaults to min-content and breaks grids */
   }
+
   .legend {
-    padding: 0;
+    padding-inline: var(--space-3);
     font-size: var(--text-12);
-    font-weight: var(--weight-medium);
-    color: var(--ink-2);
+    font-weight: var(--weight-strong);
+    color: var(--ink);
   }
-  .body { display: grid; gap: var(--space-4); }
-  .hint { font-size: var(--text-11-5); color: var(--ink-4); }
-  .error { font-size: var(--text-11-5); color: var(--crit); }
+
+  .fieldset[aria-invalid] {
+    border-color: var(--crit-line);
+  }
+  .hint {
+    font-size: var(--text-11-5);
+    line-height: var(--leading-snug);
+    color: var(--ink-4);
+  }
+  .error {
+    font-size: var(--text-11-5);
+    line-height: var(--leading-snug);
+    color: var(--crit);
+  }
+  .body {
+    display: grid;
+    gap: var(--space-4);
+  }
 }

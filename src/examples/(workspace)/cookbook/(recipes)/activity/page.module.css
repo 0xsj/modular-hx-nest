@@ -1,0 +1,81 @@
+@layer screen {
+  .title {
+    font-size: var(--text-22);
+    font-weight: var(--weight-bold);
+    color: var(--ink);
+    margin: 0 0 var(--space-4);
+  }
+  .lead {
+    font-size: var(--text-13);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+    max-inline-size: var(--measure);
+  }
+  .meta {
+    font-size: var(--text-11);
+    color: var(--ink-4);
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-2);
+  }
+  .action {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink);
+  }
+  .detail {
+    font-size: var(--text-10);
+    color: var(--ink-4);
+    margin-block-start: var(--space-1);
+  }
+  .anon {
+    font-size: var(--text-11);
+    color: var(--ink-4);
+    font-style: italic;
+  }
+
+  /* A wide table scrolls inside its own box; the page never scrolls sideways. */
+  .scroll {
+    overflow-x: auto;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: var(--control-sm);
+    padding: 0 var(--space-5);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line);
+    background: var(--surface-panel-2);
+    font-size: var(--text-11);
+    color: var(--ink-3);
+  }
+  .chip:hover {
+    color: var(--ink);
+    border-color: var(--line-strong);
+  }
+  .chip[data-on] {
+    background: var(--fill);
+    border-color: var(--fill);
+    color: var(--fill-ink);
+  }
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    opacity: 0.75;
+  }
+
+  .corr {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .corr:hover {
+    color: var(--ink);
+  }
+}

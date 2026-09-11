@@ -16,19 +16,19 @@
        near-white one, and that is a decision about this screen rather than a
        value the token layer owes anybody. */
     --bloom-core: 48%;
-    --bloom-mid:  22%;
-    --bloom-far:  15%;
+    --bloom-mid: 22%;
+    --bloom-far: 15%;
   }
   :root[data-theme="light"] .page {
     --bloom-core: 26%;
-    --bloom-mid:  11%;
-    --bloom-far:   8%;
+    --bloom-mid: 11%;
+    --bloom-far: 8%;
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme="dark"]) .page {
       --bloom-core: 26%;
-      --bloom-mid:  11%;
-      --bloom-far:   8%;
+      --bloom-mid: 11%;
+      --bloom-far: 8%;
     }
   }
 
@@ -43,14 +43,18 @@
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(104% 96% at 50% 112%,
+      radial-gradient(
+        104% 96% at 50% 112%,
         color-mix(in srgb, var(--accent) var(--bloom-core), transparent) 0%,
         color-mix(in srgb, var(--accent) var(--bloom-mid), transparent) 32%,
         color-mix(in srgb, var(--accent) var(--bloom-far), transparent) 54%,
-        transparent 86%),
-      radial-gradient(70% 40% at 50% -10%,
+        transparent 86%
+      ),
+      radial-gradient(
+        70% 40% at 50% -10%,
         color-mix(in srgb, var(--info) var(--bloom-far), transparent) 0%,
-        transparent 72%);
+        transparent 72%
+      );
   }
 
   /* inline-size: 100% matters more than it looks. The page clips rather than
@@ -93,7 +97,10 @@
     background: var(--surface-panel);
     color: var(--ink);
     font-size: var(--text-12-5);
-    transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
+    transition:
+      background var(--dur-1),
+      border-color var(--dur-1),
+      color var(--dur-1);
   }
   .link:hover {
     border-color: var(--line-heavy);
@@ -101,7 +108,9 @@
   }
   /* aria-hidden on the arrow — the link text already names the destination,
      and a screen reader announcing an arrow glyph adds nothing. */
-  .arrow { color: var(--ink-4); }
+  .arrow {
+    color: var(--ink-4);
+  }
 
   .foot {
     position: absolute;
@@ -116,6 +125,8 @@
   @media (max-height: 520px) {
     /* The page clips, so the footer is the first thing to collide with the
        body on a short viewport. Dropping it is better than overlapping. */
-    .foot { display: none; }
+    .foot {
+      display: none;
+    }
   }
 }

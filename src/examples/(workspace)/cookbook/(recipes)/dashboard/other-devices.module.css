@@ -1,0 +1,24 @@
+@layer screen {
+  .list {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+  .id {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-2);
+  }
+  .meta {
+    font-size: var(--text-11);
+    color: var(--ink-4);
+  }
+}

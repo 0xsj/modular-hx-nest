@@ -1,27 +1,35 @@
+import type { PolymorphicProps } from "@ark-ui/solid/factory";
+import { ark } from "@ark-ui/solid/factory";
 import { splitProps, type JSX } from "solid-js";
 import { cn } from "~/lib/kernel";
-import { spaceStyle, splitSpace, type SpaceProps } from "../../style-props";
+import { splitSpace, type SpaceProps } from "../../style-props";
 import s from "./container.module.css";
-
-export type ContainerProps = Omit<JSX.HTMLAttributes<HTMLDivElement>, "style"> &
+export type ContainerProps = JSX.HTMLAttributes<HTMLDivElement> &
   SpaceProps & {
-    /** `page` is the full working width. `measure` is a READING column, capped
-     *  in characters rather than pixels because that is what legibility
-     *  depends on. Both are tokens. */
+    asChild?: PolymorphicProps<"div">["asChild"];
     width?: "page" | "measure";
-    style?: JSX.CSSProperties;
   };
-
-/** Centres content and caps its width — the only layout decision this group
- *  makes on a screen's behalf. See doc.ts for why this one is not arrangement. */
 export function Container(props: ContainerProps) {
-  const [space, rest] = splitSpace(props);
-  const [own, others] = splitProps(rest, ["width", "class", "style"]);
+  const [local, others] = splitProps(props, [
+    "asChild",
+    "class",
+    "style",
+    "width",
+  ]);
+  const [space, rest] = splitSpace(others);
   return (
-    <div
-      {...others}
-      class={cn(s.container, own.width === "measure" ? s.measure : s.page, own.class)}
-      style={{ ...spaceStyle(space), ...own.style }}
+    <ark.div
+      {...rest}
+      asChild={local.asChild}
+      class={cn(
+        s.container,
+        local.width === "measure" ? s.measure : s.page,
+        local.class,
+      )}
+      style={{
+        ...space(),
+        ...(typeof local.style === "object" ? local.style : {}),
+      }}
     />
   );
 }

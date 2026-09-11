@@ -1,0 +1,26 @@
+@layer screen {
+  .form {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .fields {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .submit {
+    inline-size: 100%;
+    justify-content: center;
+  }
+  .hint {
+    font-size: var(--text-11);
+    line-height: var(--leading-body);
+    color: var(--ink-4);
+    padding: var(--space-4);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-2);
+  }
+  .hint code {
+    font-family: var(--font-mono);
+    color: var(--ink-3);
+  }
+}

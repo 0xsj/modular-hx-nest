@@ -1,0 +1,51 @@
+{
+  "base": "http://127.0.0.1:4194",
+  "provenance": "Implementation-visible behavior regressions, not a blind oracle.",
+  "suites": [
+    {
+      "name": "routes",
+      "status": "passed",
+      "milliseconds": 38069
+    },
+    {
+      "name": "controls",
+      "status": "passed",
+      "milliseconds": 4489
+    },
+    {
+      "name": "cards",
+      "status": "passed",
+      "milliseconds": 2500
+    },
+    {
+      "name": "components",
+      "status": "passed",
+      "milliseconds": 28359
+    },
+    {
+      "name": "items",
+      "status": "passed",
+      "milliseconds": 12573
+    },
+    {
+      "name": "foundations",
+      "status": "passed",
+      "milliseconds": 8902
+    },
+    {
+      "name": "workspaces",
+      "status": "passed",
+      "milliseconds": 17490
+    },
+    {
+      "name": "expansions",
+      "status": "passed",
+      "milliseconds": 17747
+    },
+    {
+      "name": "resilience",
+      "status": "passed",
+      "milliseconds": 4723
+    }
+  ]
+}

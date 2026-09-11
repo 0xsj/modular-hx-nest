@@ -1,0 +1,50 @@
+@layer primitive {
+  .content {
+    z-index: var(--z-palette);
+    min-inline-size: 180px;
+    padding: var(--space-2);
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    block-size: var(--control-md);
+    padding-inline: var(--space-5);
+    border-radius: var(--radius-1);
+    font-size: var(--text-12-5);
+    color: var(--ink-2);
+    cursor: default;
+    outline: none;
+  }
+
+  /* `data-highlighted` covers pointer AND keyboard; `:hover` alone leaves a
+     keyboard user with no sense of where they are. */
+  .item[data-highlighted] {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+  .item[data-disabled] {
+    opacity: 0.45;
+  }
+  .item[data-tone="crit"] {
+    color: var(--crit);
+  }
+  .item[data-tone="crit"][data-highlighted] {
+    background: var(--crit-tint);
+  }
+
+  .label {
+    padding: var(--space-3) var(--space-5) var(--space-2);
+    font-size: var(--text-10);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+
+  .separator {
+    block-size: 1px;
+    background: var(--line);
+    margin-block: var(--space-2);
+  }
+}

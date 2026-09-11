@@ -1,0 +1,209 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DEMO_CREDENTIALS, resetSessionFixtures } from "~/lib/services/session";
+import { IDLE, type FormState } from "~/examples/_lib/form-state";
+import { SESSION_COOKIE } from "~/examples/_lib/session";
+
+/* The flow, end to end, at the only layer where it can be tested without a
+ * browser: the action.
+ *
+ * Two things are faked and both are the framework, not the app — a cookie jar
+ * and a redirect. Everything between them is the real service running against
+ * the real fixture routes, which is what makes this worth having. */
+
+const jar = new Map<string, string>();
+const requestHeaders = new Headers();
+
+vi.mock("next/headers", () => ({
+  cookies: async () => ({
+    get: (name: string) =>
+      jar.has(name) ? { name, value: jar.get(name)! } : undefined,
+    set: (name: string, value: string) => void jar.set(name, value),
+    delete: (name: string) => void jar.delete(name),
+  }),
+  /* The composition root reads the chaos plan from a header the proxy sets, so
+     a test that mocks only the cookie jar gets an unmocked `headers()` and every
+     action fails at the root rather than at anything it was testing. */
+  headers: async () => requestHeaders,
+}));
+
+class Redirected extends Error {
+  constructor(readonly to: string) { super(`redirect:${to}`); }
+}
+vi.mock("next/navigation", () => ({
+  redirect: (to: string) => { throw new Redirected(to); },
+}));
+
+const { signInAction, signUpAction } = await import("./actions");
+
+/** An action either returns form state or navigates by throwing. Nothing else
+ *  is a legal outcome, and this is how the two are told apart. */
+async function run(
+  action: (prev: FormState, f: FormData) => Promise<FormState>,
+  values: Record<string, string>,
+) {
+  const form = new FormData();
+  for (const [k, v] of Object.entries(values)) form.set(k, v);
+  try {
+    return { state: await action(IDLE, form), redirectedTo: null as string | null };
+  } catch (e) {
+    if (e instanceof Redirected) return { state: null, redirectedTo: e.to };
+    throw e;
+  }
+}
+
+beforeEach(() => {
+  jar.clear();
+  resetSessionFixtures();
+});
+
+describe("signing in", () => {
+  it("returns to the requested cookbook recipe after signing in", async () => {
+    const { redirectedTo } = await run(signInAction, { ...DEMO_CREDENTIALS, returnTo: "/cookbook/activity?page=2" });
+    expect(redirectedTo).toBe("/cookbook/activity?page=2");
+    expect(jar.has(SESSION_COOKIE)).toBe(true);
+  });
+
+  it("ignores a forged external return destination submitted with the form", async () => {
+    const { redirectedTo } = await run(signInAction, { ...DEMO_CREDENTIALS, returnTo: "//other.example/cookbook" });
+    expect(redirectedTo).toBe("/app");
+  });
+  it("sets the cookie and navigates", async () => {
+    const { state, redirectedTo } = await run(signInAction, DEMO_CREDENTIALS);
+    expect(state).toBeNull();
+    expect(redirectedTo).toBe("/app");
+    expect(jar.get(SESSION_COOKIE)).toMatch(/^tok_/);
+  });
+
+  it("a refusal returns plain data and sets no cookie", async () => {
+    const { state, redirectedTo } = await run(signInAction, {
+      ...DEMO_CREDENTIALS, password: "wrong",
+    });
+    expect(redirectedTo).toBeNull();
+    expect(state?.status === "error" && state.message).toBe("That email and password do not match.");
+    expect(jar.has(SESSION_COOKIE)).toBe(false);
+  });
+
+  it("what crosses the boundary is serialisable — never a Result", async () => {
+    // The rule `boundaries.test.ts` enforces statically, checked in the value:
+    // a class does not survive the wire, and this is the shape that does.
+    const { state } = await run(signInAction, { ...DEMO_CREDENTIALS, password: "wrong" });
+    expect(state).toEqual(JSON.parse(JSON.stringify(state)));
+  });
+
+  it("echoes the email back and never the password", async () => {
+    const { state } = await run(signInAction, {
+      email: DEMO_CREDENTIALS.email, password: "wrong",
+    });
+    expect(state?.status === "error" && state.values).toEqual({ email: DEMO_CREDENTIALS.email });
+    expect(JSON.stringify(state)).not.toContain("wrong");
+  });
+
+  it("a malformed form comes back as field messages", async () => {
+    const { state } = await run(signInAction, { email: "nope", password: "" });
+    if (state?.status !== "error" || state.scope !== "fields") {
+      return expect.unreachable("expected field messages");
+    }
+    expect(state.fields.email).toBeTruthy();
+    expect(state.fields.password).toBeTruthy();
+  });
+
+  it("wrong credentials are NOT a field message", async () => {
+    // The distinction the service exists to demonstrate, arriving intact at the
+    // form: this belongs above the form, because no single field was wrong.
+    const { state } = await run(signInAction, { ...DEMO_CREDENTIALS, password: "wrong" });
+    // The union makes this an assertion about the TAG rather than about the
+    // absence of a key that was always optional.
+    expect(state?.status === "error" && state.scope).toBe("form");
+    expect(state?.status === "error" && state.kind).toBe("unauthenticated");
+  });
+
+  it("enough wrong guesses and the form is told to wait", async () => {
+    for (let i = 0; i < 5; i++) {
+      await run(signInAction, { ...DEMO_CREDENTIALS, password: "wrong" });
+    }
+    const { state } = await run(signInAction, DEMO_CREDENTIALS);
+    if (state?.status !== "error" || state.scope !== "form") {
+      return expect.unreachable("expected a form-level refusal");
+    }
+    expect(state.retryAfter).toBe(30);
+    // The kind is what lets the form say "even the right password is refused".
+    expect(state.kind).toBe("rate_limited");
+  });
+});
+
+describe("signing up", () => {
+  const fresh = { name: "Grace Hopper", email: "grace@example.com", password: "compiler1" };
+
+  it("keeps the destination when creating an account", async () => {
+    expect((await run(signUpAction, { ...fresh, returnTo: "/cookbook/dashboard" })).redirectedTo).toBe("/cookbook/dashboard");
+  });
+
+  it("creates, signs in and navigates in one action", async () => {
+    const { redirectedTo } = await run(signUpAction, fresh);
+    expect(redirectedTo).toBe("/app");
+    expect(jar.get(SESSION_COOKIE)).toMatch(/^tok_/);
+  });
+
+  it("a taken email comes back as a message, with the form still filled", async () => {
+    const { state } = await run(signUpAction, { ...fresh, email: DEMO_CREDENTIALS.email });
+    /* A conflict, placed on the email field by the ACTION — the kind is the
+       service's decision, the placement is the screen's. */
+    if (state?.status !== "error" || state.scope !== "fields") {
+      return expect.unreachable("expected the conflict beside the email field");
+    }
+    expect(state.kind).toBe("conflict");
+    expect(state.fields.email).toContain("already exists");
+    expect(state.values).toEqual({ name: fresh.name, email: DEMO_CREDENTIALS.email });
+  });
+
+  it("a short password never reaches the transport", async () => {
+    const { state } = await run(signUpAction, { ...fresh, password: "short" });
+    if (state?.status !== "error" || state.scope !== "fields") {
+      return expect.unreachable("expected field messages");
+    }
+    expect(state.fields.password).toBeTruthy();
+  });
+});
+
+describe("a chaos plan reaches the real flow", () => {
+  /* The point of the proxy. Before it, `?chaos=` worked on one hand-written
+   * screen and could not touch a single route somebody would actually visit —
+   * a fault injector with nowhere to inject a fault.
+   *
+   * The header is what the proxy sets; everything after it is the real path. */
+  const withPlan = (search: string) => {
+    requestHeaders.set("x-flover-search", search);
+    return () => requestHeaders.delete("x-flover-search");
+  };
+
+  it("forces a failure on a form that would otherwise have succeeded", async () => {
+    const clear = withPlan("?chaos=POST /auth/sign-in=fail:unavailable");
+    try {
+      const { state, redirectedTo } = await run(signInAction, DEMO_CREDENTIALS);
+      expect(redirectedTo).toBeNull();
+      expect(state?.status).toBe("error");
+      expect(jar.has(SESSION_COOKIE)).toBe(false);
+    } finally {
+      clear();
+    }
+  });
+
+  it("and the same credentials succeed with no plan", () => {
+    // The negative control. Without it this suite passes against a sign-in that
+    // was broken for some other reason entirely.
+    expect(requestHeaders.get("x-flover-search")).toBeNull();
+    return run(signInAction, DEMO_CREDENTIALS).then(({ redirectedTo }) => {
+      expect(redirectedTo).toBe("/app");
+    });
+  });
+
+  it("a plan for a different route leaves this one alone", async () => {
+    const clear = withPlan("?chaos=GET /auth/sessions=fail:unavailable");
+    try {
+      const { redirectedTo } = await run(signInAction, DEMO_CREDENTIALS);
+      expect(redirectedTo).toBe("/app");
+    } finally {
+      clear();
+    }
+  });
+});

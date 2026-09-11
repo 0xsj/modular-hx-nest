@@ -4,6 +4,9 @@ import { nitro } from "nitro/vite";
 import { solidStart } from "@solidjs/start/config";
 
 export default defineConfig({
+  optimizeDeps: {
+    include: ["source-map-js", "@solidjs/start > error-stack-parser"],
+  },
   server: {
     /* 3001, because the default 3000 is what a sibling of this template runs
        on and two of them are often up at once. */
@@ -15,7 +18,5 @@ export default defineConfig({
        an afternoon of debugging the wrong application. */
     strictPort: true,
   },
-  plugins: [solidStart(),
-    nitro()
-  ]
+  plugins: [solidStart(), nitro()],
 });

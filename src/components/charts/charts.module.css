@@ -1,0 +1,170 @@
+@layer primitive {
+  .frame {
+    display: grid;
+    gap: var(--space-6);
+    min-inline-size: 0;
+    margin: 0;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+  .title {
+    color: var(--ink);
+    font-size: var(--text-15);
+    font-weight: var(--weight-strong);
+  }
+  .description,
+  .footer {
+    color: var(--ink-3);
+    font-size: var(--text-11-5);
+    line-height: var(--leading-body);
+  }
+  .description {
+    margin-block-start: var(--space-2);
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .plot {
+    min-inline-size: 0;
+  }
+  .footer {
+    border-block-start: 1px solid var(--line);
+    padding-block-start: var(--space-4);
+  }
+  .legend {
+    display: flex;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+  }
+  .series {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .accent {
+    color: var(--accent);
+  }
+  .info {
+    color: var(--info);
+  }
+  .warn {
+    color: var(--warn);
+  }
+  .neutral {
+    color: var(--ink-3);
+  }
+  .solid {
+    stroke-dasharray: none;
+  }
+  .dashed {
+    stroke-dasharray: 7 4;
+  }
+  .dotted {
+    stroke-dasharray: 2 4;
+  }
+  .legendLabel {
+    color: var(--ink-2);
+    font-size: var(--text-11-5);
+  }
+  .stroke {
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+  .bars {
+    min-inline-size: 0;
+  }
+  .barList {
+    display: grid;
+    gap: var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+  .barRow {
+    display: grid;
+    grid-template-columns: minmax(70px, 1fr) minmax(40px, 3fr) minmax(
+        60px,
+        auto
+      );
+    align-items: center;
+    gap: var(--space-5);
+    font-size: var(--text-12);
+  }
+  .barLabel {
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+  .barTrack {
+    block-size: 12px;
+    background: var(--surface-hover);
+    border-radius: var(--radius-1);
+    overflow: hidden;
+  }
+  .barTrack > .series {
+    display: block;
+    block-size: 100%;
+    background: currentColor;
+    border-radius: inherit;
+  }
+  .barValue {
+    color: var(--ink-2);
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-11);
+  }
+  .lineChart {
+    min-inline-size: 0;
+  }
+  .chartViewport {
+    overflow-x: auto;
+  }
+  .svg {
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 480px;
+    max-inline-size: 720px;
+    block-size: auto;
+    margin-inline: auto;
+  }
+  .axis {
+    color: var(--ink-3);
+    fill: currentColor;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .gridLine {
+    stroke: var(--line);
+  }
+  .zeroLine {
+    stroke: var(--line-strong);
+    stroke-dasharray: 3 3;
+  }
+  .data {
+    margin-block-start: var(--space-5);
+    font-size: var(--text-11-5);
+    color: var(--ink-3);
+  }
+  .data > summary {
+    cursor: pointer;
+    inline-size: fit-content;
+    padding-block: var(--space-3);
+  }
+  .data[open] > summary {
+    margin-block-end: var(--space-4);
+  }
+  .empty {
+    padding: var(--space-7);
+    text-align: center;
+    color: var(--ink-3);
+    font-size: var(--text-13);
+  }
+}

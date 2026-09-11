@@ -1,0 +1,41 @@
+@layer screen {
+  .brand {
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-7);
+    min-inline-size: 0;
+  }
+  .location,
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-inline-size: 0;
+  }
+  .location {
+    flex-wrap: wrap;
+  }
+  .actions {
+    flex-wrap: wrap;
+    margin-inline-start: auto;
+  }
+  .separator {
+    color: var(--ink-4);
+  }
+  .preferences,
+  .preferences > div {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .preferences {
+    gap: var(--space-7);
+  }
+}

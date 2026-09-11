@@ -1,4 +1,2 @@
-export { Toggle } from "./toggle";
-export type { ToggleProps } from "./toggle";
-export { toggleVariants } from "./toggle.variants";
-export type { ToggleVariants } from "./toggle.variants";
+export { Toggle, type ToggleProps } from "./toggle";
+export { toggleVariants, type ToggleVariants } from "./toggle.variants";

@@ -1,0 +1,28 @@
+@layer composition {
+  .header {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: var(--space-7);
+  }
+  .copy {
+    display: grid;
+    gap: var(--space-4);
+    flex: 1 1 240px;
+    min-inline-size: 0;
+  }
+  .leading {
+    min-inline-size: 0;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+}

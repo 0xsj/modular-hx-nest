@@ -1,0 +1,66 @@
+@layer composition {
+  /* Shared by both dialogs, so a scrim cannot drift into two opacities. */
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-scrim);
+    background: var(--scrim);
+  }
+
+  .panel {
+    position: fixed;
+    z-index: var(--z-drawer);
+    inset-block-start: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    inline-size: min(calc(100vw - var(--space-8) * 2), 460px);
+    max-block-size: calc(100dvh - var(--space-9) * 2);
+    overflow-y: auto;
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-7);
+  }
+
+  .head {
+    display: grid;
+    gap: var(--space-3);
+    padding-inline-end: var(--space-8);
+  }
+  .title {
+    font-size: var(--text-15);
+    font-weight: var(--weight-bold);
+    color: var(--ink);
+  }
+  .description {
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+  }
+  .body {
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+  }
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .close {
+    position: absolute;
+    inset-block-start: var(--space-5);
+    inset-inline-end: var(--space-5);
+    display: grid;
+    place-items: center;
+    inline-size: var(--control-sm);
+    block-size: var(--control-sm);
+    border-radius: var(--radius-1);
+    color: var(--ink-4);
+  }
+  .close:hover {
+    color: var(--ink);
+    background: var(--surface-hover);
+  }
+}

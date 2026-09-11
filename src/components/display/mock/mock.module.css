@@ -1,29 +1,19 @@
 @layer primitive {
   .mock {
-    position: relative;
-    /* Dashed, and in the warning hue. Nothing else in the system is dashed,
-       so this reads as "not finished" without needing to be read. */
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 1px var(--space-4);
     border: 1px dashed var(--warn-line);
-    border-radius: var(--radius-2);
-    padding: var(--space-4);
-    /* A tint rather than a solid fill, so the content underneath is still
-       judged on its own colours. */
+    border-radius: var(--radius-pill);
     background: var(--warn-tint);
-  }
-
-  .tag {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-9);
-    font-weight: var(--weight-medium);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
     color: var(--warn);
+    font-size: var(--text-10);
   }
-
-  /* Print is where a screenshot becomes a document and a disclaimer that was
-     only a colour disappears. Keep the border and force the words through. */
-  @media print {
-    .mock { border-style: dashed; }
-    .tag { color: #000; }
+  .dot {
+    inline-size: 5px;
+    block-size: 5px;
+    border-radius: var(--radius-pill);
+    background: currentColor;
   }
 }

@@ -1,0 +1,32 @@
+@layer primitive {
+  .list {
+    margin: 0;
+  }
+  .item {
+    display: grid;
+    grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr);
+    gap: var(--space-7);
+    padding-block: var(--space-6);
+    border-block-end: 1px solid var(--line);
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+  }
+  .item:last-child {
+    border-block-end: 0;
+  }
+  .term {
+    color: var(--ink-3);
+  }
+  .value {
+    margin: 0;
+    color: var(--ink);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 480px) {
+    .item {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+}

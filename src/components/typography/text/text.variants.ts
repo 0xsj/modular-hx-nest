@@ -3,22 +3,18 @@ import s from "./text.module.css";
 
 export const textVariants = cva(s.text, {
   variants: {
-    size: { xs: s.xs, sm: s.sm, md: s.md, lg: s.lg },
-    /** The ink ladder, named for ROLE rather than for lightness — `muted` still
-     *  means the same thing after the palette is retuned. */
+    size: { sm: s.sm, md: s.md, lg: s.lg },
     tone: {
-      default: s.toneDefault,
-      muted: s.toneMuted,
-      subtle: s.toneSubtle,
-      accent: s.toneAccent,
-      warn: s.toneWarn,
-      crit: s.toneCrit,
+      default: s.default,
+      muted: s.muted,
+      quiet: s.quiet,
+      accent: s.accent,
+      danger: s.danger,
     },
-    weight: { regular: s.weightRegular, medium: s.weightMedium, strong: s.weightStrong },
-    /** For a value read character by character — an id, a hash, a hostname. */
-    mono: { true: s.mono },
+    weight: { regular: s.regular, medium: s.medium, strong: s.strong },
+    measure: { true: s.measure },
+    truncate: { true: s.truncate },
   },
   defaultVariants: { size: "md", tone: "default", weight: "regular" },
 });
-
 export type TextVariants = VariantProps<typeof textVariants>;

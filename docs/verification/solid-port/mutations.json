@@ -1,0 +1,153 @@
+{
+  "provenance": "Implementation-visible ordinary tests; curated mutations, not a blind spec-test run.",
+  "isolation": "A temporary source copy; the working tree is never mutated.",
+  "hashes": {
+    "src/lib/http/response.test.ts": "7f2f7564950051b30c6c30d1fd4ed4dedce0dd589747b06b224c11d50f28a30e",
+    "src/lib/services/responses.test.ts": "5f17fe33a497cfadd762afa0ef77351970e1b6d884cd65ea54522791477e0259",
+    "src/lib/chaos/sequence.test.ts": "26c53ac1e5ffe4539d9229eb0ba2d69865b4f576db0852ff72398a4e5df04932",
+    "src/lib/runtime/latest-read.test.ts": "485de386c183651e776c0a71d6de2cec3973a86ec57162dde7988354eb495d99",
+    "src/examples/(workspace)/cookbook/(recipes)/resilience/note-model.test.ts": "6f4020ff0f9b690bce08e96031c03809bc3d7cee090245ff3c8c75becc664397",
+    "src/lib/runtime/save-draft.test.ts": "a50329985f27293a0bd481c3cf2c84b197dc825a0f29c2f45be87dcca8a62045",
+    "src/lib/services/example/item-workflow.test.ts": "655d2f7661df0ace128cbc7d92cc19dc5bb3150120720b6af5e98cd1759b9ec5",
+    "src/lib/root/item-workflow.test.ts": "ddb6866db136271ddabd0c892b2a06ca20ffc3769691d3918e1e33eecc3af990",
+    "src/lib/runtime/session-recovery.test.ts": "8d2cfadc78d22b7b77681b1391c0b99546cfd0c9320df41c7a511c0f4cf94378",
+    "src/lib/runtime/capabilities.test.ts": "0cd289dc0e62ff20cf6409317c6710ae58d8b6e39285b8bf70e92736b775875a",
+    "src/lib/runtime/job-observer.test.ts": "22df20d3fa38093fdc44e4e2373125ba6e28377c8ccc409760b0adca1f2e22cc",
+    "src/lib/locale/locale.test.ts": "fd25fdcdc576d992d018a211f4fb369d6f1cb8f813741147682692a43acec81b",
+    "src/lib/services/continuity.test.ts": "9f8110108569c3936cc1f21628e85d845cf0d33f78b6290613653e5c7a54f75b",
+    "src/lib/app/return-to.test.ts": "62fd7769fd6c6392ef7a91b968e955f81c28d0db7bc357456615593cfeec6255",
+    "src/lib/http/response.ts": "f663e272741426c67089b1425b6a953ef5a0b56ea7da6a9ffcde9697da2531c1",
+    "src/lib/runtime/latest-read.ts": "171d0166dd1af87c00fd0b3bb9dbd2e955f9b6b075a7594d81eb0f85e1e52476",
+    "src/lib/chaos/sequence.ts": "55253eaa69ea4dee9628d41223f5c64ed0348f47c1d79a16b33cd69b6bb4852b",
+    "src/lib/runtime/save-draft.ts": "aa16454a993bf6348eee957eb727414df83c2634efe2dd1f270991de298b950e",
+    "src/lib/services/example/item-workflow.fixtures.ts": "2264f8cacbfddfc0e9c68491c8e9d6ed09f6f74ff7ec40ab34ebbb561c09d14a",
+    "src/lib/runtime/session-recovery.ts": "47117e1be29b2e1d9189f9bc9cdc5f2115f7e37dd6d670c4af5af119c1b1bc54",
+    "src/lib/runtime/capabilities.ts": "2d87140eeea3344745125e7c2998d5bdee552289c877e06093aa3d684ab0621f",
+    "src/lib/runtime/job-observer.ts": "7cd58c97a836aa1e0618ba7c8a222e474daebd15071569b552b485bac21198c8",
+    "src/lib/locale/index.ts": "d95dd92ad3ac60b1a5225fa466624984b4cbb1113b54f3923cb129b17d7bc647"
+  },
+  "controls": [
+    {
+      "id": "baseline",
+      "outcome": "survived",
+      "failedTests": 0,
+      "totalTests": 149
+    },
+    {
+      "id": "control-no-behavior-change",
+      "outcome": "survived",
+      "failedTests": 0,
+      "totalTests": 149
+    },
+    {
+      "id": "control-type-error",
+      "outcome": "invalid",
+      "failedTests": 0
+    }
+  ],
+  "mutations": [
+    {
+      "id": "bypass-decoding",
+      "outcome": "killed",
+      "failedTests": 38,
+      "totalTests": 149
+    },
+    {
+      "id": "validate-only-first-item",
+      "outcome": "killed",
+      "failedTests": 3,
+      "totalTests": 149
+    },
+    {
+      "id": "accept-obsolete-responses",
+      "outcome": "killed",
+      "failedTests": 7,
+      "totalTests": 149
+    },
+    {
+      "id": "erase-last-good-data",
+      "outcome": "killed",
+      "failedTests": 1,
+      "totalTests": 149
+    },
+    {
+      "id": "lose-response-before-commit",
+      "outcome": "killed",
+      "failedTests": 5,
+      "totalTests": 149
+    },
+    {
+      "id": "allow-unresolved-second-write",
+      "outcome": "killed",
+      "failedTests": 4,
+      "totalTests": 149
+    },
+    {
+      "id": "overwrite-newer-draft",
+      "outcome": "killed",
+      "failedTests": 5,
+      "totalTests": 149
+    },
+    {
+      "id": "treat-failed-check-as-absence",
+      "outcome": "killed",
+      "failedTests": 2,
+      "totalTests": 149
+    },
+    {
+      "id": "send-without-checkpoint",
+      "outcome": "killed",
+      "failedTests": 1,
+      "totalTests": 149
+    },
+    {
+      "id": "accept-stale-item-revision",
+      "outcome": "killed",
+      "failedTests": 1,
+      "totalTests": 149
+    },
+    {
+      "id": "forget-committed-item-receipt",
+      "outcome": "killed",
+      "failedTests": 4,
+      "totalTests": 149
+    },
+    {
+      "id": "resume-another-account",
+      "outcome": "killed",
+      "failedTests": 2,
+      "totalTests": 149
+    },
+    {
+      "id": "expire-on-forbidden",
+      "outcome": "killed",
+      "failedTests": 1,
+      "totalTests": 149
+    },
+    {
+      "id": "retain-grants-during-refresh",
+      "outcome": "killed",
+      "failedTests": 1,
+      "totalTests": 149
+    },
+    {
+      "id": "stop-watching-cancels-job",
+      "outcome": "killed",
+      "failedTests": 1,
+      "totalTests": 149
+    },
+    {
+      "id": "accepted-cancel-invents-terminal-state",
+      "outcome": "killed",
+      "failedTests": 1,
+      "totalTests": 149
+    },
+    {
+      "id": "ignore-explicit-time-zone",
+      "outcome": "killed",
+      "failedTests": 2,
+      "totalTests": 149
+    }
+  ],
+  "summary": "17/17 curated mutants killed; equivalent and compile-error controls classified correctly."
+}

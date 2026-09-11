@@ -1,0 +1,74 @@
+@layer primitive {
+  .canvas {
+    position: relative;
+    min-inline-size: 0;
+    inline-size: 100%;
+    block-size: 560px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface-ground);
+  }
+  .pane {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    touch-action: none;
+    background-image: radial-gradient(var(--line-heavy) 1px, transparent 1px);
+    background-size: 20px 20px;
+    cursor: grab;
+  }
+  .pane:active {
+    cursor: grabbing;
+  }
+  .viewport {
+    position: absolute;
+    inset: 0;
+    transform-origin: 0 0;
+  }
+  .node {
+    position: absolute;
+    left: 0;
+    top: 0;
+    inline-size: 220px;
+    padding: var(--space-5);
+    background: var(--surface-raised);
+    border: 1px solid var(--line-heavy);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    touch-action: none;
+    cursor: grab;
+  }
+  .node[data-selected] {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .node:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+  .edges {
+    position: absolute;
+    inset: 0;
+    width: 1px;
+    height: 1px;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .edge {
+    fill: none;
+    stroke: var(--line-heavy);
+    stroke-width: 2;
+  }
+  .controls {
+    position: absolute;
+    left: var(--space-4);
+    bottom: var(--space-4);
+    display: flex;
+    gap: var(--space-2);
+  }
+  .empty {
+    padding: var(--space-8);
+    color: var(--ink-3);
+  }
+}

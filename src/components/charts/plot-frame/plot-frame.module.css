@@ -1,0 +1,48 @@
+@layer composition {
+  .viewport {
+    max-inline-size: 100%;
+    overflow: auto;
+  }
+  .frame {
+    display: block;
+    /* Preserve the design size; the local viewport scrolls before text shrinks. */
+    max-inline-size: none;
+    block-size: auto;
+    overflow: visible;
+  }
+
+  /* Recessive. The grid is a reading aid and competing with the marks is the
+     one thing it must not do. */
+  .grid {
+    stroke: var(--chart-grid);
+    stroke-width: 1;
+  }
+
+  /* A value the reader compares against, so it is dashed and darker than grid
+     but never as strong as a mark. */
+  .rule {
+    stroke: var(--chart-axis);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+
+  .axis {
+    stroke: var(--chart-axis);
+    stroke-width: 1;
+  }
+
+  .tick {
+    fill: var(--chart-label);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    /* Digits in a column have to line up or the eye reads the wrong magnitude. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  .axisLabel {
+    fill: var(--chart-label);
+    font-family: var(--font-sans, inherit);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+}

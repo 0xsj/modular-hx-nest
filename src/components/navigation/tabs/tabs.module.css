@@ -1,43 +1,39 @@
 @layer primitive {
-  .tabs { display: flex; flex-direction: column; min-inline-size: 0; }
-
   .list {
-    position: relative;
     display: flex;
-    gap: var(--space-1);
+    gap: var(--space-2);
     border-block-end: 1px solid var(--line);
-    /* A tab strip that outgrows its container scrolls rather than wrapping:
-       wrapped tabs put the indicator on a different line from the tab. */
     overflow-x: auto;
   }
 
   .tab {
-    appearance: none;
-    border: 0;
-    background: none;
-    padding: var(--space-3) var(--space-4);
-    font: inherit;
-    font-size: var(--text-12);
-    color: var(--ink-4);
-    cursor: pointer;
+    flex: none;
+    block-size: var(--control-md);
+    padding-inline: var(--space-5);
+    border-block-end: 2px solid transparent;
+    margin-block-end: -1px;
+    color: var(--ink-3);
+    font-size: var(--text-12-5);
     white-space: nowrap;
-    transition: color var(--dur-1) var(--ease);
-  }
-  .tab:hover { color: var(--ink-2); }
-  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--radius-1); }
-  /* Keyed off the library's state attribute rather than a class, so the
-     highlight cannot disagree with `aria-selected`. */
-  .tab[data-selected] { color: var(--ink); }
-  .tab[data-disabled] { opacity: 0.45; cursor: not-allowed; }
-
-  .indicator {
-    position: absolute;
-    inset-block-end: -1px;
-    block-size: 2px;
-    background: var(--accent);
-    transition: translate var(--dur-2) var(--ease), width var(--dur-2) var(--ease);
+    transition:
+      color var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease);
   }
 
-  .panel { padding-block-start: var(--space-4); min-inline-size: 0; }
-  .panel:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab:hover:not(:disabled) {
+    color: var(--ink);
+  }
+  /* Selected is a STATE the primitive reports, not a class a caller sets. */
+  .tab[data-selected] {
+    color: var(--ink);
+    border-block-end-color: var(--accent);
+  }
+  .tab:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .panel {
+    padding-block-start: var(--space-6);
+  }
 }

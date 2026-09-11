@@ -1,48 +1,37 @@
 /**
- * Fieldset — a name for a SET of controls, which is the one thing a group has
- * no other way to carry.
+ * Fieldset — the counterpart to `Field`, and the difference is where the wiring
+ * goes.
  *
- * # Why a legend and not a heading
+ * # One control receives its wiring; a GROUP keeps it
  *
- * A `<legend>` inside a `<fieldset>` is announced before **every** control in
- * the group. A heading above the group is announced once, when you pass it — so
- * somebody arriving at the third radio by arrow key hears *"human, radio
- * button, 3 of 3"* and never learns what is being chosen.
+ * `Field` hands its control an id, a description and a validity state, because
+ * those attributes belong on the control. A group has no single control to hand
+ * them to — a description that applied to one radio button of four would be
+ * wrong three times — so they stay on the container, and the children are plain
+ * nodes.
  *
- * That is the whole component. It is four lines of markup and it is the
- * difference between a choice and a list of words.
+ * That is the whole reason these are two components rather than one with a
+ * flag. Getting it wrong is not a styling difference: a `<label>` naming four
+ * radios names none of them, and a describedby on one of them is announced only
+ * when that one is focused.
  *
- * # The counterpart to Field, and the difference is where the wiring goes
+ * # `<legend>` is not a heading that happens to look different
  *
- * A single control RECEIVES the wiring, so `Field` hands it down as props. A
- * group keeps it on the container, so this sets `aria-describedby` and
- * `aria-invalid` on the `<fieldset>` itself and children are plain nodes —
- * there is nothing to hand down.
+ * It is the one element announced before EVERY control inside the group, which
+ * is what makes "Notify me · by email / by SMS" comprehensible when a reader
+ * reaches the third option. A styled `<p>` above the group reads as unrelated
+ * text and the options arrive unattached to their question.
  *
- * # The two resets are not cosmetic
+ * # `min-inline-size: 0`
  *
- *     border: 0; padding: 0    every browser gives a fieldset both, and they
- *                              are from 1995
- *     min-inline-size: 0       the real one
+ * A fieldset defaults to `min-content` in a way no other element does, so one
+ * inside a grid refuses to shrink and pushes its column open. It is a platform
+ * quirk rather than a design decision, and it is here so nobody rediscovers it.
  *
- * A `<fieldset>` has `min-inline-size: min-content` in the UA stylesheet, which
- * cannot be overridden by `width` and makes the element refuse to shrink inside
- * a flex or grid parent. It presents as an unexplainable horizontal overflow in
- * a layout that is correct everywhere else, and the cause is invisible because
- * nothing in the author's CSS mentions a minimum.
+ * # The error goes AFTER the controls, the hint BEFORE
  *
- * # `title` is omitted from the attributes
- *
- * The DOM's `title` is a tooltip string; a legend takes markup. Leaving both in
- * place makes the prop type an intersection of `string` and a node, which
- * accepts only a string — and fails to compile with an error naming neither
- * cause.
- *
- * # Not for visual grouping
- *
- * A bordered box groups things that LOOK related. A fieldset asserts that the
- * controls inside it answer one question, and a screen reader repeats that
- * assertion at every one of them. Using it for layout makes the reader hear
- * "Filters" before each of nine unrelated inputs.
+ * A hint qualifies the question and belongs with it. An error is about what was
+ * answered and belongs after the answer. Both are named in `aria-describedby`
+ * with the error first, because a reader announces them in that order.
  */
 export {};

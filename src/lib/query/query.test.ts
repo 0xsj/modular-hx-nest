@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { AppError, canceled, conflict, internal, notFound, rateLimited, timeout, unavailable, retryDelay, asFailure } from "~/lib/kernel";
+import {
+  AppError,
+  canceled,
+  conflict,
+  notFound,
+  rateLimited,
+  timeout,
+  unavailable,
+  retryDelay,
+  asFailure,
+} from "~/lib/kernel";
 import { createRoot } from "~/lib/root";
 import { keys } from "./keys";
 import { defaultItemQuery, itemQuery, itemsQuery } from "./queries";
@@ -15,7 +25,10 @@ describe("retry policy — the cache asks the kernel", () => {
 
   it("a refusal is an ANSWER and is never retried", () => {
     for (const f of [notFound("x"), conflict("x")]) {
-      expect(decide(new AppError(f)), `${f.kind} is a reply, not a hiccup`).toBeNull();
+      expect(
+        decide(new AppError(f)),
+        `${f.kind} is a reply, not a hiccup`,
+      ).toBeNull();
     }
   });
 
@@ -44,8 +57,14 @@ describe("retry policy — the cache asks the kernel", () => {
 
   it("reads a failure back out of a thrown AppError, and out of raw data", () => {
     expect(decide(new AppError(timeout("x")))).toBeGreaterThan(0);
-    expect(decide(timeout("x")), "a failure that crossed as data still classifies").toBeGreaterThan(0);
-    expect(decide(new Error("boom")), "an unknown throw is internal, not retryable").toBeNull();
+    expect(
+      decide(timeout("x")),
+      "a failure that crossed as data still classifies",
+    ).toBeGreaterThan(0);
+    expect(
+      decide(new Error("boom")),
+      "an unknown throw is internal, not retryable",
+    ).toBeNull();
   });
 });
 
@@ -61,12 +80,23 @@ describe("keys", () => {
 
 describe("queries — the one throw site", () => {
   const routes: MemoryRoute[] = [
-    { method: "GET", pattern: /^\/items$/, handle: () => ok([{ id: "i1", name: "a", host: "a.example" }]) },
-    { method: "GET", pattern: /^\/items\/i1$/, handle: () => err(notFound("gone")) },
-    { method: "GET", pattern: /^\/workspaces\/w\/default-item$/,
-      handle: () => err(notFound("none", { status: 404, type: NO_DEFAULT })) },
+    {
+      method: "GET",
+      pattern: /^\/items$/,
+      handle: () => ok([{ id: "i1", name: "a", host: "a.example" }]),
+    },
+    {
+      method: "GET",
+      pattern: /^\/items\/i1$/,
+      handle: () => err(notFound("gone")),
+    },
+    {
+      method: "GET",
+      pattern: /^\/workspaces\/w\/default-item$/,
+      handle: () => err(notFound("none", { status: 404, type: NO_DEFAULT })),
+    },
   ];
-  const client = () => createRoot({ routes }).client;
+  const client = () => createRoot({ routes }).clientFor("example");
   /* `queryFn` is a union with a skip token in the cache's types, so it is not
      directly callable. The cast is a type-level convenience, not a behaviour
      change: this is the same function the cache would invoke. */

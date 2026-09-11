@@ -1,4 +1,4 @@
-import type { MemoryRoute } from "~/lib/http";
+import type { MemoryRoute } from "../http";
 
 /* The route table the in-memory adapter serves.
  *

@@ -1,10 +1,11 @@
 @layer primitive {
-  .state {
-    font-size: var(--text-12);
-    line-height: var(--leading-body);
-    color: var(--ink-4);
+  /* The two absent states must not look alike, or the component has thrown away
+     the distinction it exists to keep. */
+  .absent {
+    color: var(--ink-3);
   }
-  /* Distinguishable from "empty" without being an alarm. An unmeasured value
-     is a fact about the request, not an error the user caused. */
-  .unmeasured { color: var(--warn); }
+  .unmeasured {
+    color: var(--ink-4);
+    font-style: italic;
+  }
 }

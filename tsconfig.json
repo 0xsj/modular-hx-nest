@@ -10,13 +10,28 @@
     "allowJs": true,
     "strict": true,
     "noEmit": true,
-    "types": ["vite/client"],
+    "types": [
+      "vite/client",
+      "node"
+    ],
     "isolatedModules": true,
     "paths": {
-      "~/*": ["./src/*"]
-    }
+      "~/*": [
+        "./src/*"
+      ]
+    },
+    "skipLibCheck": true
   },
-  "include": ["src", "*.ts", "*.config.ts"],
-  "//exclude": "custody/ holds frozen evidence — snapshots of a suite and its API as they stood at one moment. They are a record, not source: they reference paths that no longer resolve from where they now sit, and typechecking them makes `tsc` useless as a gate.",
-  "exclude": ["node_modules", "custody", ".output", ".vinxi"]
+  "include": [
+    "src",
+    "*.ts",
+    "*.config.ts"
+  ],
+  "//exclude": "custody/ holds frozen evidence \u2014 snapshots of a suite and its API as they stood at one moment. They are a record, not source: they reference paths that no longer resolve from where they now sit, and typechecking them makes `tsc` useless as a gate.",
+  "exclude": [
+    "node_modules",
+    "custody",
+    ".output",
+    ".vinxi"
+  ]
 }

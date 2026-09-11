@@ -1,2 +1,1 @@
-export { Stat, UNMEASURED } from "./stat";
-export type { StatProps } from "./stat";
+export { Stat, type StatProps } from "./stat";

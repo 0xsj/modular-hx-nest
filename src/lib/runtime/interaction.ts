@@ -13,15 +13,16 @@ import { createStore } from "./store";
  * shell owns and no server has an opinion about. */
 
 const newId = (): string =>
-  globalThis.crypto?.randomUUID?.() ?? `int-${Math.random().toString(36).slice(2, 10)}`;
+  globalThis.crypto?.randomUUID?.() ??
+  `int-${Math.random().toString(36).slice(2, 10)}`;
 
 /** Deliberately NOT minted at module load. On the server that would be one id
- *  shared by every request — one caller's interaction attributed to the next.
- *  The empty string means "no interaction has begun", which a caller can see. */
+ *  shared by every request — one user's interaction attributed to the next. The
+ *  empty string means "no interaction has begun", which a caller can see. */
 export const interaction = createStore<string>("");
 
-/** Start one. Call this in the handler that begins a user action, then hand the
- *  id to the composition root.
+/** Start one. Call this in the event handler that begins a user action, then
+ *  hand the id to the composition root.
  *
  *      const id = beginInteraction();
  *      const root = createRoot({ correlationId: id, ... });
@@ -33,9 +34,10 @@ export function beginInteraction(): string {
   return id;
 }
 
-/** The current one, beginning one if none has started. For a caller that wants
- *  to JOIN whatever is under way — a background refetch belonging to the click
- *  that triggered it — rather than start something new. */
+/** The current one, beginning one if none has started.
+ *
+ *  For a caller that wants to JOIN whatever is under way — a background refetch
+ *  belonging to the click that triggered it — rather than start something new. */
 export function currentInteraction(): string {
   return interaction.get() || beginInteraction();
 }

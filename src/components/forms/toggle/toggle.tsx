@@ -1,18 +1,46 @@
-import { Toggle as Ark } from "@ark-ui/solid";
-import { splitProps, type ComponentProps } from "solid-js";
+import { createSignal, splitProps, untrack, type JSX } from "solid-js";
 import { cn } from "~/lib/kernel";
 import { toggleVariants, type ToggleVariants } from "./toggle.variants";
-
-export type ToggleProps = ComponentProps<typeof Ark.Root> & ToggleVariants;
-
-/** A button that stays pressed. Not a switch, and not a checkbox — it changes
- *  what you SEE rather than what the system does or what a form submits. */
+export type ToggleProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> &
+  ToggleVariants & {
+    pressed?: boolean;
+    defaultPressed?: boolean;
+    onPressedChange?: (value: boolean) => void;
+  };
 export function Toggle(props: ToggleProps) {
-  const [local, rest] = splitProps(props, ["size", "shape", "class"]);
+  const [local, rest] = splitProps(props, [
+    "pressed",
+    "defaultPressed",
+    "onPressedChange",
+    "class",
+    "size",
+    "onClick",
+  ]);
+  const [internal, setInternal] = createSignal(
+    untrack(() => local.defaultPressed ?? false),
+  );
+  const pressed = () => local.pressed ?? internal();
   return (
-    <Ark.Root
+    <button
       {...rest}
-      class={cn(toggleVariants({ size: local.size, shape: local.shape }), local.class)}
+      type="button"
+      aria-pressed={pressed()}
+      data-state={pressed() ? "on" : "off"}
+      class={cn(
+        toggleVariants({
+          size: local.size,
+        }),
+        local.class,
+      )}
+      onClick={(event) => {
+        const handler = local.onClick;
+        if (typeof handler === "function") handler(event);
+        else if (handler) handler[0](handler[1], event);
+        if (event.defaultPrevented || rest.disabled) return;
+        const next = !pressed();
+        setInternal(next);
+        local.onPressedChange?.(next);
+      }}
     />
   );
 }

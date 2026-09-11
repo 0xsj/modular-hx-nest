@@ -1,0 +1,75 @@
+@layer screen {
+  .landing {
+    display: grid;
+    align-items: center;
+    min-block-size: 100svh;
+    padding: var(--space-10) var(--space-6);
+    --bloom-core: 48%;
+    --bloom-mid: 22%;
+    --bloom-far: 15%;
+    background-color: var(--surface-ground);
+    /* The Solid landing’s blue bloom below and cool wash above, mixed
+       from semantic tokens so each theme keeps its own palette. */
+    background-image:
+      radial-gradient(
+        104% 96% at 50% 112%,
+        color-mix(in srgb, var(--accent) var(--bloom-core), transparent) 0%,
+        color-mix(in srgb, var(--accent) var(--bloom-mid), transparent) 32%,
+        color-mix(in srgb, var(--accent) var(--bloom-far), transparent) 54%,
+        transparent 86%
+      ),
+      radial-gradient(
+        70% 40% at 50% -10%,
+        color-mix(in srgb, var(--info) var(--bloom-far), transparent) 0%,
+        transparent 72%
+      );
+  }
+  :root[data-theme="light"] .landing {
+    --bloom-core: 26%;
+    --bloom-mid: 11%;
+    --bloom-far: 8%;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .landing {
+      --bloom-core: 26%;
+      --bloom-mid: 11%;
+      --bloom-far: 8%;
+    }
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .eyebrow {
+    letter-spacing: var(--tracking-label);
+  }
+  .title {
+    margin-block: var(--space-7) var(--space-8);
+    font-size: clamp(var(--text-42), 12vw, 96px);
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .description {
+    max-inline-size: 48ch;
+  }
+  .navigation {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-6);
+    margin-block-start: var(--space-8);
+  }
+  .actions {
+    justify-content: center;
+  }
+  .manual {
+    font-size: var(--text-12-5);
+    color: var(--ink-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .manual:hover {
+    color: var(--ink);
+  }
+}

@@ -1,0 +1,44 @@
+@layer screen {
+  .columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-6);
+  }
+  .columns > *,
+  .preview {
+    min-inline-size: 0;
+  }
+  .choice {
+    flex: 1 1 180px;
+    min-inline-size: 0;
+  }
+  .preview {
+    display: grid;
+    gap: var(--space-6);
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: var(--space-5);
+  }
+  .identifier {
+    unicode-bidi: isolate;
+    direction: ltr;
+    overflow-wrap: anywhere;
+  }
+  .wrap {
+    white-space: normal;
+    height: auto;
+    min-height: var(--control-md);
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 1050px) {
+    .columns {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

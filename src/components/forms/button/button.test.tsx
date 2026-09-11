@@ -20,7 +20,8 @@ afterEach(cleanup);
 const INTENTS: ButtonIntent[] = ["primary", "secondary", "ghost", "danger"];
 const SIZES: ButtonSize[] = ["sm", "md", "lg", "icon"];
 
-const classesOf = (el: Element) => el.className.trim().split(/\s+/).filter(Boolean);
+const classesOf = (el: Element) =>
+  el.className.trim().split(/\s+/).filter(Boolean);
 
 describe("B1 · it renders exactly one button", () => {
   it("renders a single <button> and no wrapper", () => {
@@ -49,10 +50,16 @@ describe("B3 · every intent x size produces a usable class string", () => {
   for (const intent of INTENTS) {
     for (const size of SIZES) {
       it(`${intent} + ${size} yields classes with no undefined in them`, () => {
-        const { getByRole } = render(() =>
-          <Button intent={intent} size={size} aria-label="x">go</Button>);
+        const { getByRole } = render(() => (
+          <Button intent={intent} size={size} aria-label="x">
+            go
+          </Button>
+        ));
         const cls = getByRole("button").className;
-        expect(cls.length, "an empty class list means the variant map returned nothing").toBeGreaterThan(0);
+        expect(
+          cls.length,
+          "an empty class list means the variant map returned nothing",
+        ).toBeGreaterThan(0);
         expect(
           cls,
           "a variant key present in the type and absent from the cva map is a runtime undefined in the class list",
@@ -166,14 +173,20 @@ describe("B11/B12 · handlers are passed through, never manufactured", () => {
 
   it("runs the caller's handler unwrapped", () => {
     let calls = 0;
-    const { getByRole } = render(() => <Button onClick={() => calls++}>go</Button>);
+    const { getByRole } = render(() => (
+      <Button onClick={() => calls++}>go</Button>
+    ));
     fireEvent.click(getByRole("button"));
     expect(calls).toBe(1);
   });
 
   it("does not swallow the click by substituting its own handler when inert", () => {
     let calls = 0;
-    const { getByRole } = render(() => <Button disabled onClick={() => calls++}>go</Button>);
+    const { getByRole } = render(() => (
+      <Button disabled onClick={() => calls++}>
+        go
+      </Button>
+    ));
     fireEvent.click(getByRole("button"));
     expect(
       calls,
@@ -185,7 +198,13 @@ describe("B11/B12 · handlers are passed through, never manufactured", () => {
 describe("B13/B14/B15 · asChild hands the props over", () => {
   it("renders the caller's element and no button at all", () => {
     const { container } = render(() => (
-      <Button asChild={(props) => <a href="/x" {...props()}>Go</a>} />
+      <Button
+        asChild={(props) => (
+          <a href="/x" {...props()}>
+            Go
+          </a>
+        )}
+      />
     ));
     expect(
       container.querySelectorAll("button"),
@@ -193,12 +212,22 @@ describe("B13/B14/B15 · asChild hands the props over", () => {
     ).toHaveLength(0);
     const a = container.querySelector("a")!;
     expect(a.textContent).toBe("Go");
-    expect(classesOf(a).length, "the variant classes must land on the caller's element").toBeGreaterThanOrEqual(3);
+    expect(
+      classesOf(a).length,
+      "the variant classes must land on the caller's element",
+    ).toBeGreaterThanOrEqual(3);
   });
 
   it("marks an inert link with aria-disabled and takes it out of the tab order", () => {
     const { container } = render(() => (
-      <Button disabled asChild={(props) => <a href="/x" {...props()}>Go</a>} />
+      <Button
+        disabled
+        asChild={(props) => (
+          <a href="/x" {...props()}>
+            Go
+          </a>
+        )}
+      />
     ));
     const a = container.querySelector("a")!;
     expect(a.getAttribute("aria-disabled")).toBe("true");
@@ -211,7 +240,13 @@ describe("B13/B14/B15 · asChild hands the props over", () => {
 
   it("does not put type on an anchor", () => {
     const { container } = render(() => (
-      <Button asChild={(props) => <a href="/x" {...props()}>Go</a>} />
+      <Button
+        asChild={(props) => (
+          <a href="/x" {...props()}>
+            Go
+          </a>
+        )}
+      />
     ));
     expect(container.querySelector("a")!.hasAttribute("type")).toBe(false);
   });
@@ -219,10 +254,19 @@ describe("B13/B14/B15 · asChild hands the props over", () => {
   it("composes a caller's handler rather than replacing it", () => {
     let calls = 0;
     const { container } = render(() => (
-      <Button asChild={(props) => <a href="#" onClick={() => calls++} {...props()}>Go</a>} />
+      <Button
+        asChild={(props) => (
+          <a href="#" onClick={() => calls++} {...props()}>
+            Go
+          </a>
+        )}
+      />
     ));
     fireEvent.click(container.querySelector("a")!);
-    expect(calls, "the merge composes on* handlers; the caller's runs first").toBe(1);
+    expect(
+      calls,
+      "the merge composes on* handlers; the caller's runs first",
+    ).toBe(1);
   });
 });
 
@@ -232,7 +276,14 @@ describe("B16 · the href gap is real, and this pins it as known", () => {
      points at doc.ts §B11 rather than letting the fix land quietly. */
   it("leaves href in place on an inert link, because it cannot remove it", () => {
     const { container } = render(() => (
-      <Button disabled asChild={(props) => <a href="/x" {...props()}>Go</a>} />
+      <Button
+        disabled
+        asChild={(props) => (
+          <a href="/x" {...props()}>
+            Go
+          </a>
+        )}
+      />
     ));
     expect(
       container.querySelector("a")!.getAttribute("href"),

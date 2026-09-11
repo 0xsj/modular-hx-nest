@@ -21,7 +21,11 @@ describe("Alert", () => {
     expect(polite.getByRole("status")).toBeTruthy();
     polite.unmount();
 
-    const loud = render(() => <Alert live="assertive" tone="crit">Payment failed.</Alert>);
+    const loud = render(() => (
+      <Alert live="assertive" tone="crit">
+        Payment failed.
+      </Alert>
+    ));
     expect(loud.getByRole("alert")).toBeTruthy();
   });
 
@@ -31,7 +35,9 @@ describe("Alert", () => {
   it("uses the role rather than restating aria-live", () => {
     const { getByRole } = render(() => <Alert live="assertive">x</Alert>);
     const el = getByRole("alert");
-    expect(el.hasAttribute("aria-live"), "the role already implies it").toBe(false);
+    expect(el.hasAttribute("aria-live"), "the role already implies it").toBe(
+      false,
+    );
   });
 
   it("says the tone for the two where it changes what you do", () => {
@@ -49,7 +55,9 @@ describe("Alert", () => {
   });
 
   it("hides the glyph, because the words carry the meaning", () => {
-    const { container } = render(() => <Alert tone="crit">Card declined.</Alert>);
+    const { container } = render(() => (
+      <Alert tone="crit">Card declined.</Alert>
+    ));
     const svg = container.querySelector("svg")!;
     expect(svg.getAttribute("aria-hidden")).toBe("true");
   });
@@ -64,25 +72,30 @@ describe("Alert", () => {
 
   it("names the dismiss control, and calls only what it was given", () => {
     const onDismiss = vi.fn();
-    const { getByRole } = render(() => (
-      <Alert onDismiss={onDismiss}>x</Alert>
-    ));
+    const { getByRole } = render(() => <Alert onDismiss={onDismiss}>x</Alert>);
     const button = getByRole("button", { name: "Dismiss" });
-    expect(button.getAttribute("type"), "a bare button in a form submits it").toBe("button");
+    expect(
+      button.getAttribute("type"),
+      "a bare button in a form submits it",
+    ).toBe("button");
     fireEvent.click(button);
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
   it("lets the caller name the dismiss control", () => {
     const { getByRole } = render(() => (
-      <Alert onDismiss={() => {}} dismissLabel="Hide this warning">x</Alert>
+      <Alert onDismiss={() => {}} dismissLabel="Hide this warning">
+        x
+      </Alert>
     ));
     expect(getByRole("button", { name: "Hide this warning" })).toBeTruthy();
   });
 
   it("does not hide itself", () => {
     const onDismiss = vi.fn();
-    const { getByRole, container } = render(() => <Alert onDismiss={onDismiss}>Still here.</Alert>);
+    const { getByRole, container } = render(() => (
+      <Alert onDismiss={onDismiss}>Still here.</Alert>
+    ));
     fireEvent.click(getByRole("button"));
     expect(
       container.textContent,
@@ -96,12 +109,16 @@ describe("Skeleton", () => {
    * "blank blank blank" to somebody is worse than reading nothing. */
   it("is hidden from readers", () => {
     const { container } = render(() => <Skeleton />);
-    expect(container.firstElementChild!.getAttribute("aria-hidden")).toBe("true");
+    expect(container.firstElementChild!.getAttribute("aria-hidden")).toBe(
+      "true",
+    );
   });
 
   it("announces nothing at all, which is why a caller must", () => {
     const { container } = render(() => (
-      <div><SkeletonText lines={3} /></div>
+      <div>
+        <SkeletonText lines={3} />
+      </div>
     ));
     expect(
       container.querySelectorAll("[aria-hidden='true']").length,
@@ -136,7 +153,10 @@ describe("Skeleton", () => {
      * query cannot be evaluated — see decisions/0002. What it catches is the
      * rule being deleted, and `animation: none` rather than a zero duration,
      * which for an infinite iteration count is a different thing. */
-    const css = readFileSync("src/components/feedback/skeleton/skeleton.module.css", "utf8");
+    const css = readFileSync(
+      "src/components/feedback/skeleton/skeleton.module.css",
+      "utf8",
+    );
     const reduced = css.slice(css.indexOf("prefers-reduced-motion"));
     expect(reduced).toMatch(/animation:\s*none/);
   });

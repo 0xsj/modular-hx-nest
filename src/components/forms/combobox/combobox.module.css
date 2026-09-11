@@ -1,0 +1,132 @@
+@layer primitive {
+  .input {
+    flex: 1;
+    inline-size: 100%;
+    min-inline-size: 0;
+    block-size: var(--control-md);
+    padding-inline: var(--space-2);
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--text-12-5);
+  }
+  /* The enclosing Group supplies the complete control's focus ring. */
+  .input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    border-radius: var(--radius-1);
+  }
+  .input::placeholder {
+    color: var(--ink-3);
+  }
+  .clear {
+    display: contents;
+  }
+  .selection:empty {
+    display: none;
+  }
+  .popover {
+    inline-size: var(--trigger-width);
+    min-inline-size: min(220px, calc(100vw - var(--space-6)));
+  }
+  .list {
+    max-block-size: min(280px, var(--available-height));
+    overflow: auto;
+    padding: var(--space-2);
+  }
+  .list:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    min-block-size: var(--control-md);
+    border-radius: var(--radius-1);
+    font-size: var(--text-12-5);
+    cursor: default;
+    color: var(--ink);
+  }
+  .option[data-focused] {
+    background: var(--surface-hover-2);
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .option[data-selected] {
+    background: var(--accent-tint);
+  }
+  .option[data-disabled] {
+    opacity: 0.45;
+  }
+  .optionText {
+    display: grid;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  .description {
+    font-size: var(--text-11-5);
+    color: var(--ink-3);
+  }
+  .check {
+    flex: none;
+    color: var(--accent);
+  }
+  .empty {
+    padding: var(--space-5);
+    color: var(--ink-3);
+    font-size: var(--text-12);
+  }
+  .tags {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-inline-size: 100%;
+    min-block-size: 26px;
+    padding-inline: var(--space-3);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    background: var(--surface-panel-2);
+    color: var(--ink);
+    font-size: var(--text-11-5);
+    overflow-wrap: anywhere;
+  }
+  .tag[data-focus-visible],
+  .tags[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    inline-size: 24px;
+    block-size: 24px;
+    border: 0;
+    border-radius: var(--radius-1);
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .remove[data-hovered] {
+    background: var(--surface-hover-2);
+    color: var(--ink);
+  }
+  .remove[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+}

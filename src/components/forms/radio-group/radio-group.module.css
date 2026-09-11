@@ -1,24 +1,63 @@
 @layer primitive {
-  .group { display: grid; gap: var(--space-4); }
-  .radio {
-    display: inline-flex;
-    align-items: center;
+  .group {
+    display: grid;
     gap: var(--space-4);
-    cursor: pointer;
   }
-  .control {
-    inline-size: 15px;
-    block-size: 15px;
+
+  .radio {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 16px;
+    block-size: 16px;
     flex: none;
     border: 1px solid var(--line-heavy);
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     background: var(--surface-sunk);
-    display: grid;
-    place-items: center;
-    transition: border-color var(--dur-1);
+    transition: border-color var(--dur-1) var(--ease);
   }
-  .radio:hover .control { border-color: var(--accent); }
-  .control[data-state="checked"] { border-color: var(--fill); border-width: 5px; }
-  .radio[data-disabled] { opacity: 0.55; cursor: not-allowed; }
-  .text { font-size: var(--text-12-5); color: var(--ink); }
+
+  .radio:hover:not(:disabled) {
+    border-color: var(--ink-4);
+  }
+  .radio[data-state="checked"] {
+    border-color: var(--fill);
+  }
+  .radio:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .indicator {
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: var(--radius-pill);
+    background: var(--fill);
+  }
+}
+
+@layer primitive {
+  .item {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    flex: none;
+    cursor: pointer;
+  }
+  .item[data-disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .radio[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .radio[data-invalid] {
+    border-color: var(--crit);
+  }
+}
+
+@layer primitive {
+  .radio:not([data-state="checked"]) .indicator {
+    visibility: hidden;
+  }
 }

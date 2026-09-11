@@ -1,62 +1,105 @@
-import { Show, splitProps, type JSX } from "solid-js";
+import { mergeProps, splitProps, type JSX } from "solid-js";
 import { cn } from "~/lib/kernel";
 import s from "./table.module.css";
 
-export type TableProps = {
-  /** Names the table for a reader who arrived by jumping between tables and
-   *  has none of the surrounding page. */
-  caption?: string;
-  class?: string;
-  children: JSX.Element;
-};
+/* Compositional rather than data-driven.
+ *
+ * A `<Table columns={} rows={} />` has to grow a renderer prop per column the
+ * moment one cell is not a string — and every one of them re-invents markup the
+ * platform already has. Composition costs a few more lines at the call site and
+ * never runs out. */
 
-export function Table(props: TableProps) {
+export type TableProps = JSX.HTMLAttributes<HTMLTableElement> & {
+  caption?: string;
+  scrollLabel?: string;
+};
+export function Table(componentProps: TableProps) {
+  const [, props] = splitProps(componentProps, [
+    "caption",
+    "scrollLabel",
+    "class",
+    "children",
+  ]);
   return (
-    /* The scroller is a separate element from the table, and it is focusable
-       and labelled: a region that scrolls must be reachable by keyboard, or
-       the columns past the fold cannot be seen without a mouse. */
-    <div class={s.scroll} tabindex="0" role="region" aria-label={props.caption}>
-      <table class={cn(s.table, props.class)}>
-        <Show when={props.caption}>
-          <caption class={s.caption}>{props.caption}</caption>
-        </Show>
-        {props.children}
+    <div
+      class={s.scroll}
+      tabindex={0}
+      role="region"
+      aria-label={
+        componentProps.scrollLabel ??
+        componentProps.caption ??
+        "Scrollable table"
+      }
+    >
+      <table class={cn(s.table, componentProps.class)} {...props}>
+        {/* Named for a reader even when the heading above it is visible: a
+            table reached by jumping between tables has no surrounding context. */}
+        {componentProps.caption ? (
+          <caption class={s.caption}>{componentProps.caption}</caption>
+        ) : null}
+        {componentProps.children}
       </table>
     </div>
   );
 }
+export const THead = (
+  componentProps: JSX.HTMLAttributes<HTMLTableSectionElement>,
+) => {
+  const [, props] = splitProps(componentProps, ["class"]);
+  return <thead class={cn(s.head, componentProps.class)} {...props} />;
+};
+export const TBody = (props: JSX.HTMLAttributes<HTMLTableSectionElement>) => (
+  <tbody {...props} />
+);
+export const TFoot = (
+  componentProps: JSX.HTMLAttributes<HTMLTableSectionElement>,
+) => {
+  const [, props] = splitProps(componentProps, ["class"]);
+  return <tfoot class={cn(s.foot, componentProps.class)} {...props} />;
+};
+export const Tr = (componentProps: JSX.HTMLAttributes<HTMLTableRowElement>) => {
+  const [, props] = splitProps(componentProps, ["class"]);
+  return <tr class={cn(s.row, componentProps.class)} {...props} />;
+};
+export type ThProps = JSX.ThHTMLAttributes<HTMLTableCellElement> & {
+  numeric?: boolean;
+};
 
-export function THead(props: { class?: string; children: JSX.Element }) {
-  return <thead class={cn(s.thead, props.class)}>{props.children}</thead>;
-}
-
-export function TBody(props: { class?: string; children: JSX.Element }) {
-  return <tbody class={cn(s.tbody, props.class)}>{props.children}</tbody>;
-}
-
-export type TrProps = JSX.HTMLAttributes<HTMLTableRowElement>;
-export function Tr(props: TrProps) {
-  const [local, rest] = splitProps(props, ["class"]);
-  return <tr {...rest} class={cn(s.tr, local.class)} />;
-}
-
-export type ThProps = JSX.ThHTMLAttributes<HTMLTableCellElement> & { numeric?: boolean };
-
-/** Always carries a `scope`. Without one a reader cannot tell whether a header
- *  describes its column or its row, and a wide table stops being navigable. */
-export function Th(props: ThProps) {
-  const [local, rest] = splitProps(props, ["class", "numeric", "scope"]);
+/** Always carries a scope. Without one a reader cannot tell whether a header
+ *  describes its column or its row, and a wide table becomes unreadable. */
+export function Th(incomingProps: ThProps) {
+  const componentProps = mergeProps(
+    {
+      scope: "col",
+    } as const,
+    incomingProps,
+  );
+  const [, props] = splitProps(componentProps, ["class", "numeric", "scope"]);
   return (
     <th
-      {...rest}
-      scope={local.scope ?? "col"}
-      class={cn(s.th, local.numeric && s.numeric, local.class)}
+      scope={componentProps.scope}
+      class={cn(
+        s.th,
+        componentProps.numeric && s.numeric,
+        componentProps.class,
+      )}
+      {...props}
     />
   );
 }
-
-export type TdProps = JSX.TdHTMLAttributes<HTMLTableCellElement> & { numeric?: boolean };
-export function Td(props: TdProps) {
-  const [local, rest] = splitProps(props, ["class", "numeric"]);
-  return <td {...rest} class={cn(s.td, local.numeric && s.numeric, local.class)} />;
+export type TdProps = JSX.TdHTMLAttributes<HTMLTableCellElement> & {
+  numeric?: boolean;
+};
+export function Td(componentProps: TdProps) {
+  const [, props] = splitProps(componentProps, ["class", "numeric"]);
+  return (
+    <td
+      class={cn(
+        s.td,
+        componentProps.numeric && s.numeric,
+        componentProps.class,
+      )}
+      {...props}
+    />
+  );
 }

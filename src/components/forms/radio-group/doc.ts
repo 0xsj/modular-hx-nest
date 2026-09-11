@@ -1,31 +1,27 @@
 /**
- * RadioGroup — one choice from a closed set, with the set named.
+ * RadioGroup — one of several, and the group owns the value.
  *
- * # It is incomplete without a Fieldset
+ * # What it does NOT own is the question
  *
- * The group has `role="radiogroup"`, and that role has no name of its own. A
- * `<legend>` inside a `<fieldset>` is announced before **every** option, so a
- * screen reader says *"Claimant, rule, radio button, 1 of 3"* rather than
- * *"rule, radio button, 1 of 3"* — which is the difference between a choice and
- * a word.
+ * A radio group needs a name announced before every option — "Notify me · by
+ * email" makes sense at the third option only if the question is repeated. That
+ * is a `<legend>`, which means a `Fieldset` around this, not a prop here.
  *
- * That is why `Fieldset` exists. Neither is much use alone.
+ * Putting the question on the group as a `label` prop would produce an
+ * `aria-label` on the container, which is announced once on entry and never
+ * again. It reads fine in a test and badly in use.
  *
- * # The arrow-key behaviour is the reason not to hand-roll
+ * # Arrow keys, not tab
  *
- * Radios are a single tab stop with arrow keys moving *and selecting* inside
- * it — roving tabindex. Native radios do this and a set of hand-rolled buttons
- * does not, which is the usual regression.
- *
- * # `Radio`, not `RadioGroupItem`
- *
- * The library's name is longer than the thing it describes, and a radio outside
- * a group is not a thing — so the shorter name is not ambiguous.
+ * The platform's contract for a radio group is that Tab enters and leaves the
+ * whole group and arrows move within it — one tab stop, not one per option. The
+ * headless primitive implements it; it is written down here because a
+ * hand-rolled group almost always gets it wrong in the same direction, and a
+ * form with fifteen options then costs fifteen tab presses to pass.
  *
  * # Deliberately absent
  *
- * **A `label` prop on `Radio`.** The option's label is its child, rendered
- * inside the item, which makes the words part of the hit target. A prop would
- * be the same thing with less control over what goes in it.
+ * An indeterminate state. Radio groups have none: "no answer yet" is the group
+ * having no value, which is already representable.
  */
 export {};

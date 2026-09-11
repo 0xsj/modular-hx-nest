@@ -1,36 +1,65 @@
-import { Switch as Ark } from "@ark-ui/solid";
+import { Switch as Ark } from "@ark-ui/solid/switch";
 import { splitProps, type ComponentProps } from "solid-js";
 import { cn } from "~/lib/kernel";
+import {
+  bindNativeChoiceReset,
+  nativeChoiceStyle,
+} from "../_shared/native-choice";
 import s from "./switch.module.css";
-
-export type SwitchProps = ComponentProps<typeof Ark.Root>;
-
-/** A setting that takes effect when you press it. Not a checkbox — see doc.ts;
- *  the two are interchangeable to look at and neither substitutes for the
- *  other. */
-/* `id` addresses the CONTROL, not the root.
-   The library treats a root `id` as a SEED and derives the real ids from it
-   (`id` -> `switch:id`, input `switch:id:input`), so a caller who writes
-   `<Label for={id}>` beside this ends up pointing at nothing — no accessible
-   name, and the words are not a hit target. Mapping it onto `ids.hiddenInput`
-   moves both the input's id and the root's own `for` at once, and makes `id`
-   mean here what it means on every native control. */
+export type SwitchProps = Omit<
+  ComponentProps<typeof Ark.Root>,
+  "onCheckedChange"
+> & {
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
+  onCheckedChange?: (value: boolean) => void;
+};
 export function Switch(props: SwitchProps) {
-  const [local, rest] = splitProps(props, ["class", "id"]);
+  const [local, rest] = splitProps(props, [
+    "class",
+    "id",
+    "onCheckedChange",
+    "aria-label",
+    "aria-labelledby",
+    "aria-describedby",
+  ]);
   return (
     <Ark.Root
+      style={{ position: "relative" }}
       {...rest}
-      ids={local.id ? { hiddenInput: local.id } : undefined}
-      class={cn(s.switch, local.class)}
+      ids={
+        local.id
+          ? {
+              hiddenInput: local.id,
+            }
+          : undefined
+      }
+      onCheckedChange={(d) => local.onCheckedChange?.(d.checked)}
+      class={s.root}
     >
-      <Ark.Control class={s.control}>
+      <Ark.Control class={cn(s.switch, local.class)}>
         <Ark.Thumb class={s.thumb} />
       </Ark.Control>
-      {/* The library renders a bare `input type=checkbox`, so without this a
-          switch is announced as a checkbox — the one distinction doc.ts says
-          is not cosmetic. Valid ARIA: `switch` is a subclass of `checkbox`,
-          and the native checked state supplies `aria-checked`. */}
-      <Ark.HiddenInput role="switch" />
+      <Ark.Context>
+        {(api) => {
+          let input: HTMLInputElement | undefined;
+          bindNativeChoiceReset(
+            () => input,
+            () => ({ checked: api().checked }),
+          );
+          return (
+            <Ark.HiddenInput
+              ref={input}
+              style={nativeChoiceStyle}
+              role="switch"
+              aria-label={local["aria-label"]}
+              aria-labelledby={local["aria-labelledby"]}
+              aria-describedby={local["aria-describedby"]}
+            />
+          );
+        }}
+      </Ark.Context>
     </Ark.Root>
   );
 }

@@ -36,5 +36,8 @@
     color: var(--ink);
     font-size: var(--text-12-5);
   }
-  .link:hover { border-color: var(--line-heavy); background: var(--surface-panel-2); }
+  .link:hover {
+    border-color: var(--line-heavy);
+    background: var(--surface-panel-2);
+  }
 }

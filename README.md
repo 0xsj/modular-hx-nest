@@ -1,32 +1,48 @@
-# SolidStart
+# flover-solid
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+An opinionated SolidStart frontend template with composable UI, explicit Result/Failure boundaries, replaceable backend adapters, and recovery examples you can exercise.
 
-## Creating a project
+The root is a blue gradient landing page. `/kitchen-sink` documents 22 component groups, `/cookbook` contains working recipes and a seven-chapter manual, and `/app` is a fresh product canvas behind the demo sign-in.
 
-```bash
-# create a new project in the current directory
-npm init solid@latest
+## Run locally
 
-# create a new project in my-app
-npm init solid@latest my-app
+Use the Node version in `.nvmrc` and pnpm:
+
+```sh
+pnpm install
+pnpm dev
 ```
 
-## Developing
+For the production server:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+```sh
+pnpm build
+pnpm start
 ```
 
-## Building
+Set `PORT` and `HOST` when needed. The production output is a Nitro Node server. Demo credentials are `ada@example.com` / `password`.
 
-Solid apps are built with Nitro _presets_, which optimise your project for deployment to different environments.
+## Architecture
 
-By default, `npm run build` will generate a Node app under `.output` that you can run with `npm start`. To use a different preset, set it on the `nitro()` plugin in your `vite.config.ts`.
+- `src/components`: tokens, primitives and composable patterns; behavior comes from props.
+- `src/lib/kernel`, `http`, `services`, `root`: portable values, transport ports, validated operations and adapter selection.
+- `src/lib/runtime`, `query`, `app`, `server`: Solid ownership, cache policy, browser state and SolidStart boundaries.
+- `src/routes`: routing; `src/examples`: cookbook and catalog compositions.
 
-## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
+Services accept an HTTP port and return `Result`; framework edges return plain data. Configure `API_BASE_URL` and `API_SERVED_DOMAINS` for a backend, and map its response envelopes in an adapter. The template does not require a particular backend language or platform. The cookbook includes fixtures and controlled simulations; production authorization, durable receipts and job execution require backend support.
+
+## Verify
+
+```sh
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm check:architecture --all
+pnpm test:resilience
+pnpm test:resilience:mutations
+pnpm test:browser --base http://127.0.0.1:3000
+```
+
+Architecture checks report enforceable violations separately from contextual review. Imported and port-authored regressions are implementation-visible, not a new blind spec oracle. Mutation checks use isolated copies, an equivalent control and an invalid-code control. See [port evidence](docs/port-parity.md), [the manual](docs/manual/README.md), and [verification protocols](protocols/README.md).
+
+The siblings are independent projects. This directory has no runtime imports from Next or Svelte.

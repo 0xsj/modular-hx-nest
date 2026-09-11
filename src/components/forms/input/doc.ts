@@ -1,50 +1,28 @@
 /**
- * Input and Textarea — one variant set, two elements, and no wrapper.
+ * Input — a text control that owns nothing but itself.
  *
- * # Two exports rather than a `multiline` prop
+ * # `size` is taken over, deliberately
  *
- * `<Input multiline>` would have to accept the union of the input and textarea
- * attribute sets on one signature, so `rows` would type-check on a text input
- * and `type="email"` on a textarea. Two functions keep both prop sets exact and
- * cost one more import.
+ * The platform's `size` attribute on an input means "width in characters",
+ * which is a layout decision expressed in the wrong unit and almost never what
+ * anybody wants. It is omitted from the props and the name reused for the
+ * control-height scale, matching every other primitive here. A caller who
+ * genuinely wants character-width sets it in CSS, where widths belong.
  *
- * The STYLING is still one variant set: `multiline` adds the height and the
- * resize behaviour to the same base, so the border, the focus ring and the
- * invalid state cannot drift between them — which is the drift a separate
- * Textarea component actually produces. It is therefore an internal argument to
- * the variant function and not a caller's decision.
+ * # The invalid style keys off the ARIA attribute, not a class
  *
- * # invalid is written twice, on purpose
+ * `[aria-invalid]` in the stylesheet rather than an `invalid` variant. One
+ * source of truth: a control that announces itself invalid also looks it, and
+ * there is no way to have one without the other. An `invalid` prop that set only
+ * a class would be exactly the silent-wiring-loss `protocols/accessibility.md`
+ * is about.
  *
- *     aria-invalid   the announcement
- *     data-invalid   the styling hook
+ * That attribute comes from `Field`, which is where the error lives.
  *
- * They could be one — `[aria-invalid]` is a perfectly good selector. They are
- * two because the ARIA attribute is a contract with assistive technology and
- * the data attribute is a contract with the stylesheet, and collapsing them
- * means a future styling need edits an accessibility attribute.
+ * # No label prop
  *
- * Neither is set by this component: `Field` derives them from its `error` and
- * hands them down. A caller using Input bare can still set either.
- *
- * # The focus ring is a box-shadow, not an outline
- *
- * `outline` cannot be given a radius that follows `border-radius` on every
- * engine, and the ring here sits outside a border that changes colour at the
- * same time. A two-pixel shadow in `--accent-tint` composites over whatever the
- * field is sitting on; an outline would need a surface colour it cannot know.
- *
- * `:focus-visible`, never `:focus` — a mouse click on a text field should not
- * paint a ring, and `:focus` cannot tell the difference.
- *
- * # Deliberately absent
- *
- * **Adornments** — a leading icon, a trailing unit. They need a wrapper
- * element, and a wrapper here would break `inline-size: 100%` for every caller
- * that does not use one. When a search field wants a magnifier, that is a
- * composition.
- *
- * **A label, an error, a description.** `Field` owns all three and hands this
- * the attributes that connect them.
+ * A `label` prop here would put two labelling mechanisms in the tree and make
+ * the wrong one convenient. `Field` owns the label, the hint and the error, and
+ * hands this control the attributes that connect them.
  */
 export {};

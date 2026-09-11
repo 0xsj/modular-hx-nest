@@ -1,85 +1,74 @@
-import { Show, splitProps, type JSX } from "solid-js";
-import { Check, Info, TriangleAlert, X } from "~/components/utility";
-import { VisuallyHidden } from "~/components/utility";
+import type { JSX } from "solid-js";
+import { createMemo, mergeProps } from "solid-js";
+import { TriangleAlert, VisuallyHidden, X } from "~/components/utility";
 import { cn } from "~/lib/kernel";
-import { alertVariants, type AlertVariants } from "./alert.variants";
 import s from "./alert.module.css";
-
+import { alertVariants, type AlertVariants } from "./alert.variants";
 export type AlertProps = AlertVariants & {
   title?: JSX.Element;
   children: JSX.Element;
-  /** What to do about it, when there is something. */
+  /** What to do about it. */
   action?: JSX.Element;
-  /** How this is ANNOUNCED when it appears, and absent by default because
-   *  most alerts are rendered with the page rather than arriving. See doc.ts —
-   *  a live region has to exist before the thing it announces. */
+  /** How this should be ANNOUNCED when it appears — and absent by default,
+   *  because most alerts are rendered with the page rather than arriving.
+   *
+   *      absent      a styled region. Read in document order like any prose.
+   *      "polite"    announced when the reader finishes its sentence.
+   *      "assertive" interrupts. For something the user must act on NOW.
+   *
+   *  A live region on a message that was there when the page loaded announces
+   *  nothing anyway and costs a role that means "this is new". */
   live?: "polite" | "assertive";
-  /** Passed in, never manufactured. No handler, no button. */
   onDismiss?: () => void;
   dismissLabel?: string;
   class?: string;
 };
-
-/** The word a reader gets in place of the colour — and only for the two tones
- *  where missing it changes what you do. "Info" and "accent" add nothing a
- *  sentence does not already carry. */
-const SPOKEN: Partial<Record<NonNullable<AlertVariants["tone"]>, string>> = {
-  warn: "Warning",
-  crit: "Error",
-};
-
-const GLYPH: Record<NonNullable<AlertVariants["tone"]>, (() => JSX.Element) | null> = {
-  neutral: null,
-  accent: () => <Check size={15} aria-hidden="true" />,
-  info: () => <Info size={15} aria-hidden="true" />,
-  warn: () => <TriangleAlert size={15} aria-hidden="true" />,
-  crit: () => <TriangleAlert size={15} aria-hidden="true" />,
-};
-
-export function Alert(props: AlertProps) {
-  const [local, variants] = splitProps(props, [
-    "title", "children", "action", "live", "onDismiss", "dismissLabel", "class",
-  ]);
-  const tone = () => variants.tone ?? "neutral";
-  /* role, not aria-live: `alert` and `status` each imply their politeness AND
-     `aria-atomic`, so the region is re-read whole rather than as the diff. */
-  const role = () =>
-    local.live === "assertive" ? "alert" : local.live === "polite" ? "status" : undefined;
-
+export function Alert(incomingProps: AlertProps) {
+  const props = mergeProps(
+    {
+      dismissLabel: "Dismiss",
+    } as const,
+    incomingProps,
+  );
+  const _titleSlot = createMemo(() => props.title);
+  const _actionSlot = createMemo(() => props.action);
   return (
-    <div class={cn(alertVariants(variants), local.class)} role={role()}>
-      <Show when={GLYPH[tone()]}>
-        {(glyph) => <span class={s.glyph}>{glyph()()}</span>}
-      </Show>
-
-      <div class={s.content}>
-        {/* Inside the region, so it is announced WITH the message rather than
-            as a separate stray word. */}
-        <Show when={SPOKEN[tone()]}>
-          {(word) => <VisuallyHidden>{word()}:</VisuallyHidden>}
-        </Show>
-        <Show when={local.title}>
-          <p class={s.title}>{local.title}</p>
-        </Show>
-        <div class={s.body}>{local.children}</div>
-        <Show when={local.action}>
-          <div class={s.action}>{local.action}</div>
-        </Show>
-      </div>
-
-      <Show when={local.onDismiss}>
-        {(dismiss) => (
-          <button
-            type="button"
-            class={s.dismiss}
-            /* An icon-only control with no name is an unlabelled button. */
-            aria-label={local.dismissLabel ?? "Dismiss"}
-            onClick={() => dismiss()()}
-          >
-            <X size={14} aria-hidden="true" />
-          </button>
+    <div
+      class={cn(
+        alertVariants({
+          tone: props.tone,
+        }),
+        props.class,
+      )}
+      role={
+        props.live === "assertive"
+          ? "alert"
+          : props.live === "polite"
+            ? "status"
+            : undefined
+      }
+    >
+      <div class={s.body}>
+        {(props.tone === "crit" || props.tone === "warn") && (
+          <VisuallyHidden>
+            <TriangleAlert aria-hidden="true" />
+            {props.tone === "crit" ? "Error: " : "Warning: "}
+          </VisuallyHidden>
         )}
-      </Show>
+        {_titleSlot() ? <p class={s.title}>{_titleSlot()}</p> : null}
+        <div class={s.text}>{props.children}</div>
+        {_actionSlot() ? <div class={s.action}>{_actionSlot()}</div> : null}
+      </div>
+      {props.onDismiss ? (
+        <button
+          type="button"
+          class={s.dismiss}
+          onClick={props.onDismiss}
+          aria-label={props.dismissLabel}
+        >
+          <X size={14} aria-hidden="true" />
+        </button>
+      ) : null}
     </div>
   );
 }

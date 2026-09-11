@@ -8,5 +8,7 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  ::selection { background: var(--accent-tint); }
+  ::selection {
+    background: var(--accent-tint);
+  }
 }

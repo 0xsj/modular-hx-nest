@@ -1,0 +1,23 @@
+@layer screen {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .content {
+    display: grid;
+    gap: var(--space-7);
+  }
+  .metrics {
+    display: flex;
+    gap: var(--space-9);
+    flex-wrap: wrap;
+  }
+  .account {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+}

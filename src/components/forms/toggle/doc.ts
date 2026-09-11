@@ -1,39 +1,26 @@
 /**
- * Toggle — a button that stays pressed. Not a switch, and not a checkbox.
+ * Toggle — a button that stays pressed.
  *
- * # What it is for
+ * It reports `aria-pressed`, which is what makes it a toggle rather than a
+ * button that happens to look different when active. See `../switch/doc.ts` for
+ * why it is not a Switch and not a Checkbox.
  *
- * A view or a mode, never data. A filter chip, a formatting mark, a theme
- * choice. `aria-pressed`, which says *this control is currently on* rather than
- * *this setting has a value*.
+ * Its job is a VIEW: bold in an editor, a filter that is on, a panel that is
+ * shown. Nothing it does is submitted and nothing it does is a setting.
  *
- *     Toggle     a button. aria-pressed. Changes what you SEE
- *     Switch     role="switch". Changes what the SYSTEM does, immediately
- *     Checkbox   role="checkbox". A value in a form, applied on submit
+ * # Pressed is a state, not a class
  *
- * # Styled on `aria-pressed`, not `data-state`
+ * The styling keys off `data-state="on"` rather than a prop a caller sets. A
+ * control that looks pressed without reporting it is the silent-wiring-loss this
+ * system is built to avoid, and the two cannot drift when only one of them
+ * exists.
  *
- * The library writes both and both are correct. But `data-state` is written by
- * EVERY primitive in it, so a Toggle used as another primitive's trigger has
- * that primitive's `open`/`closed` merged onto the same element and the pressed
- * rule silently stops matching. The control still announces itself correctly
- * and just never looks pressed.
+ * # `size="icon"` needs a name
  *
- * `aria-pressed` is this component's own attribute, is equally driven by
- * pointer and keyboard, and cannot collide — which is what makes a Toggle
- * composable inside any other trigger.
- *
- * # Two axes, and `shape` is not decoration
- *
- * `size` is sm | md | icon; `shape` is square | pill. That is a real difference
- * between *one of a set of filters* and *one of a set of modes*, and both read
- * differently at a glance.
- *
- * # Deliberately absent
- *
- * **A ToggleGroup.** It enforces single or multiple selection across a set with
- * roving focus. That is a real thing and a different component; it arrives when
- * something wants exclusive selection, and until then it would add a roving tab
- * stop and a selection model no caller wants.
+ * The same rule as the button's icon size: a toggle rendering only a glyph has
+ * nothing for a reader to announce. Unlike the button this is not enforced by
+ * the type — the headless primitive's props are spread through — so it is a
+ * review point rather than a compile error, and saying so is better than
+ * implying the type covers it.
  */
 export {};

@@ -1,22 +1,22 @@
 @layer primitive {
   .heading {
     margin: 0;
-    font-weight: var(--weight-strong);
+    color: var(--ink);
+    font-weight: var(--weight-bold);
     line-height: var(--leading-tight);
-    /* Tighter tracking as size grows is what keeps large text from looking
-       loose; it is a property of the SIZE, so it rides with the size classes
-       below rather than being a prop. */
     letter-spacing: var(--tracking-tight);
-    text-wrap: balance;
+    overflow-wrap: anywhere;
   }
-
-  .xs { font-size: var(--text-12-5); }
-  .sm { font-size: var(--text-13); }
-  .md { font-size: var(--text-15); }
-  .lg { font-size: var(--text-18); }
-  .xl { font-size: var(--text-22); }
-  .display { font-size: var(--text-30); }
-
-  .toneDefault { color: var(--ink); }
-  .toneMuted { color: var(--ink-3); }
+  .sm {
+    font-size: var(--text-15);
+  }
+  .md {
+    font-size: var(--text-22);
+  }
+  .lg {
+    font-size: var(--text-30);
+  }
+  .xl {
+    font-size: var(--text-42);
+  }
 }

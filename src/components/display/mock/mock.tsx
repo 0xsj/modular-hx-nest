@@ -1,30 +1,27 @@
-import { Show, type JSX } from "solid-js";
-import { VisuallyHidden } from "~/components/utility";
+import { mergeProps } from "solid-js";
 import { cn } from "~/lib/kernel";
 import s from "./mock.module.css";
-
 export type MockProps = {
-  /** What is being disclaimed, in the product's own words — "sample readings,
-   *  not from this site". Defaults to the general statement. */
+  /** What is being disclaimed, in the product's own words. */
   note?: string;
   class?: string;
-  children: JSX.Element;
 };
 
-const DEFAULT_NOTE = "Placeholder content — not real data.";
-
-/** Marks content that is NOT the product's data. Deliberately conspicuous;
- *  see doc.ts. */
-export function Mock(props: MockProps) {
+/** A visible mark that what is on screen is NOT a record.
+ *
+ *  Announced, not decorative: somebody who cannot see the badge is exactly the
+ *  person most likely to quote a fixture back at you as fact. */
+export function Mock(incomingProps: MockProps) {
+  const props = mergeProps(
+    {
+      note: "Sample data. None of this is a record.",
+    } as const,
+    incomingProps,
+  );
   return (
-    <div class={cn(s.mock, props.class)} data-mock="">
-      {/* Announced first, before the content it qualifies — a disclaimer that
-          follows the numbers arrives after they have been believed. */}
-      <VisuallyHidden>{props.note ?? DEFAULT_NOTE}</VisuallyHidden>
-      <p aria-hidden="true" class={s.tag}>
-        <Show when={props.note} fallback="placeholder">{props.note}</Show>
-      </p>
-      {props.children}
-    </div>
+    <span class={cn(s.mock, props.class)} role="note">
+      <span class={s.dot} aria-hidden="true" />
+      {props.note}
+    </span>
   );
 }

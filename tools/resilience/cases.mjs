@@ -1,0 +1,16 @@
+export const tests = [
+  "src/lib/http/response.test.ts",
+  "src/lib/services/responses.test.ts",
+  "src/lib/chaos/sequence.test.ts",
+  "src/lib/runtime/latest-read.test.ts",
+  "src/examples/(workspace)/cookbook/(recipes)/resilience/note-model.test.ts",
+  "src/lib/runtime/save-draft.test.ts",
+  "src/lib/services/example/item-workflow.test.ts",
+  "src/lib/root/item-workflow.test.ts",
+  "src/lib/runtime/session-recovery.test.ts",
+  "src/lib/runtime/capabilities.test.ts",
+  "src/lib/runtime/job-observer.test.ts",
+  "src/lib/locale/locale.test.ts",
+  "src/lib/services/continuity.test.ts",
+  "src/lib/app/return-to.test.ts",
+];

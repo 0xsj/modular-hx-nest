@@ -1,0 +1,50 @@
+@layer composition {
+  .rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-block-size: 100%;
+    background: var(--surface-rail);
+    padding-block: var(--space-4);
+    gap: var(--space-5);
+  }
+  .brand {
+    inline-size: 36px;
+    min-block-size: 32px;
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+  }
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .footer {
+    margin-block-start: auto;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding-block-start: var(--space-6);
+  }
+  .link {
+    display: grid;
+    place-items: center;
+    inline-size: 36px;
+    block-size: 36px;
+    padding: 0;
+    border-radius: var(--radius-2);
+    color: var(--ink-3);
+    border: 1px solid transparent;
+  }
+  .link:hover {
+    color: var(--ink);
+    background: var(--surface-hover);
+  }
+  .link[aria-current] {
+    color: var(--ink);
+    background: var(--surface-hover-2);
+    border-color: var(--line-strong);
+  }
+}

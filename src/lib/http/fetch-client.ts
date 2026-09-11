@@ -1,32 +1,44 @@
-import { err, internal, ok, type Failure, type Result } from "~/lib/kernel";
+import { err, internal, ok, type Failure, type Result } from "../kernel";
 import { failureFromResponse, failureFromTransport } from "./envelope";
-import { CORRELATION_HEADER, type ClientConfig, type HttpClient, type RequestOptions } from "./port";
+import {
+  CORRELATION_HEADER,
+  joinUrl,
+  queryString,
+  type ClientConfig,
+  type HttpClient,
+  type RequestOptions,
+} from "./port";
 
-/* The real transport. Specification: `adapters.doc.ts`; clause numbers cite it. */
+const DEFAULT_TIMEOUT = 15_000;
 
-const DEFAULT_TIMEOUT_MS = 15_000;
-
-/** A3/A4 — the path is APPENDED, never resolved against the base. Resolving
- *  would discard a mount path: `new URL("/v1/me", "https://h/api")` is
- *  `https://h/v1/me`, and the `/api` is gone without a word. */
-function requestUrl(baseUrl: string, path: string, params: RequestOptions["params"]): string {
-  const base = baseUrl.replace(/\/+$/, "");
-  const url = new URL(`${base}${path.startsWith("/") ? path : `/${path}`}`);
-  for (const [key, value] of Object.entries(params ?? {})) {
-    if (value !== undefined) url.searchParams.set(key, String(value));
+function url(
+  baseUrl: string,
+  path: string,
+  params: RequestOptions["params"],
+): string {
+  const u = new URL(joinUrl(baseUrl, path));
+  for (const [key, value] of new URLSearchParams(queryString(params))) {
+    u.searchParams.set(key, value);
   }
-  return url.toString();
+  return u.toString();
 }
 
-/** A20 — the id we SENT, attached when the answer did not carry one. A server
- *  that ignores the header is the common case, and a failure that cannot name
- *  its own interaction is exactly the one you most want to trace. What the
- *  answer already carries always wins: it saw the request. */
-function withCorrelation(failure: Failure, correlationId: string | undefined): Failure {
-  if (failure.correlationId !== undefined || correlationId === undefined) return failure;
+/** The correlation id we SENT, attached when the response did not echo one.
+ *
+ *  A server that ignores the header is the common case, and a failure that
+ *  cannot name its own interaction is exactly the failure you most want to
+ *  trace. What the server echoed always wins — it saw the request. */
+function withCorrelation(
+  failure: Failure,
+  correlationId: string | undefined,
+): Failure {
+  if (failure.correlationId !== undefined) return failure; // the server's echo wins
+  if (correlationId === undefined) return failure;
   return { ...failure, correlationId };
 }
 
+/** Never throws. Every exit is a Result — the port's contract, and the only
+ *  reason a service can be one line. */
 export function createFetchClient(config: ClientConfig): HttpClient {
   const decode = config.decodeFailure ?? failureFromResponse;
 
@@ -35,66 +47,64 @@ export function createFetchClient(config: ClientConfig): HttpClient {
     path: string,
     options: RequestOptions = {},
   ): Promise<Result<T, Failure>> => {
-    /* A5 — `AbortSignal.timeout` raises TimeoutError; a controller aborted by
-       hand raises AbortError, which is what the caller's own cancellation
-       raises. Hand-rolling would make every timeout classify as `canceled`,
-       and a cancellation is never retried. The caller's signal is COMBINED,
-       not replaced. */
-    const signals: AbortSignal[] = [
-      AbortSignal.timeout(options.timeoutMs ?? config.timeoutMs ?? DEFAULT_TIMEOUT_MS),
+    /* `AbortSignal.timeout` aborts with a TimeoutError, so a timeout arrives as
+       `timeout`. v1 aborted a controller by hand, which produces an AbortError
+       — every timeout was classified `canceled`, and `canceled` is not
+       retried. Combined with the caller's signal, not replaced. */
+    const signals = [
+      AbortSignal.timeout(
+        options.timeoutMs ?? config.timeoutMs ?? DEFAULT_TIMEOUT,
+      ),
     ];
     if (options.signal) signals.push(options.signal);
 
-    const correlationId = config.getCorrelationId?.() || undefined;
-    const token = config.getAccessToken?.() || undefined;
+    const correlationId = config.getCorrelationId?.() ?? undefined;
 
     let response: Response;
     try {
-      response = await fetch(requestUrl(config.baseUrl, path, options.params), {
+      const token = config.getAccessToken?.();
+      response = await fetch(url(config.baseUrl, path, options.params), {
         method,
         signal: AbortSignal.any(signals),
         headers: {
-          /* A6/A7/A8 — each present only when it has something to say. */
-          ...(options.body === undefined ? {} : { "content-type": "application/json" }),
+          ...(options.body === undefined
+            ? {}
+            : { "content-type": "application/json" }),
           ...(token ? { authorization: `Bearer ${token}` } : {}),
           ...(correlationId ? { [CORRELATION_HEADER]: correlationId } : {}),
-          /* A9 — the caller's headers land last and win. */
           ...options.headers,
         },
-        body: options.body === undefined ? undefined : JSON.stringify(options.body),
+        body:
+          options.body === undefined ? undefined : JSON.stringify(options.body),
       });
     } catch (cause) {
-      /* A13 */
       return err(withCorrelation(failureFromTransport(cause), correlationId));
     }
 
-    /* A10 */
-    if (!response.ok) return err(withCorrelation(await decode(response), correlationId));
-
-    /* A11 — nothing to parse. */
+    if (!response.ok)
+      return err(withCorrelation(await decode(response), correlationId));
     if (response.status === 204) return ok(undefined as T);
 
-    /* A12 — OUTSIDE the transport catch on purpose. Folded in, a contract
-       break would be labelled `unavailable`, which is retryable, and the
-       client would hammer an endpoint answering fine with the wrong shape. */
+    /* Parsed separately from the fetch: a body that is not JSON on a 200 is OUR
+       problem, not the network's, and folding it into the transport catch would
+       label a contract break "unavailable" and make it look retryable. */
     try {
       return ok((await response.json()) as T);
     } catch {
       return err(
-        withCorrelation(
-          internal("The server's response could not be read.", { status: response.status }),
-          correlationId,
-        ),
+        internal("The server's response could not be read.", {
+          status: response.status,
+        }),
       );
     }
   };
 
   return {
     request,
-    get: (path, options) => request("GET", path, options),
-    post: (path, options) => request("POST", path, options),
-    put: (path, options) => request("PUT", path, options),
-    patch: (path, options) => request("PATCH", path, options),
-    delete: (path, options) => request("DELETE", path, options),
+    get: (p, o) => request("GET", p, o),
+    post: (p, o) => request("POST", p, o),
+    put: (p, o) => request("PUT", p, o),
+    patch: (p, o) => request("PATCH", p, o),
+    delete: (p, o) => request("DELETE", p, o),
   };
 }

@@ -1,5 +1,7 @@
 @layer primitive {
-  .positioner { z-index: var(--z-popover); }
+  .positioner {
+    z-index: var(--z-popover);
+  }
 
   .content {
     min-inline-size: 11rem;
@@ -12,7 +14,9 @@
     max-block-size: min(22rem, calc(100vh - var(--space-8)));
     overflow-y: auto;
   }
-  .content:focus-visible { outline: none; }
+  .content:focus-visible {
+    outline: none;
+  }
 
   .item {
     display: flex;
@@ -28,11 +32,25 @@
   /* The library moves a virtual focus with the arrow keys and marks it with
      `data-highlighted`. Styling `:hover` alone would leave a keyboard user
      with no idea where they are. */
-  .item[data-highlighted] { background: var(--surface-hover); color: var(--ink); outline: none; }
-  .item[data-disabled] { opacity: 0.45; cursor: not-allowed; }
+  .item[data-highlighted] {
+    background: var(--surface-hover);
+    color: var(--ink);
+    outline: none;
+  }
+  .item[data-disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 
-  .separator { block-size: 1px; background: var(--line); margin: var(--space-2) 0; border: 0; }
-  .group { display: block; }
+  .separator {
+    block-size: 1px;
+    background: var(--line);
+    margin: var(--space-2) 0;
+    border: 0;
+  }
+  .group {
+    display: block;
+  }
   .groupLabel {
     display: block;
     padding: var(--space-2) var(--space-3);

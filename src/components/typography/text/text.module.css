@@ -2,36 +2,47 @@
   .text {
     margin: 0;
     line-height: var(--leading-body);
-    /* Long unbroken values — an id, a URL, a token — otherwise push a flex or
-       grid parent wider than the viewport, with nothing in the CSS to blame. */
-    overflow-wrap: anywhere;
   }
-
-  .xs { font-size: var(--text-11); }
-  .sm { font-size: var(--text-11-5); }
-  .md { font-size: var(--text-12); }
-  .lg { font-size: var(--text-13); }
-
-  .toneDefault { color: var(--ink-2); }
-  .toneMuted { color: var(--ink-3); }
-  .toneSubtle { color: var(--ink-4); }
-  .toneAccent { color: var(--accent); }
-  .toneWarn { color: var(--warn); }
-  .toneCrit { color: var(--crit); }
-
-  .weightRegular { font-weight: var(--weight-regular); }
-  .weightMedium { font-weight: var(--weight-medium); }
-  .weightStrong { font-weight: var(--weight-strong); }
-
-  .clamp {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: var(--text-clamp-lines, 2);
-    /* The unprefixed property, for the browsers that have it. Both are needed
-       and neither is enough. */
-    line-clamp: var(--text-clamp-lines, 2);
+  .sm {
+    font-size: var(--text-11-5);
+  }
+  .md {
+    font-size: var(--text-13);
+  }
+  .lg {
+    font-size: var(--text-15);
+  }
+  .default {
+    color: var(--ink);
+  }
+  .muted {
+    color: var(--ink-2);
+  }
+  .quiet {
+    color: var(--ink-3);
+  }
+  .accent {
+    color: var(--accent);
+  }
+  .danger {
+    color: var(--crit);
+  }
+  .regular {
+    font-weight: var(--weight-regular);
+  }
+  .medium {
+    font-weight: var(--weight-medium);
+  }
+  .strong {
+    font-weight: var(--weight-bold);
+  }
+  .measure {
+    max-inline-size: var(--measure);
+  }
+  .truncate {
+    display: block;
     overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
-
-  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 }

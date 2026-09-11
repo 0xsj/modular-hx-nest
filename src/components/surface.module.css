@@ -1,0 +1,15 @@
+@layer composition {
+  /* The one elevated surface. Anything that floats above the page — a select's
+     list, a popover, a menu, a dialog — uses this, so they cannot drift into
+     four slightly different shadows and three border colours.
+
+     In `composition` rather than `primitive`: it is not a component, it is an
+     arrangement several components share. */
+  .elevated {
+    background: var(--surface-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-3);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+}

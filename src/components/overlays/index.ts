@@ -1,5 +1,5 @@
 export * from "./alert-dialog";
 export * from "./dialog";
-export * from "./menu";
+export * from "./dropdown-menu";
 export * from "./popover";
 export * from "./tooltip";

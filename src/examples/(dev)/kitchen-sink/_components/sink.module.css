@@ -1,0 +1,960 @@
+@layer screen {
+  .shell {
+    min-block-size: 100vh;
+  }
+
+  /* ── header ─────────────────────────────────────────────────────────── */
+
+  .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-sticky);
+    background: var(--surface-ground);
+    border-block-end: 1px solid var(--line);
+  }
+
+  .headerInner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-6);
+    min-block-size: 64px;
+  }
+
+  .nav {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .navLink {
+    font-size: var(--text-11-5);
+    color: var(--ink-3);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-1);
+  }
+
+  .navLink:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+
+  .controls {
+    margin-inline-start: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .headerLabel {
+    color: var(--ink-4);
+    font-size: var(--text-11-5);
+  }
+  .skipLink {
+    position: fixed;
+    inset-block-start: -100px;
+    inset-inline-start: var(--space-6);
+    z-index: var(--z-palette);
+    padding: var(--space-4);
+    background: var(--surface-panel);
+    color: var(--ink);
+  }
+  .skipLink:focus {
+    inset-block-start: var(--space-4);
+  }
+
+  /* ── rail ───────────────────────────────────────────────────────────── */
+
+  .body {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr) 190px;
+    grid-template-areas: "nav main toc";
+    align-items: start;
+  }
+
+  .rail {
+    grid-area: nav;
+    position: sticky;
+    inset-block-start: 64px;
+    max-block-size: calc(100dvh - 64px);
+    overflow-y: auto;
+    padding: var(--space-5) var(--space-4) var(--space-8);
+    border-inline-end: 1px solid var(--line);
+  }
+
+  .contentsRail {
+    grid-area: toc;
+    position: sticky;
+    inset-block-start: 64px;
+    max-block-size: calc(100dvh - 64px);
+    overflow-y: auto;
+    padding: var(--space-8) var(--space-4);
+  }
+  .caseNav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .catalogNav {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .catalogGroup {
+    display: grid;
+    gap: 1px;
+  }
+  .catalogLink {
+    display: block;
+    padding: var(--space-2) var(--space-4);
+    color: var(--ink-3);
+    font-size: var(--text-12);
+    border-radius: var(--radius-1);
+    border-inline-start: 2px solid transparent;
+  }
+  .catalogLink:hover {
+    color: var(--ink);
+    background: var(--surface-hover);
+  }
+  .catalogActive {
+    color: var(--ink);
+    background: var(--accent-tint);
+    border-inline-start-color: var(--accent);
+  }
+  .mobileNavToggle {
+    display: none;
+  }
+  .caseGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .caseSection {
+    font-size: var(--text-10);
+    font-weight: var(--weight-strong);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-4);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .caseSection:hover {
+    color: var(--ink-2);
+  }
+
+  .caseLink {
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-1);
+    font-size: var(--text-12);
+    color: var(--ink-3);
+    border-inline-start: 2px solid transparent;
+    transition:
+      background var(--dur-1) var(--ease),
+      color var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease);
+  }
+
+  .caseLink:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+
+  .caseLinkActive {
+    color: var(--ink);
+    border-inline-start-color: var(--accent);
+    background: var(--surface-hover);
+  }
+
+  @media (max-width: 1200px) {
+    .body {
+      grid-template-columns: 200px minmax(0, 1fr);
+      grid-template-areas: "nav toc" "nav main";
+    }
+    .contentsRail {
+      position: static;
+      padding: var(--space-5) var(--space-7) 0;
+      max-block-size: none;
+    }
+    .contentsRail:has(> :empty),
+    .contentsRail:not(:has(nav)) {
+      display: none;
+    }
+    .caseNav {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .caseNav .caseSection {
+      inline-size: 100%;
+    }
+  }
+  @media (max-width: 760px) {
+    .body {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "nav" "toc" "main";
+    }
+    .rail {
+      position: static;
+      max-block-size: none;
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--line);
+      padding: var(--space-4) var(--space-5);
+    }
+    .mobileNavToggle {
+      display: inline-flex;
+    }
+    .catalogNav {
+      display: none;
+      padding-block-start: var(--space-5);
+    }
+    .catalogNav[data-open] {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .catalogNav > a {
+      grid-column: 1 / -1;
+    }
+    .catalogGroup {
+      align-content: start;
+    }
+    .headerLabel {
+      display: none;
+    }
+    .headerInner {
+      padding-inline: var(--space-5);
+    }
+    .contentsRail {
+      padding-inline: var(--space-5);
+    }
+  }
+
+  /* ── page body ──────────────────────────────────────────────────────── */
+
+  .main {
+    grid-area: main;
+    min-inline-size: 0;
+    padding: var(--space-9) var(--space-8) var(--space-12);
+    max-inline-size: var(--page-max);
+  }
+  .main:focus {
+    outline: none;
+  }
+  @media (max-width: 760px) {
+    .main {
+      padding: var(--space-7) var(--space-5) var(--space-10);
+    }
+  }
+  .catalogOverviewGroup {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .catalogCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    gap: var(--space-5);
+  }
+  .catalogCard {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    background: var(--surface-panel);
+    padding: var(--space-6);
+    transition:
+      border-color var(--dur-1) var(--ease),
+      background var(--dur-1) var(--ease);
+  }
+  .catalogCard:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-hover);
+  }
+  .catalogCardTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    font-size: var(--text-13);
+    font-weight: var(--weight-strong);
+    color: var(--ink);
+  }
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .introTitle {
+    font-size: var(--text-30);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
+  }
+  .introText {
+    font-size: var(--text-13);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+    max-inline-size: var(--measure);
+  }
+  .sections {
+    display: grid;
+    gap: var(--space-10);
+  }
+
+  .section {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .sectionTitle {
+    font-size: var(--text-30);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
+  }
+  .sectionBlurb {
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+    max-inline-size: var(--measure);
+  }
+  .sectionBody {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  /* Anchored jumps must clear the sticky header. Scoped to the two local
+     classes because a CSS Module refuses a selector with no local class in it —
+     `[id]` alone is not "pure" and fails the build rather than leaking. */
+  .section,
+  .panel {
+    scroll-margin-block-start: 72px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+  }
+  .controlExample {
+    display: grid;
+    gap: var(--space-5);
+    max-inline-size: 420px;
+    inline-size: 100%;
+  }
+  .shellPreview {
+    inline-size: 100%;
+    block-size: 540px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface-ground);
+  }
+  .chartGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: var(--space-6);
+  }
+  .chartGrid > * {
+    min-inline-size: 0;
+  }
+  .rowLabel {
+    min-inline-size: 110px;
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-4);
+  }
+
+  /* ── case ───────────────────────────────────────────────────────────── */
+
+  .panel {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    background: var(--surface-panel);
+    overflow: hidden;
+  }
+
+  .panelHead {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+    padding: var(--space-5) var(--space-6);
+    border-block-end: 1px solid var(--line);
+  }
+
+  .panelTitle {
+    font-size: var(--text-15);
+    font-weight: var(--weight-strong);
+    color: var(--ink);
+  }
+  .panelNote {
+    font-size: var(--text-11);
+    color: var(--ink-4);
+  }
+  .panelBody {
+    padding: var(--space-6);
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .anchor {
+    color: inherit;
+  }
+  .anchor:hover {
+    color: var(--accent);
+  }
+
+  /* Collapsed by default — the demo is the point, the source is the appendix. */
+  .source {
+    border-block-start: 1px solid var(--line);
+  }
+
+  .sourceSummary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-11);
+    color: var(--ink-4);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  .sourceSummary::-webkit-details-marker {
+    display: none;
+  }
+  .sourceSummary::before {
+    content: "\25B8";
+    display: inline-block;
+    transition: transform var(--dur-1) var(--ease);
+  }
+  .source[open] .sourceSummary::before {
+    transform: rotate(90deg);
+  }
+  .sourceSummary:hover {
+    color: var(--ink-2);
+  }
+
+  .sourcePaths {
+    font-family: var(--font-mono);
+    font-size: var(--text-9);
+    color: var(--ink-4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .code {
+    margin: 0;
+    padding: var(--space-6);
+    background: var(--surface-panel-2);
+    border-block-start: 1px solid var(--line);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+  }
+
+  .codePath {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-4);
+    padding: var(--space-4) var(--space-6) 0;
+  }
+
+  /* ── audit table ────────────────────────────────────────────────────── */
+
+  .audits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-7);
+  }
+  .auditHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-block-end: var(--space-4);
+  }
+  .auditTheme {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-2);
+  }
+
+  .verdict {
+    padding: 1px var(--space-4);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-9);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .ok {
+    color: var(--accent);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent-line);
+  }
+  .bad {
+    color: var(--crit);
+    background: var(--crit-tint);
+    border: 1px solid var(--crit-line);
+  }
+
+  .audit {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-10);
+    font-family: var(--font-mono);
+  }
+  .audit th {
+    text-align: left;
+    font-weight: var(--weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-4);
+    padding-block-end: var(--space-3);
+    border-block-end: 1px solid var(--line);
+  }
+  .audit td {
+    padding: var(--space-3) var(--space-4) var(--space-3) 0;
+    border-block-end: 1px solid var(--line);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .audit tr:last-child td {
+    border-block-end: none;
+  }
+  .num {
+    text-align: right;
+  }
+
+  /* Never colour alone: a failing row that is only red is itself the defect
+     this audit exists to catch. */
+  .pass {
+    color: var(--accent);
+  }
+  .fail {
+    color: var(--crit);
+    font-weight: var(--weight-bold);
+  }
+  .needs {
+    color: var(--ink-4);
+  }
+
+  .limits {
+    font-size: var(--text-11);
+    line-height: var(--leading-body);
+    color: var(--ink-4);
+    max-inline-size: var(--measure);
+  }
+  .limits code {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-3);
+  }
+
+  /* ── swatches / scale ───────────────────────────────────────────────── */
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-4);
+  }
+  .swatch {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    overflow: hidden;
+    background: var(--surface-panel-2);
+  }
+  .swatchChip {
+    block-size: 40px;
+  }
+  .swatchLabel {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .scale {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .scaleRow {
+    display: grid;
+    grid-template-columns: 128px 56px minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-5);
+  }
+  .scaleBar {
+    block-size: 10px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-dim);
+  }
+  .scaleBox {
+    border: 1px solid var(--line-strong);
+    background: var(--surface-raised);
+    block-size: 44px;
+    inline-size: 68px;
+  }
+  .scaleControl {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    background: var(--surface-raised);
+    inline-size: 96px;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-4);
+  }
+
+  /* ── type specimens ─────────────────────────────────────────────────── */
+
+  .stacks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+  .stack {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .stackHead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .stackValue {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-4);
+    overflow-wrap: anywhere;
+  }
+  .specimen {
+    font-size: var(--text-22);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
+  }
+  .sansFace {
+    font-family: var(--font-sans);
+  }
+  .monoFace {
+    font-family: var(--font-mono);
+  }
+  .pending {
+    color: var(--ink-4);
+    background: var(--surface-hover);
+    border: 1px solid var(--line);
+  }
+  .fallbackTone {
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+  }
+
+  .sizes {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .sizeRow {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-6);
+    padding-block-end: var(--space-4);
+    border-block-end: 1px solid var(--line);
+  }
+  .sizeSample {
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .weights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-7);
+  }
+  .weight {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .weightSample {
+    font-size: var(--text-18);
+    color: var(--ink);
+  }
+
+  .leading {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .leadingSample {
+    color: var(--ink-2);
+    font-size: var(--text-13);
+    max-inline-size: var(--measure);
+  }
+  .codeBlock {
+    margin: 0;
+    padding: var(--space-6);
+    background: var(--surface-panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+  }
+
+  /* ── chaos demo ─────────────────────────────────────────────────────── */
+
+  .scenarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .stage {
+    min-block-size: 132px;
+    display: grid;
+    place-items: center;
+    padding: var(--space-7);
+    background: var(--surface-panel-2);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-2);
+  }
+
+  .stageState {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-block-end: var(--space-4);
+    text-align: center;
+  }
+
+  .rows {
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-12-5);
+    color: var(--ink);
+  }
+  .quiet {
+    color: var(--ink-3);
+    font-size: var(--text-12-5);
+    text-align: center;
+  }
+  .crit {
+    color: var(--crit);
+    font-size: var(--text-12-5);
+    text-align: center;
+  }
+
+  .planLine {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--ink-3);
+    background: var(--surface-sunk);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-1);
+    padding: var(--space-3) var(--space-4);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .disabledNote {
+    font-size: var(--text-11-5);
+    line-height: var(--leading-body);
+    color: var(--warn);
+    background: var(--warn-tint);
+    border: 1px solid var(--warn-line);
+    border-radius: var(--radius-2);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  /* ── failure path ───────────────────────────────────────────────────── */
+
+  .hops {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .hop {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: baseline;
+    padding: var(--space-3) 0;
+    border-block-end: 1px solid var(--line);
+  }
+  .hop:last-child {
+    border-block-end: none;
+  }
+  .hopTier {
+    font-family: var(--font-mono);
+    font-size: var(--text-10);
+    color: var(--accent);
+  }
+  .hopWhat {
+    font-size: var(--text-11-5);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+  }
+
+  .warnText {
+    font-size: var(--text-12-5);
+    color: var(--warn);
+  }
+  .fieldList {
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-12-5);
+    color: var(--crit);
+  }
+
+  .fieldGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-12-5);
+    color: var(--ink-2);
+  }
+
+  .selectWidth {
+    inline-size: 240px;
+  }
+
+  .statRow {
+    display: flex;
+    gap: var(--space-9);
+    flex-wrap: wrap;
+  }
+  .inlineStat {
+    display: inline-grid;
+  }
+  .inlineStat > :first-child {
+    display: none;
+  }
+
+  .spaceBox {
+    background: var(--surface-panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    font-size: var(--text-11-5);
+    color: var(--ink-3);
+  }
+  .spaceInner {
+    display: block;
+    block-size: 10px;
+    background: var(--accent-dim);
+    border-radius: var(--radius-1);
+  }
+  .fullWidth {
+    inline-size: 100%;
+  }
+
+  .navWidth {
+    inline-size: 220px;
+  }
+
+  /* ── shells ─────────────────────────────────────────────────────────── */
+
+  /* A whole-page composite, clipped. `min-block-size: 100dvh` is right on a
+     route and wrong in a gallery, so the shell takes a class on its outer
+     element and the stage supplies the height instead. */
+  .shellStage {
+    block-size: 340px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    /* Its own containing block, so the shell's sticky header sticks to the top
+       of the stage rather than to the page behind it. */
+    contain: paint;
+  }
+  .shellFill {
+    min-block-size: 100%;
+    block-size: 100%;
+  }
+
+  /* ── utility ────────────────────────────────────────────────────────── */
+
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-4);
+  }
+  .iconCell {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--ink-3);
+  }
+
+  .readout {
+    display: grid;
+    gap: var(--space-4);
+    inline-size: 100%;
+  }
+  .readoutStage {
+    padding: var(--space-5);
+    background: var(--surface-panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+  }
+  .readoutRow {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .readoutText {
+    font-size: var(--text-11-5);
+    color: var(--ink-2);
+  }
+
+  /* The point of the portal case: a box that genuinely clips its content. */
+  .clip {
+    position: relative;
+    block-size: 96px;
+    overflow: hidden;
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    background: var(--surface-panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+  }
+  .portalTarget {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-2);
+  }
+  .escapee {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--accent-dim);
+    border-radius: var(--radius-2);
+    font-size: var(--text-11-5);
+    color: var(--ink);
+  }
+}

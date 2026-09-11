@@ -1,15 +1,27 @@
 import {
-  canceled, conflict, err, forbidden, internal, invalid, notFound, ok,
-  rateLimited, timeout, unauthenticated, unavailable,
-  type Failure, type FailureKind, type Result,
-} from "~/lib/kernel";
-import type { HttpClient, RequestOptions } from "~/lib/http";
+  canceled,
+  conflict,
+  err,
+  forbidden,
+  internal,
+  invalid,
+  notFound,
+  ok,
+  rateLimited,
+  timeout,
+  unauthenticated,
+  unavailable,
+  type Failure,
+  type FailureKind,
+  type Result,
+} from "../kernel";
+import type { HttpClient, RequestOptions } from "../http";
 import { effectFor, isActive, rng, type Plan } from "./plan";
 
 /* A DECORATOR over the port, not an interceptor.
  *
- * Because the port returns `Result`, breaking things is just returning a
- * different value — no patched `fetch`, no knowledge of HTTP, and nothing above
+ * Because the port returns Result, breaking things is just returning a
+ * different value — no patched fetch, no knowledge of HTTP, and nothing above
  * this changes. Services, screens and the cache cannot tell.
  *
  * It sits ABOVE the transport, so the failures it produces are UNNARROWED: a
@@ -18,11 +30,12 @@ import { effectFor, isActive, rng, type Plan } from "./plan";
  * simulation of it.
  *
  * It is NOT a fixture. A fixture reproduces what the server does; chaos forces
- * what it could. Keeping them apart is what stops *a fixture must reproduce
- * refusals* decaying into *a fixture returns whatever is convenient* — which is
- * why this wraps either adapter and never edits a route table. */
+ * what it could. Keeping them apart is what stops "a fixture must reproduce
+ * refusals" from decaying into "a fixture returns whatever is convenient" —
+ * which is why this wraps either adapter and never edits a route table.
+ */
 
-const FAILURES: Record<FailureKind, (message: string) => Failure> = {
+const FAILURES: Record<FailureKind, (m: string) => Failure> = {
   unauthenticated,
   forbidden,
   not_found: notFound,
@@ -37,8 +50,15 @@ const FAILURES: Record<FailureKind, (message: string) => Failure> = {
 
 const sleep = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve) => {
-    const handle = setTimeout(resolve, ms);
-    signal?.addEventListener("abort", () => { clearTimeout(handle); resolve(); }, { once: true });
+    const t = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(t);
+        resolve();
+      },
+      { once: true },
+    );
   });
 
 /** Wrap a client so a plan can break, empty, slow or hang matching requests.
@@ -55,8 +75,8 @@ export function withChaos(
    *  trace. The composition root supplies it. */
   correlationId?: string,
 ): HttpClient {
-  if (import.meta.env?.PROD) return client;
-  if (!plan || !isActive(plan)) return client;
+  if (process.env.NODE_ENV === "production") return client;
+  if (!isActive(plan) || !plan) return client;
 
   const next = rng(plan.seed ?? 1);
 
@@ -70,11 +90,12 @@ export function withChaos(
       return client.request<T>(method, path, options);
     }
 
-    /* Order matters and is documented: wait, then hang, then empty, then fail. */
+    // Order matters and is documented: wait, then hang, then empty, then fail.
     if (effect.latency) await sleep(effect.latency, options.signal);
 
     if (effect.hang) {
-      if (options.signal?.aborted) return err(canceled("The request was cancelled."));
+      if (options.signal?.aborted)
+        return err(canceled("The request was cancelled."));
       return new Promise<Result<T, Failure>>((resolve) => {
         options.signal?.addEventListener(
           "abort",
@@ -85,10 +106,11 @@ export function withChaos(
     }
 
     if (effect.empty) return ok((effect.empty === "list" ? [] : null) as T);
-
     if (effect.fail) {
       const failure = FAILURES[effect.fail](`Chaos: forced ${effect.fail}.`);
-      return err(correlationId === undefined ? failure : { ...failure, correlationId });
+      return err(
+        correlationId === undefined ? failure : { ...failure, correlationId },
+      );
     }
 
     return client.request<T>(method, path, options);
@@ -96,10 +118,10 @@ export function withChaos(
 
   return {
     request,
-    get: (path, options) => request("GET", path, options),
-    post: (path, options) => request("POST", path, options),
-    put: (path, options) => request("PUT", path, options),
-    patch: (path, options) => request("PATCH", path, options),
-    delete: (path, options) => request("DELETE", path, options),
+    get: (p, o) => request("GET", p, o),
+    post: (p, o) => request("POST", p, o),
+    put: (p, o) => request("PUT", p, o),
+    patch: (p, o) => request("PATCH", p, o),
+    delete: (p, o) => request("DELETE", p, o),
   };
 }

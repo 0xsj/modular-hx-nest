@@ -1,0 +1,162 @@
+{
+  "verified_at_utc": "2026-09-10T23:24:28.996339+00:00",
+  "provenance": "Implementation-visible port regressions; no new blind oracle claimed.",
+  "source_tree_sha256": "8286fa227fb81c44de8e1989c98bc72a846bed6679b69e019f19a3620b398e65",
+  "commands": {
+    "typecheck": "pnpm typecheck",
+    "lint": "pnpm lint",
+    "unit": "pnpm test",
+    "build": "pnpm build",
+    "architecture": "pnpm check:architecture --all",
+    "mutations": "pnpm test:resilience:mutations",
+    "browser": "pnpm test:browser --base http://127.0.0.1:4194"
+  },
+  "typecheck": "passed",
+  "lint": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "build": "passed",
+  "unit": {
+    "files_passed": 47,
+    "tests_passed": 1185,
+    "tests_skipped": 2,
+    "bundle_check": "passed against the fresh production build"
+  },
+  "architecture": {
+    "status": "review_pending",
+    "inspected": 537,
+    "checks": [
+      {
+        "id": "S1",
+        "status": "verified",
+        "files": 89
+      },
+      {
+        "id": "S2",
+        "status": "verified",
+        "files": 89
+      },
+      {
+        "id": "S3",
+        "status": "verified",
+        "files": 537
+      },
+      {
+        "id": "S4",
+        "status": "verified",
+        "files": 257
+      },
+      {
+        "id": "S5",
+        "status": "verified",
+        "files": 517
+      },
+      {
+        "id": "S6",
+        "status": "verified",
+        "files": 483
+      },
+      {
+        "id": "E1",
+        "status": "verified",
+        "files": 2
+      },
+      {
+        "id": "A1",
+        "status": "verified",
+        "files": 206
+      }
+    ],
+    "findings": [],
+    "diagnostics": [],
+    "exceptions": {
+      "applied": [
+        {
+          "rule": "S4",
+          "path": "src/components/chrome/",
+          "target": "src/lib/runtime/",
+          "reason": "Preference bindings intentionally connect chrome to the local runtime store.",
+          "file": "src/components/chrome/density-toggle/density-toggle.tsx",
+          "line": 1,
+          "column": 30,
+          "evidence": "src/lib/runtime/index.ts"
+        },
+        {
+          "rule": "S4",
+          "path": "src/components/chrome/",
+          "target": "src/lib/runtime/",
+          "reason": "Preference bindings intentionally connect chrome to the local runtime store.",
+          "file": "src/components/chrome/density-toggle/density-toggle.tsx",
+          "line": 2,
+          "column": 27,
+          "evidence": "src/lib/runtime/index.ts"
+        },
+        {
+          "rule": "S4",
+          "path": "src/components/chrome/",
+          "target": "src/lib/runtime/",
+          "reason": "Preference bindings intentionally connect chrome to the local runtime store.",
+          "file": "src/components/chrome/density-toggle/density-toggle.tsx",
+          "line": 3,
+          "column": 47,
+          "evidence": "src/lib/runtime/hooks.ts"
+        },
+        {
+          "rule": "S4",
+          "path": "src/components/chrome/",
+          "target": "src/lib/runtime/",
+          "reason": "Preference bindings intentionally connect chrome to the local runtime store.",
+          "file": "src/components/chrome/theme-toggle/theme-toggle.tsx",
+          "line": 1,
+          "column": 28,
+          "evidence": "src/lib/runtime/index.ts"
+        },
+        {
+          "rule": "S4",
+          "path": "src/components/chrome/",
+          "target": "src/lib/runtime/",
+          "reason": "Preference bindings intentionally connect chrome to the local runtime store.",
+          "file": "src/components/chrome/theme-toggle/theme-toggle.tsx",
+          "line": 2,
+          "column": 24,
+          "evidence": "src/lib/runtime/index.ts"
+        },
+        {
+          "rule": "S4",
+          "path": "src/components/chrome/",
+          "target": "src/lib/runtime/",
+          "reason": "Preference bindings intentionally connect chrome to the local runtime store.",
+          "file": "src/components/chrome/theme-toggle/theme-toggle.tsx",
+          "line": 3,
+          "column": 45,
+          "evidence": "src/lib/runtime/hooks.ts"
+        }
+      ],
+      "unused": []
+    }
+  },
+  "browser": {
+    "suites_passed": 9,
+    "report": "browser.json",
+    "engine": "Chromium",
+    "visual_review": [
+      "desktop landing",
+      "rail shell",
+      "editable dashboard",
+      "mobile charts",
+      "mobile date picker"
+    ]
+  },
+  "mutations": {
+    "killed": 17,
+    "total": 17,
+    "equivalent_control": "survived",
+    "compile_error_control": "invalid",
+    "report": "mutations.json",
+    "recorded_source_hashes_match": true
+  },
+  "limits": [
+    "See ../../port-parity.md for review scope, inherited skips and archived scaffold contracts."
+  ]
+}

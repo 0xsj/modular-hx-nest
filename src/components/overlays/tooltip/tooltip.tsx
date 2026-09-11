@@ -1,30 +1,57 @@
-import { Tooltip as Ark } from "@ark-ui/solid";
-import { splitProps, type ComponentProps, type JSX } from "solid-js";
+import { Tooltip as Ark } from "@ark-ui/solid/tooltip";
+import type { ComponentProps, JSX } from "solid-js";
+import { createContext, useContext } from "solid-js";
 import { Portal } from "solid-js/web";
-import { cn } from "~/lib/kernel";
 import s from "./tooltip.module.css";
-
-export type TooltipProps = ComponentProps<typeof Ark.Root>;
-export type TooltipTriggerProps = ComponentProps<typeof Ark.Trigger>;
-
-export function Tooltip(props: TooltipProps) {
-  return <Ark.Root {...props} />;
-}
-
-export function TooltipTrigger(props: TooltipTriggerProps) {
-  return <Ark.Trigger {...props} />;
-}
-
-export function TooltipContent(props: { class?: string; children: JSX.Element }) {
-  const [local] = splitProps(props, ["class", "children"]);
+const Timing = createContext({
+  delay: 500,
+});
+export type TooltipProviderProps = {
+  delayDuration?: number;
+  children: JSX.Element;
+};
+export function TooltipProvider(props: TooltipProviderProps) {
   return (
-    <Portal>
-      <Ark.Positioner class={s.positioner}>
-        {/* No interactive children, ever. A tooltip disappears on blur and on
-            pointer-leave, so anything focusable inside it is unreachable —
-            see doc.ts. */}
-        <Ark.Content class={cn(s.content, local.class)}>{local.children}</Ark.Content>
-      </Ark.Positioner>
-    </Portal>
+    <Timing.Provider
+      value={{
+        get delay() {
+          return props.delayDuration ?? 500;
+        },
+      }}
+    >
+      {props.children}
+    </Timing.Provider>
+  );
+}
+export type TooltipProps = {
+  content: JSX.Element;
+  side?: "top" | "right" | "bottom" | "left";
+  asChild: NonNullable<ComponentProps<typeof Ark.Trigger>["asChild"]>;
+};
+export function Tooltip(props: TooltipProps) {
+  const timing = useContext(Timing);
+  return (
+    <Ark.Root
+      openDelay={timing.delay}
+      closeDelay={100}
+      positioning={{
+        placement: props.side ?? "top",
+        gutter: 6,
+      }}
+    >
+      <Ark.Trigger asChild={props.asChild} />
+      <Portal>
+        <Ark.Positioner
+          style={{
+            "z-index": "var(--z-tooltip,80)",
+          }}
+        >
+          <Ark.Content class={s.content}>
+            {props.content}
+            <Ark.Arrow class={s.arrow} />
+          </Ark.Content>
+        </Ark.Positioner>
+      </Portal>
+    </Ark.Root>
   );
 }

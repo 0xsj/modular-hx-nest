@@ -1,60 +1,61 @@
 /**
- * root — the composition root, and the only file that picks an adapter.
+ * root — the composition root, and the only tier that picks an adapter.
  *
- *     root  may import  everything below it
- *     root  ✗ imported by anything except src/routes
+ * # It takes what it needs rather than reading it
  *
- * Every other tier is written so that this one file is the only place a choice
- * is made. `services` takes the client rather than importing one precisely so
- * the decision lands here; this is where it is collected.
+ * No cookie is read here, no header, no query string. Those are the caller's
+ * job, and the caller is the one place that differs per framework — so this
+ * tier imports nothing framework-shaped and travels to the sibling templates
+ * unchanged, which the boundaries check enforces.
+ * Optional diagnostics use the same rule: the caller supplies an explicit trace
+ * in CallOptions. Roots wrap transports outside chaos, but do not construct a
+ * global recorder, keep interaction history, or choose an export destination.
  *
- * # It TAKES what it needs; it does not read it
- *
- * No environment variable, no cookie, no query string. `createRoot` is a
- * function of its arguments, and that is what keeps this tier framework-free —
- * so it travels to the sibling templates unchanged.
- *
- * Reading a cookie is a framework's job and differs in every one of them.
- * Pushing that read up into the caller means the difference between the
- * templates is a few lines in a route handler rather than a rewritten tier.
+ * The cost is one line at each call site passing the token and the plan in.
+ * The alternative is a tier that reads its runtime's request context and
+ * therefore cannot leave that runtime, which is the thing this is for.
  *
  * # One root per INTERACTION, not per request
  *
- * This is the whole reason the correlation id is worth carrying. A click that
- * fans out into four requests is one interaction, and all four failures name
- * it. Build a root per request instead and the id degenerates into a second
- * request id — the same information twice, under two names.
+ * That is what makes the correlation id mean anything. A page that fans out
+ * into four service calls should produce four failures naming the SAME
+ * interaction; build a root per request instead and the id degenerates into a
+ * second request id, and the question it exists to answer — *what else happened
+ * when they clicked this* — becomes unanswerable again.
  *
- * `lib/runtime`'s `beginInteraction` mints one; the caller hands it here.
+ * # The fixture table ships empty, deliberately
  *
- * # A `Root` is four facts, and three of them are for the screen
+ * A template has no domain, so there is nothing a fixture could honestly
+ * reproduce. Every call therefore comes back as an unserved route — `internal`
+ * carrying `unserved_route` — which says *this fixture was never asked* rather
+ * than pretending a server answered. A caller with its own fixtures passes them
+ * in rather than editing this tier.
  *
- *     client          the only thing services take
- *     correlationId   what every failure from this root will name
- *     usingFixtures   transport-level PROVENANCE
- *     underChaos      whether the states you are seeing were forced
+ * # `usingFixtures` is transport-level PROVENANCE, per domain
  *
- * `usingFixtures` matters because *nobody looked* and *a fixture answered* are
- * different claims, and a screen that cannot distinguish them will make the
- * more flattering one. `underChaos` matters for the same reason from the other
- * side: a forced failure that looks real is an afternoon somebody spends
- * chasing it.
+ * The one provenance fact a template genuinely owns: did this value come from a
+ * fixture or a server? A screen showing fixture data should be able to say so,
+ * because *nobody looked* and *a fixture answered* are different claims and a
+ * UI that renders them alike has thrown away the difference.
  *
- * # The route table is empty, and that is the honest state
+ * Domain provenance — why anyone should believe a value — is not modelled here
+ * and should not be. See
+ * `decisions/0003-the-client-sends-a-correlation-id-and-provenance-is-a-domain-concern`.
  *
- * There is no domain in a template, so there is nothing a fixture could
- * reproduce. Every request comes back as an unserved route rather than as a
- * plausible answer — *this fixture was never asked*, which is what
- * `lib/http`'s adapters spec means by refusing to call it a 404.
+ * # What is deliberately NOT here
  *
- * # Deliberately absent
+ * **Nothing, now.** A per-domain served list was deferred here until domains
+ * existed — a `Domain` union with no members being a modelled state with no
+ * caller. Three landed, so the deferral expired and `clientFor(domain)` is the
+ * result: two questions rather than one, *is there a backend* and *is this
+ * domain finished*, so the first endpoint to ship does not wait for the last.
  *
- * **A `SERVED` list.** Graduating domain-by-domain as a backend grows is real
- * and belongs to a product, not to a template with no domains. When it exists
- * it is one array here and a startup line that prints it, so *is this screen
- * real* needs no investigation.
+ * `served` defaults to every domain, so a base url on its own does the obvious
+ * thing. Naming a subset is the graduation; naming none is a base url
+ * configured and deliberately unused.
  *
- * **A provider.** Handing a root down a component tree is a framework's
- * question. This tier makes one; where it is put is above.
+ * **A session.** Reading and writing a bearer is framework work — a cookie on
+ * one runtime, a store on another — and putting it here would cost this tier
+ * its portability for no gain.
  */
 export {};

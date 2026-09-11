@@ -1,0 +1,36 @@
+@layer screen {
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-6);
+  }
+  .detail {
+    min-inline-size: 0;
+    display: grid;
+    gap: var(--space-5);
+  }
+  .search {
+    display: flex;
+    align-items: end;
+    gap: var(--space-4);
+    flex: 1 1 250px;
+    min-inline-size: 0;
+  }
+  .search > :first-child {
+    min-inline-size: 0;
+    flex: 1;
+  }
+  .choice {
+    flex: 1 1 180px;
+    min-inline-size: 0;
+  }
+  .host {
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 1150px) {
+    .workspace {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

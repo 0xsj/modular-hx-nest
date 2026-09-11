@@ -1,0 +1,35 @@
+@layer primitive {
+  .progress {
+    display: block;
+    appearance: none;
+    inline-size: 100%;
+    block-size: var(--space-3);
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--surface-panel-2);
+    accent-color: var(--accent);
+  }
+  .progress::-webkit-progress-bar {
+    background: var(--surface-panel-2);
+    border-radius: inherit;
+  }
+  .progress::-webkit-progress-value {
+    background: var(--accent);
+    border-radius: inherit;
+  }
+  .progress::-moz-progress-bar {
+    background: var(--accent);
+    border-radius: inherit;
+  }
+  .progress:indeterminate {
+    background: repeating-linear-gradient(
+      110deg,
+      var(--accent) 0 8px,
+      var(--accent-tint) 8px 16px
+    );
+  }
+  .progress:indeterminate::-webkit-progress-bar {
+    background: transparent;
+  }
+}

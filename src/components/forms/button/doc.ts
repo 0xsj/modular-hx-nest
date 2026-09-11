@@ -1,295 +1,190 @@
 /**
- * Button — the actionable primitive, and the shape every other primitive here
- * copies.
- *
- * ─────────────────────────────────────────────────────────────────────────────
- * A NOTE, NOT AN ORACLE — `flover-solid ADR 0001`.
- *
- * This file was written before `button.tsx` existed and hashed at that moment,
- * and that ordering was worth having: it is what produced B11, the icon-name
- * union, and the spinner consequence in §4.3, each of which is a design
- * decision that would have been made differently, or not at all, with the
- * implementation already on screen. The pressure was the benefit and it has
- * been collected.
+ * Button — the actionable primitive, and the one that decides how every other
+ * primitive here is shaped.
+ *
+ * ┌───────────────────────────────────────────────────────────────────────────┐
+ * │ § CONTRACT — the oracle.                                                  │
+ * │                                                                           │
+ * │ Everything from here to § MECHANICS is behaviour a caller may depend on    │
+ * │ and a black-box test may assert. It names no library, describes no         │
+ * │ internal structure and contains no code, so it can be handed to a test     │
+ * │ writer whole — the sanitising pass in protocols/spec-tests.md is a         │
+ * │ section cut, not a grep.                                                   │
+ * │                                                                           │
+ * │ Written before the implementation existed. That is the property that       │
+ * │ makes it an oracle rather than a description, and it cannot be recovered   │
+ * │ later.                                                                    │
+ * └───────────────────────────────────────────────────────────────────────────┘
  *
- * What it is NOT is a sealed oracle. flover-solid ADR 0001 puts the barrier on
- * `src/lib/**`, starting with `lib/http`, and keeps it off components — the
- * mutation round that scores a spec test degenerates here into class-map
- * swaps, and killing those needs the class-name assertions
- * `protocols/accessibility.md` tells you not to write. Nothing in this file is
- * passed to a barriered writer.
+ * # What it is
  *
- * §3 is still normative, and it is still the thing to test — with an ordinary
- * interaction test, written with the implementation in view, asserting
- * accessible output rather than class names. **No such test exists yet.** The
- * sixteen clauses were checked once by a throwaway browser probe that was not
- * committed, so today they can regress silently. That record names it as the
- * cost of the decision rather than pretending it away.
- * ─────────────────────────────────────────────────────────────────────────────
+ * A control that performs an action when activated. It is not a link: a link
+ * navigates and belongs in history; a button changes something. When the thing
+ * being rendered navigates, the caller supplies the anchor and Button lends it
+ * an appearance — see `asChild` — rather than a button being made to navigate.
  *
+ * It carries no state of its own, owns no layout, and decides nothing about
+ * where it sits.
  *
- * # 1 · What a button is
+ * # Shape
  *
- * A control that performs an ACTION IN PLACE. Pressing it runs something; it
- * does not navigate, and it holds no value.
+ *     intent    "primary" | "secondary" | "ghost" | "danger" | "link"
+ *               default "secondary"
+ *     size      "sm" | "md" | "lg" | "icon"
+ *               default "md"
+ *     asChild   boolean, default false
+ *     loading   boolean, default false
+ *     disabled  boolean, default false
+ *     type      "button" | "submit" | "reset", default "button"
  *
- * The three it is confused with, and the test that separates each:
+ * Plus every attribute a native button accepts, `color` excepted — the visual
+ * register is `intent`, and two ways to spell it is one too many.
  *
- *     Button    does something.        Does the URL change? No  -> button
- *     Link      goes somewhere.        Does the URL change? Yes -> anchor
- *     Toggle    stays pressed.         Does it have an on state? -> aria-pressed
- *     Switch    a setting, applied     Does it take effect before Save?
- *               immediately.
+ * `size: "icon"` additionally REQUIRES `aria-label`. This is a constraint on
+ * the type, not a runtime check: the two branches are a union, and the icon
+ * branch does not typecheck without a label.
  *
- * Getting the first two backwards is the common one and it is not cosmetic: an
- * anchor announces itself as a link and offers open-in-new-tab, middle-click
- * and a status-bar preview, none of which a button has and all of which a
- * person will try. A button that navigates is a link that has thrown its
- * affordances away.
+ * # Behaviour
+ *
+ * ## The default element and its type
  *
- * **No headless library owns this.** Ark UI has no Button and neither does
- * Radix, because the platform `<button>` is already focusable, keyboard
- * operable, and self-announcing. There is no behaviour to buy. What this
- * component borrows from Ark is exactly one thing — the polymorphism in
- * §4 — and it borrows nothing else.
+ * Renders a native button element unless `asChild` is set.
  *
+ * `type` defaults to "button". A button owned by a form defaults to "submit"
+ * in the platform, so without this a handler runs AND the form submits — a
+ * defect invisible until the component is first used inside a form, which then
+ * presents as a routing bug rather than a missing attribute.
  *
- * # 2 · Shape
+ * ## Inert: disabled and loading
+ *
+ * `disabled` and `loading` both make the control inert. They are the same
+ * state for interaction purposes and different states for announcement.
  *
- * ## 2.1 Variants — the appearance axes, and both have a default
+ * When inert, on the native element:
+ *   · the native disabled attribute is set — unfocusable, unclickable,
+ *     announced by the platform
+ *   · `data-disabled` is present, so one CSS selector covers both branches
  *
- *     intent   primary | secondary | ghost | danger        default: secondary
- *     size     sm | md | lg | icon                         default: md
+ * When loading, additionally:
+ *   · `aria-busy` is set
+ *   · `data-loading` is present
+ *   · a busy indicator renders, hidden from assistive technology, and the
+ *     children still render alongside it — the label does not disappear
  *
- * `intent` defaults to `secondary` because a page with two primary buttons has
- * none. The default is the one that is always safe to reach for, and the
- * emphatic one has to be asked for by name.
+ * When not inert, none of these attributes are present at all. Absent, never
+ * false: `data-disabled="false"` still matches `[data-disabled]`.
  *
- * ## 2.2 Props
+ * ## Handlers are passed through and never manufactured
  *
- *     intent?     ButtonIntent
- *     size?       ButtonSize
- *     loading?    boolean        default false
- *     disabled?   boolean        default false
- *     type?       "button" | "submit" | "reset"   default "button"
- *     class?      string         composed with the variant classes, never replacing them
- *     asChild?    ButtonAsChild — aliased from Ark, see the amendment below
- *     children?   JSX.Element
- *     ...every other native button attribute
+ * Button attaches no function the caller did not give it. If no handler is
+ * passed, none is present on the rendered element — including while inert.
  *
- * ### AMENDED 2026-09-08, after implementation
+ * This is a hard rule rather than a preference, and it is what the inert
+ * behaviour above is shaped around. A component that always attaches a
+ * handler — even one that does nothing on the happy path — cannot be rendered
+ * from a server component at all, and takes every page that renders it down
+ * with it. So inertness is expressed through attributes and styling, never
+ * through a wrapped or synthesised handler.
  *
- * §2.2 first wrote this prop's signature by hand as
- * `(props: () => Record<string, unknown>) => JSX.Element`. That is wrong, and
- * the compiler found it: Ark passes `(userProps?) => JSX.HTMLAttributes<any>`,
- * and a parameter type is contravariant, so the hand-written form is not
- * assignable to Ark's. The type is now aliased from Ark
- * (`NonNullable<PolymorphicProps<"button">["asChild"]>`) rather than restated,
- * so it cannot drift when Ark changes it.
+ * A caller's handler is called on activation when the control is not inert,
+ * and is not called when it is.
  *
- * The amendment is marked rather than folded in silently, because an oracle
- * that is edited to agree with the code it is measuring has stopped being an
- * oracle. This one changed a SIGNATURE and no clause in §3 — the contract is
- * untouched, which is the thing to check when a spec is amended after the
- * fact. `protocols/spec-tests.md` §5: fix the spec, then the test, never the
- * test alone.
+ * ## asChild
  *
- * ## 2.3 The type is a union, and the icon branch demands a name
+ * With `asChild`, the caller supplies the element and Button lends it the
+ * button's appearance. Exactly ONE element renders: the caller's, wearing the
+ * button's classes. No wrapper is introduced and no tag is substituted.
  *
- *     ButtonProps =
- *       | Base & { size?: Exclude<ButtonSize, "icon"> }
- *       | Base & { size: "icon"; "aria-label": string }
+ * Where both sides supply the same thing, the resolution is fixed:
+ *   · the caller's props win over the button's
+ *   · `className` and `style` merge rather than replace
+ *   · event handlers compose, the caller's running first — a caller's handler
+ *     is never silently dropped
  *
- * `size="icon"` renders no text, so a screen reader has nothing to announce —
- * the single most common accessible-name failure in a component library. A
- * union moves that from a review comment to a compile error. This is the one
- * rule in this file enforced by the type system rather than by a check.
+ * With `asChild` and inert, the native disabled attribute is NOT set, because
+ * it means nothing on an arbitrary element. Instead:
+ *   · `aria-disabled` is set, for the announcement
+ *   · the element is removed from the tab order
+ *   · pointer interaction is suppressed through `data-disabled`
  *
+ * When `loading` renders its indicator alongside a caller-supplied element,
+ * the indicator renders INSIDE that element rather than beside it.
  *
- * # 3 · CONTRACT
+ * ## Class names
  *
- * Numbered so a failure can cite one. Each is a claim about observable output,
- * not about how the component is written.
+ * A caller's `className` is added to the button's own; it never replaces them.
  *
- * ## Rendering
+ * # Deliberately absent
  *
- *   B1  With no `asChild`, it renders exactly one `<button>` element.
+ * `fullWidth`. That is the caller's layout, expressed where the layout is, and
+ * a prop for it puts one arrangement's needs inside every button.
  *
- *   B2  `type` defaults to `"button"`.
- *       A `<button>` inside a form defaults to `type="submit"`, so without
- *       this `<form><Button onClick={apply}>Apply</Button></form>` runs the
- *       handler AND submits. Invisible until the component is first used
- *       inside a form, and it then presents as a routing bug.
+ * An icon slot. A caller placing an icon among the children already works and
+ * needs no API for it.
  *
- *   B3  Every `intent` × `size` combination produces a non-empty class string,
- *       and that string contains neither `"undefined"` nor `"null"`.
- *       Totality: 4 × 4 = 16 combinations, plus the two defaulted forms.
+ * A `loadingText` prop. The label does not change while busy; `aria-busy` is
+ * the announcement, and swapping the label moves the control under a reader's
+ * cursor.
  *
- *   B4  A caller's `class` is COMPOSED with the variant classes, never
- *       replaces them. Both are present in the output.
+ * # Known gaps — what this contract does NOT promise
  *
- *   B5  `children` are rendered.
+ * The `asChild` inert mitigation stops a click and stops tabbing to it. It does
+ * NOT stop keyboard activation if something focuses the element
+ * programmatically, and closing that gap needs exactly the synthesised handler
+ * forbidden above. So the rule is: **do not render a link you do not want
+ * followed.** `asChild` with `disabled` is a smell rather than a feature, and
+ * the gap is recorded here rather than hidden.
  *
- * ## Inertness — `disabled` and `loading` are one state with two names
+ * Nothing here promises a visible focus indicator; that is the reset's job and
+ * is asserted where the reset is.
  *
- *   B6  `inert` is `disabled || loading`. Every rule below keys off `inert`,
- *       not off `disabled` alone.
+ * ┌───────────────────────────────────────────────────────────────────────────┐
+ * │ § MECHANICS — NOT the oracle.                                             │
+ * │                                                                           │
+ * │ Strip everything below this line before handing the document to a         │
+ * │ spec-test writer. It describes how the contract above is satisfied, and    │
+ * │ a test derived from it is a snapshot of the current implementation        │
+ * │ rather than a claim about intended behaviour.                             │
+ * └───────────────────────────────────────────────────────────────────────────┘
  *
- *   B7  Without `asChild`, an inert button carries the real `disabled`
- *       attribute. Not `aria-disabled`, not `pointer-events: none` — the
- *       platform attribute, which is unfocusable, unclickable and announced.
- *       Dimming a control is not disabling it.
+ * # Radix has no Button, and that is correct
  *
- *   B8  An inert button carries `data-disabled`, so ONE stylesheet selector
- *       covers both the native and the polymorphic branch. Absent — not
- *       `data-disabled="false"` — when not inert.
+ * A button needs no behaviour a headless library could own: the platform
+ * element is focusable, keyboard-operable and self-announcing already. So this
+ * borrows exactly one thing from `radix-ui` — `Slot` — and that one thing is
+ * what makes it composable.
  *
- *   B9  `loading` sets `aria-busy` and `data-loading`, and both are ABSENT
- *       rather than `"false"` when not loading.
+ * Per the stack rule, this file's component is the only importer of `radix-ui`
+ * in this directory. A screen imports Button, never Slot.
  *
- *   B10 A loading button keeps its accessible name. The name may not be
- *       replaced by a spinner, a label change, or an emptied child.
+ * # asChild beats an `as` prop
  *
- * ## The rule this component exists to hold
+ * `as="a"` would have to re-declare the prop types of every element it can
+ * become, and still could not express *"render whatever component the caller
+ * already has"* — which is the case that actually arises, with a router's Link.
+ * `asChild` inverts it: the caller brings the element and Slot merges onto it.
  *
- *   B11 **A primitive may not manufacture a function prop it was not given.**
- *       If no `onClick` is passed, no `onClick` appears in the output. This
- *       holds for every `on*` prop and it holds especially in the inert state,
- *       where the tempting shape is a handler that swallows the event.
+ * Slot's merge asymmetry is what the contract's resolution rules describe;
+ * they are Slot's semantics, written out so a caller need not know that.
+ * `Slot.Slottable` marks which child receives the props when there are several,
+ * which is what puts the busy indicator inside the caller's element.
  *
- *       A component that always attaches a handler takes on a capability
- *       requirement its callers never agreed to. It is expressed
- *       declaratively instead — the attribute in B7, the tab order in B13, and
- *       `pointer-events` from the data attribute in B8.
+ * # cva, and why the variants are a separate file
  *
- *   B12 A caller's handler is never wrapped, replaced, or conditionally
- *       swapped. `onClick={inert ? swallow : props.onClick}` is a violation of
- *       B11 for the callers who reach the true branch, non-deterministically.
+ * `button.variants.ts` holds the cva map and exports its `VariantProps`. It is
+ * separate so the variant surface can be read without the markup, and so the
+ * type of `intent` and `size` has exactly one definition — the CSS class map
+ * and the prop type cannot drift because the second is derived from the first.
  *
- * ## Polymorphism
+ * # The styling tier
  *
- *   B13 With `asChild`, NO `<button>` element is rendered. The caller's element
- *       is the only one. No wrapper, no cloned tag.
+ * `button.module.css` is `@layer primitive`. A composition or a screen can
+ * therefore override any of it without a specificity fight, by construction —
+ * which is the whole reason the layer order exists.
  *
- *   B14 With `asChild` and inert: `aria-disabled` is set and `tabIndex` is
- *       `-1`. The native `disabled` attribute is NOT used, because it means
- *       nothing on an anchor.
+ * # The default intent is secondary
  *
- *   B15 With `asChild`, `type` is NOT passed. It is meaningless on an anchor
- *       and invalid markup.
- *
- *   B16 **The `href` gap is not closed, and that is recorded rather than
- *       hidden.** B14 stops a pointer click and stops tabbing to it. It does
- *       NOT stop Enter if something focuses the anchor programmatically.
- *       Closing that would require exactly the manufactured handler B11
- *       forbids. So the rule is a rule about CALL SITES: do not render a link
- *       you do not want followed. `asChild` with `disabled` is a smell, not a
- *       feature.
- *
- *
- * # 4 · Mechanics
- *
- * ## 4.1 `asChild` is a render prop, and that is Ark's shape rather than a
- * choice made here
- *
- *     <Button asChild={(props) => <A href="/x" {...props()}>Go</A>}>
- *
- * The caller receives a function, calls it, and spreads the result onto their
- * own element. Nothing is cloned and nothing is inspected.
- *
- * This matters beyond ergonomics. The React ecosystem's version of this clones
- * the child to attach props, which fails silently the moment the child is not
- * the element — wrapped in a fragment, a layout div, an adapter — and the
- * props land on the wrapper. Handing them over cannot fail that way, because
- * the caller has to put them somewhere and the only place they type-check is
- * on the element. It is the same asymmetry `protocols/accessibility.md` argues
- * for in a form field, one tier down.
- *
- * A boolean `asChild` plus a cloned child is therefore not available here, and
- * an `as="a"` prop is not wanted: it would have to re-declare the prop types of
- * every element it can become and still could not express *render whatever
- * component the caller already has*, which is the case that actually arises.
- *
- * ## 4.2 The merge is not symmetric, and the asymmetry is load-bearing
- *
- * Read out of `@zag-js/solid`'s `mergeProps(parentProps, userProps)` and
- * confirmed by running it, on 2026-09-08:
- *
- *     ordinary props   the CALLER wins       last source defined wins
- *     class            CONCATENATED          parent's first, then the caller's
- *     style            merged
- *     on* handlers     COMPOSED              the caller's runs FIRST, then ours
- *     ref              STRIPPED              removed before the merge; a ref
- *                                            never reaches the caller's element
- *
- * Two consequences worth stating because a test can check them and a reader
- * cannot guess them:
- *
- *   - A caller's `onClick` is never silently discarded — it is composed, and
- *     it runs first. This is what keeps B12 true through the merge.
- *   - `ref` does not pass through. A caller who needs a handle to the element
- *     puts it on their own element directly. Anything here that tried to
- *     forward one would be forwarding into a void.
- *
- * ## 4.3 The spinner is a style, not a child — forced by 4.1
- *
- * `asChild` hands the caller the props and the caller renders the children, so
- * this component CANNOT inject a spinner element into the polymorphic branch.
- * The React version solves that with a slot marker; Ark has no equivalent.
- *
- * Two mechanisms for one state is how the two branches drift, so there is one:
- * `data-loading` (B9) and a stylesheet that draws the indicator. It is
- * identical in both branches by construction rather than by attention, and it
- * is why this component imports no icon.
- *
- * ## 4.4 cva owns the class map, and is the only variant mechanism
- *
- * `button.variants.ts` is the single place a variant name maps to a class. A
- * conditional class list in the markup is the alternative and it is refused:
- * it puts the map in the render path where a fifth intent has to be added by
- * reading JSX.
- *
- * `intent: "neutral"` style keys that map to the empty string are still
- * listed rather than omitted, because a variant key present in the type and
- * absent from the map is a runtime `undefined` in the class list — which B3
- * is written to catch.
- *
- * ## 4.5 Props are not destructured, because Solid props are reactive
- *
- * `const { intent } = props` reads once and never updates. Solid's props are a
- * proxy; destructuring at the top of a component silently converts every prop
- * into a constant, and nothing errors. `splitProps` is the mechanism.
- *
- * This is the Solid-specific trap in this file and it has no analogue in the
- * sibling templates, which is exactly why it is written down here rather than
- * assumed to be common knowledge.
- *
- *
- * # 5 · Deliberately absent
- *
- *     fullWidth      the caller's layout, expressed where the layout is. A
- *                    prop for it puts one arrangement's needs in every button
- *     an icon slot   <Button><Icon/>Label</Button> already works and needs no API
- *     a loading label  swapping the text on load breaks B10
- *     ButtonGroup    a composition with its own keyboard model, not this
- *     link intent    a button styled as a link is the confusion in §1, sold
- *                    as a variant
- *
- *
- * # 6 · What this specification does NOT decide
- *
- * Stated so a test writer reports these rather than guessing, and so a reader
- * does not mistake silence for a rule.
- *
- *   - The concrete class NAMES cva emits. They are CSS-module hashes; assert
- *     that a class is present and stable, never its text.
- *   - The visual appearance of any intent. That is the stylesheet's, and no
- *     assertion here should depend on a colour.
- *   - Whether `loading` should also imply `aria-live`. It does not today, and
- *     no case has needed it.
- *   - Focus-ring geometry. `styles/reset.css` owns `:focus-visible` globally.
- *   - What happens when BOTH `asChild` and `children` are passed. Ark ignores
- *     `children` in that branch; whether this component should refuse it
- *     loudly is open.
+ * A page with two primary buttons has none. The default is the one that is
+ * always safe to reach for, so the emphatic one has to be asked for by name.
  */
 export {};

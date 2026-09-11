@@ -1,141 +1,256 @@
 import { describe, expect, it } from "vitest";
-import { err, ok, notFound, rateLimited, conflict, invalid, type Failure } from "~/lib/kernel";
-import { createMemoryClient, type MemoryRoute } from "~/lib/http";
 import {
-  NO_DEFAULT, createItem, findDefaultItem, getItem, itemPage, listItems, renameItem,
+  err,
+  isRetryable,
+  notFound,
+  ok,
+  presenceOf,
+  rateLimited,
+} from "../../kernel";
+import { createMemoryClient, type MemoryRoute } from "../../http";
+import {
+  createItem,
+  findDefaultItem,
+  getItem,
+  itemPage,
+  listItems,
+  renameItem,
+  NO_DEFAULT,
   type Item,
-} from "./index";
+} from ".";
 
 const items: Item[] = [
   { id: "i1", name: "api", host: "api.example.com" },
   { id: "i2", name: "www", host: "www.example.com" },
 ];
-const client = (routes: MemoryRoute[]) => createMemoryClient({ routes, latencyMs: 1 });
-const fail = (r: { ok: boolean }) => (r as unknown as { error: Failure }).error;
 
-describe("reads", () => {
-  it("an empty list is a VALUE, not a failure", async () => {
-    const r = await listItems(client([{ method: "GET", pattern: /^\/items$/, handle: () => ok([]) }]), "w");
-    expect(r.ok, "a read that returned zero rows LOOKED").toBe(true);
+const routes: MemoryRoute[] = [
+  {
+    method: "GET",
+    pattern: /^\/items$/,
+    handle: (req) => (req.params?.workspace === "empty" ? ok([]) : ok(items)),
+  },
+  { method: "GET", pattern: /^\/items\/i1$/, handle: () => ok(items[0]) },
+  /* A route that deliberately 404s. An id matching NO route is `internal` /
+     `unserved_route` — this fixture was never asked — which must not be
+     mistakable for the server saying it does not exist. A fixture that wants a
+     404 registers one, which is the discipline. */
+  {
+    method: "GET",
+    pattern: /^\/items\/gone$/,
+    handle: () => err(notFound("No such item.", { status: 404 })),
+  },
+  {
+    method: "GET",
+    pattern: /^\/items\/busy$/,
+    handle: () => err(rateLimited("Slow down.", 12)),
+  },
+  {
+    method: "GET",
+    pattern: /^\/items\/moved$/,
+    handle: () => err({ kind: "conflict", message: "It moved.", status: 409 }),
+  },
+  {
+    method: "GET",
+    pattern: /^\/workspaces\/set\/default-item$/,
+    handle: () => ok(items[0]),
+  },
+  {
+    method: "GET",
+    pattern: /^\/workspaces\/none\/default-item$/,
+    handle: () =>
+      err(notFound("No default.", { status: 404, type: NO_DEFAULT })),
+  },
+  {
+    method: "GET",
+    pattern: /^\/workspaces\/typo\/default-item$/,
+    handle: () => err(notFound("No such path.", { status: 404 })),
+  },
+  {
+    method: "POST",
+    pattern: /^\/items$/,
+    handle: (req) =>
+      (req.body as Item).name === "api"
+        ? err({ kind: "conflict", message: "Name taken.", status: 409 })
+        : ok({ ...(req.body as Item), id: "i3" }),
+  },
+  {
+    method: "PATCH",
+    pattern: /^\/items\/i1$/,
+    handle: (req) => ok({ ...items[0], ...(req.body as Item) }),
+  },
+];
+
+const client = createMemoryClient({ routes, latencyMs: 0 });
+
+describe("a service names the endpoint and takes the client", () => {
+  it("reads a list", async () => {
+    const r = await listItems(client, "w1");
+    expect(r.ok && r.value).toEqual(items);
+  });
+
+  it("an empty list is a VALUE, not a failure and not a not_found", async () => {
+    const r = await listItems(client, "empty");
     expect(r.ok && r.value).toEqual([]);
   });
 
-  it("a read promises not_found and passes transport through untouched", async () => {
-    const r = await getItem(
-      client([{ method: "GET", pattern: /^\/items\/x$/, handle: () => err(rateLimited("slow down", 30)) }]),
-      "x",
-    );
-    const f = fail(r);
-    expect(f.kind, "a service may not narrow away a kind it does not control").toBe("rate_limited");
-    expect((f as { retryAfter?: number }).retryAfter, "folding would have lost this").toBe(30);
-  });
-
-  it("an unpromised domain kind folds to internal, keeping the original", async () => {
-    const r = await getItem(
-      client([{ method: "GET", pattern: /^\/items\/x$/, handle: () => err(conflict("nope")) }]),
-      "x",
-    );
-    expect(fail(r).kind, "a read never promised conflict").toBe("internal");
-    expect(fail(r).cause?.kind).toBe("conflict");
+  it("a bad id is not_found — a domain kind this read promises", async () => {
+    const r = await getItem(client, "gone");
+    if (r.ok) throw new Error("expected a failure");
+    expect(r.error.kind).toBe("not_found");
   });
 });
 
-describe("findDefaultItem — the three states", () => {
-  const route = (handle: MemoryRoute["handle"]): MemoryRoute => ({
-    method: "GET", pattern: /^\/workspaces\/[^/]+\/default-item$/, handle,
+describe("narrowing keeps the transport half intact", () => {
+  it("a rate limit passes through with its retry-after", async () => {
+    const r = await getItem(client, "busy");
+    if (r.ok) throw new Error("expected a failure");
+    expect(r.error.kind).toBe("rate_limited");
+    if (r.error.kind === "rate_limited") expect(r.error.retryAfter).toBe(12);
   });
 
-  it("a TAGGED 404 is emptiness — a success carrying null", async () => {
-    const r = await findDefaultItem(
-      client([route(() => err(notFound("none set", { status: 404, type: NO_DEFAULT })))]), "w");
-    expect(r.ok).toBe(true);
-    expect(r.ok && r.value, "looked and found nothing").toBeNull();
-  });
-
-  it("an UNTAGGED 404 is a fault, not emptiness", async () => {
-    const r = await findDefaultItem(client([route(() => err(notFound("no such path")))]), "w");
-    expect(r.ok, "a typo in an endpoint must not render as absence").toBe(false);
-    expect(fail(r).kind).toBe("internal");
-    expect(fail(r).cause?.kind).toBe("not_found");
-  });
-
-  it("a route nobody registered is a fault too", async () => {
-    const r = await findDefaultItem(client([]), "w");
-    expect(r.ok, "an unserved fixture route must never read as emptiness").toBe(false);
-    expect(fail(r).kind).toBe("internal");
-  });
-
-  it("a present value is found", async () => {
-    const r = await findDefaultItem(client([route(() => ok(items[0]))]), "w");
-    expect(r.ok && r.value).toEqual(items[0]);
+  it("a domain kind this read did NOT promise folds, keeping the original", async () => {
+    const r = await getItem(client, "moved");
+    if (r.ok) throw new Error("expected a failure");
+    expect(r.error.kind).toBe("internal");
+    expect(r.error.cause?.kind).toBe("conflict");
   });
 });
 
-describe("createItem — client validation is the server's shape", () => {
-  const routes: MemoryRoute[] = [{ method: "POST", pattern: /^\/items$/, handle: () => ok(items[0]) }];
+describe("absence is a value where the service says it is", () => {
+  it("found", async () => {
+    expect(presenceOf(await findDefaultItem(client, "set")).state).toBe(
+      "found",
+    );
+  });
 
-  it("refuses locally with the same kind and shape a server would send", async () => {
-    const r = await createItem(client(routes), { name: " ", host: "not a host!" });
-    const f = fail(r);
-    expect(f.kind, "one branch in the form, not two").toBe("invalid");
-    expect((f as { fields: Record<string, string> }).fields).toEqual({
+  it("looked and found nothing — a SUCCESS carrying null", async () => {
+    const r = await findDefaultItem(client, "none");
+    expect(r.ok && r.value).toBeNull();
+    expect(presenceOf(r).state).toBe("empty");
+  });
+
+  it("a 404 the service does not recognise is NOT emptiness", async () => {
+    const r = await findDefaultItem(client, "typo");
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.kind).toBe("internal");
+    expect(presenceOf(r).state).toBe("unmeasured");
+  });
+
+  it("all three states are distinct, which is the whole point", async () => {
+    const states = await Promise.all(
+      ["set", "none", "typo"].map(
+        async (w) => presenceOf(await findDefaultItem(client, w)).state,
+      ),
+    );
+    expect(new Set(states).size).toBe(3);
+  });
+});
+
+describe("a write", () => {
+  it("validates locally in the SAME shape the server would", async () => {
+    const r = await createItem(client, { name: "", host: "!!" });
+    if (r.ok || r.error.kind !== "invalid") throw new Error("expected invalid");
+    expect(r.error.fields).toEqual({
       name: "A name is required.",
       host: "That is not a hostname.",
     });
   });
 
-  it("does not call the transport when it refuses locally", async () => {
-    let called = false;
-    await createItem(client([{ method: "POST", pattern: /^\/items$/, handle: () => { called = true; return ok(items[0]); } }]),
-      { name: "", host: "ok.example" });
-    expect(called).toBe(false);
+  it("and surfaces the server's own refusal", async () => {
+    const r = await createItem(client, {
+      name: "api",
+      host: "other.example.com",
+    });
+    if (r.ok) throw new Error("expected conflict");
+    expect(r.error.kind).toBe("conflict");
   });
 
-  it("passes a valid input through", async () => {
-    const r = await createItem(client(routes), { name: "api", host: "api.example.com" });
-    expect(r.ok).toBe(true);
-  });
-
-  it("a server-side invalid keeps its fields", async () => {
-    const r = await createItem(
-      client([{ method: "POST", pattern: /^\/items$/, handle: () => err(invalid("taken", { host: "In use." })) }]),
-      { name: "api", host: "api.example.com" });
-    expect((fail(r) as { fields: Record<string, string> }).fields).toEqual({ host: "In use." });
+  it("succeeds otherwise", async () => {
+    const r = await createItem(client, {
+      name: "new",
+      host: "new.example.com",
+    });
+    expect(r.ok && r.value.id).toBe("i3");
   });
 });
 
 describe("composition", () => {
-  const routes: MemoryRoute[] = [
-    { method: "GET", pattern: /^\/items$/, handle: () => ok(items) },
-    { method: "GET", pattern: /^\/items\/i1$/, handle: () => ok(items[0]) },
-    { method: "PATCH", pattern: /^\/items\/i1$/, handle: (req) => ok({ ...items[0], name: (req.body as Item).name }) },
-  ];
-
-  it("independent — collects both values", async () => {
-    const r = await itemPage(client(routes), "w", "i1");
-    expect(r.ok && r.value.item).toEqual(items[0]);
+  it("independent calls collect, and the tuple is preserved", async () => {
+    const r = await itemPage(client, "w1", "i1");
+    expect(r.ok && r.value.item.id).toBe("i1");
     expect(r.ok && r.value.siblings).toHaveLength(2);
   });
 
-  it("independent — returns the FIRST failure", async () => {
-    const r = await itemPage(
-      client([{ method: "GET", pattern: /^\/items\/i1$/, handle: () => err(notFound("gone")) },
-              { method: "GET", pattern: /^\/items$/, handle: () => ok(items) }]), "w", "i1");
-    expect(fail(r).kind).toBe("not_found");
+  it("and return the FIRST failure", async () => {
+    const r = await itemPage(client, "w1", "gone");
+    if (r.ok) throw new Error("expected a failure");
+    expect(r.error.kind).toBe("not_found");
   });
 
-  it("dependent — step two uses step one's value", async () => {
-    const r = await renameItem(client(routes), "i1", "renamed");
-    expect(r.ok && r.value).toEqual({ id: "i1", name: "renamed", host: "api.example.com" });
+  it("a dependent call uses the first result's value", async () => {
+    const r = await renameItem(client, "i1", "renamed");
+    expect(r.ok && r.value).toEqual({
+      id: "i1",
+      name: "renamed",
+      host: "api.example.com",
+    });
   });
 
-  it("dependent — step one failing skips step two", async () => {
-    let patched = false;
-    const r = await renameItem(client([
-      { method: "GET", pattern: /^\/items\/i1$/, handle: () => err(notFound("gone")) },
-      { method: "PATCH", pattern: /^\/items\/i1$/, handle: () => { patched = true; return ok(items[0]); } },
-    ]), "i1", "x");
+  it("and short-circuits when the first step fails", async () => {
+    const r = await renameItem(client, "gone", "x");
+    if (r.ok) throw new Error("expected a failure");
+    expect(r.error.kind).toBe("not_found");
+  });
+});
+
+describe("an unserved fixture route is not a 404, and the tier keeps that true", () => {
+  it("an id nobody registered is `internal`, so it cannot be read as absence", async () => {
+    const r = await getItem(client, "never-registered");
+    if (r.ok) throw new Error("expected a failure");
+    expect(r.error.kind).toBe("internal");
+    expect(r.error.type).toBe("unserved_route");
+  });
+
+  it("while a route that MEANS not_found says so", async () => {
+    const r = await getItem(client, "gone");
+    if (r.ok) throw new Error("expected a failure");
+    expect(r.error.kind).toBe("not_found");
+  });
+});
+
+describe("a caller can cancel — the kind every tier defends and none could produce", () => {
+  it("an already-aborted signal reaches the port through the service", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const r = await listItems(client, "w1", { signal: controller.signal });
     expect(r.ok).toBe(false);
-    expect(patched, "a dependent step must not run on a failed prerequisite").toBe(false);
+    if (!r.ok) expect(r.error.kind).toBe("canceled");
+  });
+
+  it("aborting mid-flight cancels a slow request", async () => {
+    const slow = createMemoryClient({ routes, latencyMs: 200 });
+    const controller = new AbortController();
+    const pending = listItems(slow, "w1", { signal: controller.signal });
+    controller.abort();
+    const r = await pending;
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.kind).toBe("canceled");
+  });
+
+  it("a composition threads the signal into every call it makes", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const r = await itemPage(client, "w1", "i1", { signal: controller.signal });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.kind).toBe("canceled");
+  });
+
+  it("and a cancellation is never retryable, because it was asked for", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const r = await getItem(client, "i1", { signal: controller.signal });
+    if (r.ok) throw new Error("expected canceled");
+    expect(isRetryable(r.error)).toBe(false);
   });
 });

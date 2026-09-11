@@ -1,0 +1,28 @@
+@layer primitive {
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .pages {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .gap {
+    display: block;
+    padding-inline: var(--space-3);
+    color: var(--ink-3);
+  }
+  @media (max-width: 480px) {
+    .word {
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,204 @@
+@layer screen {
+  .chapterGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: var(--space-6);
+  }
+  .reader {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--space-9);
+    align-items: start;
+  }
+  .sidebar {
+    position: sticky;
+    inset-block-start: var(--space-6);
+    min-inline-size: 0;
+  }
+  .mobileChapters {
+    display: none;
+  }
+  .chapterNav {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .chapterNav ol {
+    display: grid;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .chapterNav a {
+    white-space: normal;
+    block-size: auto;
+    min-block-size: var(--control-md);
+    padding-block: var(--space-2);
+    overflow-wrap: anywhere;
+  }
+  .chapterNumber {
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    min-inline-size: 2ch;
+  }
+  .download {
+    font-size: var(--text-12-5);
+    color: var(--ink-2);
+    margin-block-start: var(--space-5);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .article {
+    display: grid;
+    gap: var(--space-9);
+    min-inline-size: 0;
+    max-inline-size: 850px;
+  }
+  .chapterHeader {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .section {
+    display: grid;
+    gap: var(--space-5);
+    min-inline-size: 0;
+    scroll-margin-block-start: var(--space-6);
+  }
+  .paragraph,
+  .list {
+    font-size: var(--text-13);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+  }
+  .paragraph {
+    max-inline-size: 76ch;
+  }
+  .list {
+    display: grid;
+    gap: var(--space-4);
+    padding-inline-start: var(--space-6);
+    list-style: disc;
+  }
+  .contents {
+    display: grid;
+    gap: var(--space-3);
+    border-inline-start: 2px solid var(--line);
+    padding-inline-start: var(--space-5);
+  }
+  .contents ul,
+  .related,
+  .sources ul {
+    display: grid;
+    gap: var(--space-3);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  .contents a,
+  .related a {
+    color: var(--ink-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-size: var(--text-13);
+  }
+  .contents a:hover,
+  .related a:hover,
+  .download:hover {
+    color: var(--ink);
+  }
+  .related li,
+  .sources li {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .sources {
+    display: grid;
+    gap: var(--space-4);
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--line);
+  }
+  .sources code {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+  .example {
+    min-inline-size: 0;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    overflow: hidden;
+  }
+  .example figcaption {
+    padding: var(--space-4) var(--space-5);
+    background: var(--surface-hover);
+    color: var(--ink-3);
+    font-size: var(--text-11);
+    border-block-end: 1px solid var(--line);
+    overflow-wrap: anywhere;
+  }
+  .example pre {
+    max-inline-size: 100%;
+    overflow: auto;
+    padding: var(--space-5);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+    background: var(--surface-panel);
+  }
+  .table {
+    min-inline-size: 580px;
+  }
+  .table th,
+  .table td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+    line-height: var(--leading-body);
+  }
+  .table th[scope="row"] {
+    font-weight: var(--weight-medium);
+    min-inline-size: 160px;
+  }
+  .continue {
+    border-block-start: 1px solid var(--line);
+    padding-block-start: var(--space-6);
+  }
+  .continue a {
+    white-space: normal;
+    height: auto;
+    min-block-size: var(--control-md);
+  }
+  @media (max-width: 1200px) {
+    .reader {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-8);
+    }
+    .sidebar {
+      position: static;
+      border-block-end: 1px solid var(--line);
+      padding-block-end: var(--space-6);
+    }
+    .desktopChapters {
+      display: none;
+    }
+    .mobileChapters {
+      display: block;
+    }
+    .chapterNav ol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .article {
+      max-inline-size: none;
+    }
+  }
+  @media (max-width: 520px) {
+    .chapterNav ol {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

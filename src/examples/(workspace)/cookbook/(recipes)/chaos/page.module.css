@@ -1,0 +1,72 @@
+@layer screen {
+  .title {
+    font-size: var(--text-22);
+    font-weight: var(--weight-bold);
+    color: var(--ink);
+    margin: 0 0 var(--space-4);
+  }
+  .lead {
+    font-size: var(--text-13);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+    max-inline-size: var(--measure);
+  }
+  .meta {
+    font-size: var(--text-11);
+    line-height: var(--leading-body);
+    color: var(--ink-4);
+    max-inline-size: var(--measure);
+  }
+  .control {
+    min-inline-size: 220px;
+    flex: 1 1 220px;
+  }
+
+  .groupLabel {
+    font-size: var(--text-10);
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-block-end: var(--space-3);
+  }
+
+  .code {
+    margin: 0 0 var(--space-4);
+    padding: var(--space-5);
+    background: var(--surface-panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-2);
+  }
+
+  .axes {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+  }
+  .axis {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+  }
+  .axis dd {
+    margin: 0;
+  }
+
+  .list {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-5);
+    padding-inline-start: var(--space-7);
+  }
+  .list li {
+    font-size: var(--text-11-5);
+    line-height: var(--leading-body);
+    color: var(--ink-3);
+  }
+}

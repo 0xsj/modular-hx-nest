@@ -1,0 +1,100 @@
+@layer composition {
+  .viewport {
+    max-inline-size: 100%;
+    overflow: auto;
+    padding: var(--space-5);
+  }
+  .message {
+    padding: var(--space-7);
+    color: var(--ink-3);
+  }
+  .frame {
+    display: block;
+    /* Preserve the design size; the local viewport scrolls before text shrinks. */
+    max-inline-size: none;
+    block-size: auto;
+    overflow: visible;
+  }
+
+  .edge {
+    fill: none;
+    /* `--line` at 7% white was invisible against the panel. An edge is the
+       structure — it is the least optional mark on the canvas — so it gets the
+       heavier line and the grid keeps the light one. */
+    stroke: var(--line-heavy);
+    stroke-width: 1;
+    /* State selectors style the existing marks without recomputing layout. */
+    transition:
+      stroke-opacity var(--dur-1),
+      stroke var(--dur-1);
+  }
+
+  /* Dashes distinguish an edge kind even when colour is unavailable. */
+  .edge[data-kind="derivation"],
+  .edge[data-kind="dashed"] {
+    stroke-dasharray: 4 4;
+  }
+  .edge[data-sign="negative"] {
+    stroke-dasharray: 5 3;
+  }
+  .edge[data-faded] {
+    stroke-opacity: 0.1;
+  }
+
+  .mark {
+    fill: var(--chart-1);
+    stroke: var(--surface-panel);
+    /* Paint the surface halo first, then fill the whole mark. The stroke
+       separates overlaps without consuming the radius of small nodes. */
+    stroke-width: 1.5;
+    paint-order: stroke fill;
+    transition: opacity var(--dur-1);
+  }
+
+  .node {
+    cursor: default;
+  }
+  .node[tabindex] {
+    cursor: pointer;
+  }
+  .node:focus-visible {
+    outline: none;
+  }
+  .node:focus-visible .mark {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+
+  .node[data-mark="near"] {
+    opacity: 0.92;
+  }
+  .node[data-mark="dim"] {
+    opacity: 0.22;
+  }
+  .node[data-selected] .mark {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+
+  .label {
+    fill: var(--chart-label);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    pointer-events: none;
+  }
+  .node[data-mark="lit"] .label {
+    fill: var(--chart-ink);
+  }
+
+  /* The annotation layer. Deliberately weak: it groups, it does not compete. */
+  .hull {
+    fill: var(--chart-1);
+    opacity: 0.07;
+  }
+  .hullLabel {
+    fill: var(--chart-label);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}

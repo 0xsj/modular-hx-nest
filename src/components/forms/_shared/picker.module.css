@@ -1,0 +1,88 @@
+@layer primitive {
+  .field {
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+  .label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-12);
+    font-weight: var(--weight-medium);
+    color: var(--ink-2);
+  }
+  .required,
+  .error {
+    color: var(--crit);
+  }
+  .hint,
+  .error {
+    font-size: var(--text-11-5);
+    line-height: var(--leading-body);
+  }
+  .hint {
+    color: var(--ink-3);
+  }
+  .control {
+    display: flex;
+    align-items: center;
+    min-inline-size: 0;
+    min-block-size: var(--control-md);
+    gap: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-2);
+    background: var(--surface-sunk);
+    color: var(--ink);
+  }
+  .control:hover {
+    border-color: var(--line-heavy);
+  }
+  .control[data-focus-within] {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .field[data-invalid] .control {
+    border-color: var(--crit);
+  }
+  /* Dim the unavailable control, preserving readable labels and selected text. */
+  .field[data-disabled] .control {
+    opacity: 0.45;
+  }
+  .field[data-readonly] .control {
+    background: var(--surface-panel-2);
+  }
+  .iconButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    inline-size: var(--control-md);
+    block-size: var(--control-md);
+    border: 0;
+    border-radius: var(--radius-1);
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .iconButton[data-hovered] {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+  .iconButton[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .iconButton[data-disabled] {
+    cursor: default;
+    opacity: 0.45;
+  }
+  .popover {
+    z-index: var(--z-palette);
+    max-inline-size: calc(100vw - var(--space-6));
+    max-block-size: var(--available-height);
+    overflow: auto;
+    color: var(--ink);
+  }
+}

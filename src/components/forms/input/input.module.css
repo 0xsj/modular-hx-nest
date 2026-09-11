@@ -1,59 +1,71 @@
 @layer primitive {
   .input {
     inline-size: 100%;
-    min-inline-size: 0;
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-2);
     background: var(--surface-sunk);
     color: var(--ink);
-    font-family: var(--font-sans);
-    padding-inline: var(--space-6);
-    transition: border-color var(--dur-1), box-shadow var(--dur-1);
-  }
-  .input::placeholder { color: var(--ink-4); }
-
-  /* A box-shadow, not an outline. An outline cannot follow `border-radius` on
-     every engine, and the ring sits OUTSIDE a border that changes colour at the
-     same time — a shadow composites over whatever the field is sitting on,
-     which an outline cannot because it does not know the surface.
-
-     `:focus-visible`, never `:focus`: a mouse click on a text field should not
-     paint a ring, and `:focus` cannot tell the difference. */
-  .input:focus-visible {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-tint);
+    font-size: var(--text-12-5);
+    transition:
+      border-color var(--dur-1) var(--ease),
+      background var(--dur-1) var(--ease);
   }
 
-  /* Written twice on purpose. `aria-invalid` is a contract with assistive
-     technology; `data-invalid` is a contract with this stylesheet. Collapsing
-     them means a future styling need edits an accessibility attribute. */
-  .input[aria-invalid], .input[data-invalid] {
+  .input::placeholder {
+    color: var(--ink-4);
+  }
+  .input:hover:not(:disabled):not([readonly]) {
+    border-color: var(--line-heavy);
+  }
+
+  /* Keyed on the ARIA attribute, not a class. A control that announces itself
+     invalid also looks it, and the two cannot drift. */
+  .input[aria-invalid] {
     border-color: var(--crit);
+    background: var(--crit-tint);
   }
-  .input[aria-invalid]:focus-visible, .input[data-invalid]:focus-visible {
-    box-shadow: 0 0 0 2px var(--crit-tint);
+
+  /* READ-ONLY IS NOT DISABLED, and they must not look alike.
+     Read-only: the value matters, is selectable and copyable, and is still in
+     the tab order. Disabled: the control is out of play. Rendering them the
+     same teaches people that greyed-out text cannot be copied. */
+  .input[readonly] {
+    background: var(--surface-panel-2);
+    border-color: var(--line);
+    color: var(--ink-2);
+    cursor: default;
   }
 
   .input:disabled {
-    opacity: 0.55;
+    opacity: 0.45;
     cursor: not-allowed;
-    background: var(--surface-panel);
   }
 
-  .sm { block-size: var(--control-sm); font-size: var(--text-11-5); }
-  .md { block-size: var(--control-md); font-size: var(--text-12-5); }
-  .lg { block-size: var(--control-lg); font-size: var(--text-13); }
-
-  /* The mono face runs visually larger at the same nominal size, so a scope
-     pattern in a mono field would read one step louder than the form around it.
-     The field owns its whole box, so a token is honest here. */
-  .mono { font-family: var(--font-mono); font-size: var(--text-11-5); }
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
 
   .multiline {
     block-size: auto;
+    min-block-size: calc(var(--control-lg) * 2);
     padding-block: var(--space-4);
-    line-height: var(--leading-snug);
+    line-height: var(--leading-body);
     resize: vertical;
+  }
+
+  .sm {
+    block-size: var(--control-sm);
+    padding-inline: var(--space-4);
+    font-size: var(--text-11-5);
+  }
+  .md {
+    block-size: var(--control-md);
+    padding-inline: var(--space-5);
+  }
+  .lg {
+    block-size: var(--control-lg);
+    padding-inline: var(--space-6);
+    font-size: var(--text-13);
   }
 }

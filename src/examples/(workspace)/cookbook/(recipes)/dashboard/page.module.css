@@ -1,0 +1,48 @@
+@layer screen {
+  .title {
+    font-size: var(--text-22);
+    font-weight: var(--weight-bold);
+    color: var(--ink);
+    margin: 0 0 var(--space-4);
+  }
+  .lead {
+    font-size: var(--text-13);
+    line-height: var(--leading-body);
+    color: var(--ink-2);
+    max-inline-size: var(--measure);
+  }
+  .note {
+    font-size: var(--text-11-5);
+    line-height: var(--leading-body);
+    color: var(--ink-4);
+    max-inline-size: var(--measure);
+  }
+}
+
+@layer screen {
+  .list,
+  .plans {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .item,
+  .plan {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+  }
+  .id {
+    font-family: var(--font-mono);
+    font-size: var(--text-11);
+    color: var(--ink-2);
+  }
+  .meta {
+    font-size: var(--text-11);
+    color: var(--ink-4);
+  }
+}

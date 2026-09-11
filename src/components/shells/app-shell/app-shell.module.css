@@ -1,0 +1,70 @@
+@layer composition {
+  .shell {
+    /* Derived from what the header actually contains rather than typed as a
+       number, so it follows the density override: the toggles are `sm`
+       controls, and compact shrinks them. A hard-coded height here would be
+       the exact defect the density toggle exists to expose. */
+    --header-h: calc(var(--control-sm) + var(--space-4) * 2 + 1px);
+
+    min-block-size: 100dvh;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    background: var(--surface-ground);
+  }
+
+  .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-sticky);
+    block-size: var(--header-h);
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    background: var(--surface-panel);
+    border-block-end: 1px solid var(--line);
+  }
+
+  .actions {
+    margin-inline-start: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr);
+  }
+
+  .rail {
+    padding: var(--space-6);
+    border-inline-end: 1px solid var(--line);
+    /* Its own scroll, so a long nav does not drag the page and a long page does
+       not scroll the nav out of reach. */
+    position: sticky;
+    inset-block-start: var(--header-h);
+    block-size: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+  }
+
+  .main {
+    min-inline-size: 0;
+    padding: var(--space-8);
+  }
+
+  /* One breakpoint. The rail becomes a strip above the content rather than
+     disappearing — a navigation that vanishes at a width is a navigation
+     somebody cannot reach. */
+  @media (max-width: 720px) {
+    .body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rail {
+      position: static;
+      block-size: auto;
+      border-inline-end: none;
+      border-block-end: 1px solid var(--line);
+    }
+  }
+}

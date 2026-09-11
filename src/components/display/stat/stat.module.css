@@ -1,27 +1,27 @@
 @layer primitive {
-  .stat { display: grid; gap: var(--space-1); min-inline-size: 0; }
-
+  .stat {
+    display: grid;
+    gap: var(--space-2);
+  }
   .label {
     font-size: var(--text-10);
-    font-weight: var(--weight-medium);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--ink-4);
   }
-
   .value {
     font-size: var(--text-22);
-    font-weight: var(--weight-strong);
-    line-height: var(--leading-tight);
-    color: var(--ink);
-    /* Tabular figures: a column of stats whose digits do not line up reads as
-       noise, and a value that shifts as it updates looks like a glitch. */
+    font-weight: var(--weight-bold);
     font-variant-numeric: tabular-nums;
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
   }
-
-  /* Quieter, because the absence of a measurement should not draw the eye the
-     way a large number does — but NOT so quiet it looks disabled. */
-  .unmeasured { color: var(--ink-4); }
-
-  .hint { font-size: var(--text-11); color: var(--ink-4); }
+  .unmeasured {
+    color: var(--ink-4);
+    font-weight: var(--weight-regular);
+  }
+  .hint {
+    font-size: var(--text-11);
+    color: var(--ink-4);
+  }
 }

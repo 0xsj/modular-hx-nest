@@ -12,14 +12,13 @@
   }
 
   /* Density is a TOKEN override and nothing else, which is the whole reason it
-     is three lines rather than a prop threaded through every control. A screen
-     that reads `--control-md` gets the compact one for free, and a component
-     that hard-codes a height is now visibly wrong the first time somebody
-     flips this.
+     is three lines rather than a prop threaded through forty components. A
+     screen that reads `--control-md` gets the compact one for free, and a
+     component that hard-codes a height is now visibly wrong.
 
-     Nothing sets `data-density` yet. `lib/runtime` is where that would live —
-     it is the tier for state the shell owns and no server has an opinion
-     about — and it holds only a doc today. */
+     Set on `<html>` by `lib/runtime/density`, per browser. Nothing stores it on
+     the account, and a screen offering the choice should say so rather than
+     imply a column that does not exist. */
   :root[data-density="compact"] {
     --control-sm: 21px;
     --control-md: 26px;

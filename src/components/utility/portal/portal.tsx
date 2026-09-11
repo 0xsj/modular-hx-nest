@@ -1,11 +1,18 @@
+import type { JSX } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { Portal as SolidPortal } from "solid-js/web";
-import type { ComponentProps } from "solid-js";
-
-export type PortalProps = ComponentProps<typeof SolidPortal>;
-
-/** Render elsewhere in the DOM without leaving the component tree.
- *
- *  A thin re-export, and deliberately so — see doc.ts. */
+export type PortalProps = {
+  container?: HTMLElement | null;
+  children: JSX.Element;
+};
 export function Portal(props: PortalProps) {
-  return <SolidPortal {...props} />;
+  const [mounted, setMounted] = createSignal(false);
+  onMount(() => setMounted(true));
+  return (
+    <Show when={mounted()}>
+      <SolidPortal mount={props.container ?? document.body}>
+        {props.children}
+      </SolidPortal>
+    </Show>
+  );
 }

@@ -1,0 +1,71 @@
+@layer screen {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    align-items: stretch;
+    gap: var(--space-6);
+    min-inline-size: 0;
+  }
+  .stack {
+    display: grid;
+    gap: var(--space-7);
+    min-inline-size: 0;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .badge {
+    justify-self: start;
+  }
+  .textLink {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--accent);
+    font-size: var(--text-12);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .trend {
+    inline-size: 100%;
+    max-block-size: 56px;
+    color: var(--accent);
+  }
+  .cover {
+    background: var(--surface-sunk);
+  }
+  .coverGrid {
+    fill: none;
+    stroke: var(--line);
+  }
+  .coverLine {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+  }
+  .coverTile {
+    fill: var(--surface-panel);
+    stroke: var(--line-heavy);
+  }
+  .coverCenter {
+    fill: var(--fill);
+  }
+  .coverDetail {
+    fill: none;
+    stroke: var(--ink-3);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .coverGlyph {
+    fill: none;
+    stroke: var(--fill-ink);
+    stroke-width: 2;
+  }
+  .coverDot {
+    fill: var(--accent);
+  }
+}

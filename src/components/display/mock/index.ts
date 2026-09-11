@@ -1,2 +1,1 @@
-export { Mock } from "./mock";
-export type { MockProps } from "./mock";
+export { Mock, type MockProps } from "./mock";

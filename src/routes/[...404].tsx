@@ -1,8 +1,7 @@
 import { Title } from "@solidjs/meta";
-import { HttpStatusCode } from "@solidjs/start";
 import { A } from "@solidjs/router";
+import { HttpStatusCode } from "@solidjs/start";
 import s from "./[...404].module.css";
-
 export default function NotFound() {
   return (
     <main class={s.page}>
@@ -14,7 +13,9 @@ export default function NotFound() {
       <div class={s.body}>
         <p class={s.code}>404</p>
         <h1 class={s.title}>Not found</h1>
-        <A href="/" class={s.link}>Back</A>
+        <A href="/" class={s.link}>
+          Back
+        </A>
       </div>
     </main>
   );

@@ -1,28 +1,62 @@
 @layer primitive {
-  .switch { display: inline-flex; align-items: center; }
-  .control {
+  .switch {
+    position: relative;
     inline-size: 32px;
     block-size: 18px;
-    padding: 2px;
-    display: flex;
-    border-radius: var(--radius-pill);
-    background: var(--surface-raised);
+    flex: none;
     border: 1px solid var(--line-heavy);
-    transition: background var(--dur-1), border-color var(--dur-1);
+    border-radius: var(--radius-pill);
+    background: var(--surface-sunk);
+    transition:
+      background var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease);
   }
-  .control[data-state="checked"] { background: var(--fill); border-color: var(--fill); }
-  .switch[data-disabled] { opacity: 0.55; cursor: not-allowed; }
+
+  .switch[data-state="checked"] {
+    background: var(--fill);
+    border-color: var(--fill);
+  }
+  .switch:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
   .thumb {
+    display: block;
     inline-size: 12px;
     block-size: 12px;
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     background: var(--ink-2);
-    /* The only animation in the group. A switch that jumps gives no feedback
-       about which way it moved, and direction is the whole affordance. */
-    transition: transform var(--dur-1) var(--ease), background var(--dur-1);
+    transform: translateX(2px);
+    transition:
+      transform var(--dur-2) var(--ease),
+      background var(--dur-2) var(--ease);
+    will-change: transform;
   }
-  .control[data-state="checked"] .thumb {
-    transform: translateX(14px);
+
+  .switch[data-state="checked"] .thumb {
+    transform: translateX(16px);
     background: var(--fill-ink);
+  }
+}
+
+@layer primitive {
+  .root {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    flex: none;
+    cursor: pointer;
+  }
+  .root[data-disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .switch[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .switch[data-invalid] {
+    border-color: var(--crit);
   }
 }

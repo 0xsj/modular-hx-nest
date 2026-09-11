@@ -2,89 +2,95 @@
  * Field — the component that makes the commonest accessibility defect
  * unrepresentable rather than unlikely.
  *
+ * ┌───────────────────────────────────────────────────────────────────────────┐
+ * │ § CONTRACT — the oracle. Names no library, contains no code.              │
+ * └───────────────────────────────────────────────────────────────────────────┘
+ *
  * # What it is
  *
  * The owner of a form control's LABEL, its DESCRIPTION and its ERROR. It does
- * not own the control. It generates the identifiers those three need and hands
+ * not own the control. It generates the identifiers those three need, and hands
  * them to the control as props the caller applies.
  *
- *     <Field label="Host" hint="One per line" error={problem}>
- *       {(control) => <Input {...control} placeholder="api.example.com" />}
- *     </Field>
+ * # Shape
  *
- * # `children` is a FUNCTION, and that is the whole design
+ *     label      string, REQUIRED
+ *     hint?      string — a description, always present when given
+ *     error?     string — a validation message
+ *     required?  boolean
+ *     children   a FUNCTION, called with the props the control must carry
  *
- * `protocols/accessibility.md`: the defects worth preventing are the ones
- * invisible to the person who introduced them — a form renders, looks right,
- * passes a screenshot review, and is unusable with a screen reader.
+ * The function receives exactly the attributes to spread onto the control:
  *
- * A Field taking a NODE would have to reach into the child to wire it, cloning
- * an element and injecting props. That works until somebody wraps the control
- * in a `<div>` for layout, or an adapter, or a conditional fragment — and then
- * the props land on the wrapper, the label points at an id nothing has, and
- * **nothing errors.**
+ *     id                 the identifier the label points at
+ *     aria-describedby?  the error and hint identifiers, or absent
+ *     aria-invalid?      true, or absent
+ *     required?          true, or absent
  *
- * A function argument cannot be forgotten the same way: there is nothing to
- * render without calling it, and the props arrive already named as the
- * attributes they become. A caller can still ignore what it is handed, so the
- * honest claim is that the shape makes the mistake VISIBLE rather than
- * impossible.
+ * # Behaviour
  *
- * It also means Field never has to know what the control is. The contract is
- * the bag of props, not a component type — so a select, a combobox, a date
- * field, none of which exist yet, need no change here. Cloning couples them,
- * because the wrapper must know enough about the child to decide what to
- * attach.
+ * The label is associated with the control by identifier, never by nesting.
+ * Every generated identifier is unique to the instance: two Fields on one page
+ * with the same label must not collide.
  *
- * # The bag is four things, and leaving one out is worse than it looks
+ * `aria-describedby` names the error FIRST and the hint second, when both are
+ * present, because a reader announces them in that order and the error is the
+ * more urgent. When neither is present the attribute is absent — never empty.
  *
- *     id                 matched to the label's `for`
- *     aria-describedby   the error id then the hint id
- *     aria-invalid       true, or absent
- *     required           true, or absent
+ * `aria-invalid` is present only when there is an error, and `required` only
+ * when required. Absent, never false: `aria-invalid="false"` is a different
+ * announcement from no attribute at all.
  *
- * `aria-invalid` is derived here rather than left to the caller. Leaving it out
- * because *the caller knows if it passed an error* produces two sources for one
- * fact, and they disagree the first time somebody forgets.
+ * A required field marks itself visibly, and that mark is hidden from assistive
+ * technology — `required` on the control is the announcement, and hearing "star"
+ * after every label is noise.
  *
- * # Error before hint, and the hint is not replaced
- *
- * `aria-describedby` is announced in the order the ids are listed, not in
- * document order. Error first, deliberately: somebody who has just failed
- * validation hears what is wrong before the standing advice. The DOM order
- * matches so a sighted reader gets the same sequence.
- *
- * The hint is **not** swapped out for the error. "Use at least twelve
- * characters" is still true while the field is wrong, and removing it takes the
- * instruction away exactly when it is needed. Most form components do the
- * opposite.
- *
- * # Absent, never false
- *
- * `aria-invalid="false"` is a rendered attribute that announces nothing and
- * still matches `[aria-invalid]` — which would style every valid field as an
- * error. Same for `required` and for an empty `aria-describedby`.
- *
- * # Identifiers come from the framework's generator
- *
- * They must be stable across a server render and its hydration, and unique per
- * instance — two Fields with the same label on one page is normal. A module
- * counter is neither: it restarts per process on the server and continues on
- * the client, so the two disagree and hydration reports a mismatch.
+ * An error is rendered when given and the region is absent otherwise. The error
+ * text is reachable from the control through `aria-describedby`.
  *
  * # Deliberately absent
  *
- * **A name, a value, an onChange.** Field owns none of the control's data — it
- * owns the three things AROUND the control. A Field that took a value would be
- * a form library.
+ * A `name` prop, a value, an onChange. Field owns none of the control's data —
+ * it owns the three things AROUND the control. A Field that took a value would
+ * be a form library.
  *
- * **Validation.** The error is a string a caller supplies. Where it came from —
+ * Validation. The error is a string a caller supplies. Where it comes from —
  * a service's per-field messages, a schema, a server round trip — is not this
- * component's business. A primitive that validates has to hold a schema, and
- * then every form in the product is shaped by whichever library this file
- * imported.
+ * component's business.
  *
- * **A horizontal layout variant.** `display: grid` with a gap, and a caller
- * that wants label-beside-control writes that grid where the layout is.
+ * ┌───────────────────────────────────────────────────────────────────────────┐
+ * │ § MECHANICS — NOT the oracle. Strip before handing this to a test writer. │
+ * └───────────────────────────────────────────────────────────────────────────┘
+ *
+ * # Why children is a FUNCTION and not a node
+ *
+ * This is the whole design. `protocols/accessibility.md`: the defects worth
+ * preventing are the ones invisible to the person who introduced them — a form
+ * renders, looks right, passes a screenshot review, and is unusable with a
+ * screen reader.
+ *
+ * A Field taking a node would have to REACH INTO the child to wire it — cloning
+ * an element and injecting props — which works until somebody nests the control
+ * one level deeper, and then fails silently. A Field that merely rendered a
+ * label beside its child would leave the wiring to a caller's memory, which is
+ * the status quo this exists to replace.
+ *
+ * A function argument cannot be forgotten in the same way: there is nothing to
+ * render without calling it, and the props arrive already named as the
+ * attributes they become. A caller can still ignore what it is handed — the
+ * shape makes the mistake visible rather than impossible, which is the honest
+ * claim.
+ *
+ * # Why the identifiers come from the framework's own generator
+ *
+ * They must be stable across a server render and its hydration, and unique per
+ * instance. A counter in module scope is neither: it restarts per process on
+ * the server and continues on the client, so the two disagree.
+ *
+ * # The label element comes from `Label`, not a raw element
+ *
+ * One labelling implementation in the tree. `Label` wraps the headless
+ * library's, which adds click-to-focus behaviour for controls the platform does
+ * not handle natively — and that is the sort of thing that should exist once.
  */
 export {};

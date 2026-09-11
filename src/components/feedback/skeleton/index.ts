@@ -1,2 +1,6 @@
-export { Skeleton, SkeletonText } from "./skeleton";
-export type { SkeletonProps, SkeletonTextProps } from "./skeleton";
+export {
+  Skeleton,
+  SkeletonText,
+  type SkeletonProps,
+  type SkeletonTextProps,
+} from "./skeleton";

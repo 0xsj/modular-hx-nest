@@ -1,31 +1,24 @@
+import { createMemo, splitProps, type JSX } from "solid-js";
 import { Dynamic } from "solid-js/web";
-import { splitProps, type JSX } from "solid-js";
 import { cn } from "~/lib/kernel";
 import { headingVariants, type HeadingVariants } from "./heading.variants";
-
-export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
-
-export type HeadingProps = HeadingVariants &
-  Omit<JSX.HTMLAttributes<HTMLHeadingElement>, "color"> & {
-    /** REQUIRED, and separate from `size`. This is the document's outline —
-     *  see doc.ts for why it has no default. */
-    level: HeadingLevel;
-    children: JSX.Element;
+export type HeadingProps = JSX.HTMLAttributes<HTMLHeadingElement> &
+  HeadingVariants & {
+    level: 1 | 2 | 3 | 4 | 5 | 6;
   };
-
-export function Heading(props: HeadingProps) {
-  const [local, variants, rest] = splitProps(
-    props,
-    ["level", "class", "children"],
-    ["size", "tone"],
-  );
+export function Heading(componentProps: HeadingProps) {
+  const [, props] = splitProps(componentProps, ["level", "size", "class"]);
+  const Tag = createMemo(() => `h${componentProps.level}` as const);
   return (
     <Dynamic
-      component={`h${local.level}`}
-      {...rest}
-      class={cn(headingVariants(variants), local.class)}
-    >
-      {local.children}
-    </Dynamic>
+      component={Tag()}
+      class={cn(
+        headingVariants({
+          size: componentProps.size,
+        }),
+        componentProps.class,
+      )}
+      {...props}
+    />
   );
 }

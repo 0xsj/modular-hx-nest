@@ -1,13 +1,10 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import s from "./button.module.css";
 
-/* The single place a variant name maps to a class. A conditional class list in
- * the markup is the alternative, and it puts the map in the render path where
- * a fifth intent has to be added by reading JSX.
- *
- * Every key is listed even where it would map to nothing, because a key
- * present in the type and absent from the map is a runtime `undefined` in the
- * class list — which is what B3 is written to catch. */
+/* The variant map is the single definition of `intent` and `size`. The prop
+   type below is derived from it, so the CSS class map and the type cannot
+   drift — adding a class without a type, or a type without a class, is not
+   expressible. */
 export const buttonVariants = cva(s.button, {
   variants: {
     intent: {
@@ -15,6 +12,7 @@ export const buttonVariants = cva(s.button, {
       secondary: s.secondary,
       ghost: s.ghost,
       danger: s.danger,
+      link: s.link,
     },
     size: { sm: s.sm, md: s.md, lg: s.lg, icon: s.icon },
   },
@@ -22,5 +20,6 @@ export const buttonVariants = cva(s.button, {
 });
 
 export type ButtonVariants = VariantProps<typeof buttonVariants>;
+
 export type ButtonIntent = NonNullable<ButtonVariants["intent"]>;
 export type ButtonSize = NonNullable<ButtonVariants["size"]>;

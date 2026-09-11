@@ -6,31 +6,49 @@
     gap: var(--space-3);
     border: 1px solid var(--line-strong);
     background: var(--surface-panel);
-    color: var(--ink-2);
-    font-size: var(--text-12);
-    font-weight: var(--weight-medium);
+    color: var(--ink-3);
+    font-size: var(--text-11-5);
     white-space: nowrap;
-    transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
+    transition:
+      background var(--dur-1) var(--ease),
+      color var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease);
   }
-  .toggle:hover { background: var(--surface-hover); color: var(--ink); }
 
-  /* Styled on aria-pressed, NOT data-state.
-     `data-state` is written by every primitive in the library, so a Toggle
-     wrapped in another primitive's trigger has that primitive's open/closed
-     merged onto the same element and the pressed rule silently stops matching —
-     the control still announces itself correctly and just never looks pressed.
-     `aria-pressed` is this component's own attribute and cannot collide. */
-  .toggle[aria-pressed="true"] {
+  .toggle:hover:not(:disabled) {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+
+  /* Pressed is a STATE the control reports, not a class a caller sets. */
+  .toggle[data-state="on"] {
     background: var(--accent-tint);
     border-color: var(--accent-line);
     color: var(--accent);
   }
-  .toggle[data-disabled] { opacity: 0.55; cursor: not-allowed; }
 
-  .sm   { block-size: var(--control-sm); padding-inline: var(--space-6); font-size: var(--text-11-5); }
-  .md   { block-size: var(--control-md); padding-inline: var(--space-7); }
-  .icon { block-size: var(--control-md); inline-size: var(--control-md); padding-inline: 0; flex: none; }
+  .toggle:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 
-  .square { border-radius: var(--radius-2); }
-  .pill   { border-radius: var(--radius-pill); }
+  .sm {
+    block-size: var(--control-sm);
+    padding-inline: var(--space-4);
+  }
+  .md {
+    block-size: var(--control-md);
+    padding-inline: var(--space-5);
+  }
+  .icon {
+    block-size: var(--control-md);
+    inline-size: var(--control-md);
+    padding: 0;
+  }
+  .square {
+    border-radius: var(--radius-2);
+  }
+  .pill {
+    border-radius: var(--radius-pill);
+  }
 }

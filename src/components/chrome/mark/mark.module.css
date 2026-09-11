@@ -1,29 +1,25 @@
 @layer primitive {
   .mark {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: var(--weight-strong);
-    letter-spacing: var(--tracking-tight);
+    font-weight: var(--weight-bold);
+    margin: 0;
+  }
+
+  /* Beside a navigation: small, uppercase, and the accent, because it is a
+     lockup rather than a heading. */
+  .inline {
+    font-size: var(--text-12-5);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* The landing. Viewport-relative because the mark IS the composition there,
+     and clamped at both ends so it neither disappears on a phone nor becomes a
+     billboard on a monitor. */
+  .display {
+    font-size: clamp(var(--text-30), min(9vw, 13vh), 88px);
+    letter-spacing: -0.04em;
+    line-height: 1;
     color: var(--ink);
-    text-decoration: none;
-    white-space: nowrap;
   }
-
-  .sm { font-size: var(--text-12-5); }
-  .md { font-size: var(--text-15); }
-
-  /* A shape, not an image file: a template ships no asset, and a box drawn
-     from tokens is honest about being a placeholder. */
-  .glyph {
-    inline-size: 0.72em;
-    block-size: 0.72em;
-    border-radius: 2px;
-    background: var(--accent);
-    /* Optical: a square sits high against a cap-height word. */
-    translate: 0 0.5px;
-  }
-
-  .link:hover { color: var(--accent); }
-  .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-1); }
 }

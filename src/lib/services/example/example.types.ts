@@ -9,6 +9,6 @@ export type NewItem = { name: string; host: string };
 /** How this backend signals that a legitimately-optional thing is absent.
  *
  *  A bare 404 cannot carry that meaning — it also means *wrong path* — so the
- *  server tags the one it means, and `findDefaultItem` recognises only that
- *  tag. A 404 without it is a fault, not an emptiness. */
+ *  server tags the one it means, and `findDefaultItem` recognises only that tag.
+ *  A 404 without it is a fault, not an emptiness. */
 export const NO_DEFAULT = "no_default_item";

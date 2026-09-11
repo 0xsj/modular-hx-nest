@@ -13,10 +13,10 @@ import { createStore, persisted } from "./store";
 export const THEMES = ["system", "light", "dark"] as const;
 export type Theme = (typeof THEMES)[number];
 
-const stored = persisted<Theme>("theme", "system", THEMES);
+const store$ = persisted<Theme>("theme", "system", THEMES);
 
 export const theme = createStore<Theme>("system", (value) => {
-  stored.write(value);
+  store$.write(value);
   applyTheme(value);
 });
 
@@ -30,15 +30,17 @@ export function applyTheme(value: Theme): void {
 /** Called once by the shell, after mount. Reading storage during render would
  *  produce a server/client mismatch; the server has no preference to read. */
 export function hydrateTheme(): void {
-  const value = stored.read();
-  theme.set(value);
-  applyTheme(value);
+  const stored = store$.read();
+  theme.set(stored);
+  applyTheme(stored);
 }
 
 /** What is actually on screen right now, which is not the same as the choice.
  *  A caller rendering "you are in dark mode" wants this; a caller rendering the
- *  control's own state wants the choice. */
+ *  toggle's own state wants the choice. */
 export function resolvedTheme(choice: Theme): "light" | "dark" {
   if (choice !== "system") return choice;
-  return globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }

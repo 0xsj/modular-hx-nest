@@ -1,6 +1,11 @@
 export {
-  Select, SelectContent, SelectHiddenSelect, SelectItem, SelectLabel, SelectTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
   SelectValue,
-  createListCollection,
+  type SelectContentProps,
+  type SelectItemProps,
+  type SelectProps,
+  type SelectTriggerProps,
 } from "./select";
-export type { SelectItemProps, SelectProps } from "./select";

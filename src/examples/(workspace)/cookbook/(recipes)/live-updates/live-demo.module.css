@@ -1,0 +1,7 @@
+@layer screen {
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: var(--space-8);
+  }
+}

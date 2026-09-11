@@ -1,0 +1,88 @@
+@layer composition {
+  .shell {
+    container: rail-shell / inline-size;
+    block-size: 100dvh;
+    min-inline-size: 0;
+    background: var(--surface-ground);
+  }
+  .frame {
+    position: relative;
+    block-size: 100%;
+    display: grid;
+    grid-template-columns: 48px 0 minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "rail sidebar header" "rail sidebar main";
+    overflow: hidden;
+  }
+  .frame[data-sidebar-open] {
+    grid-template-columns: 48px 244px minmax(0, 1fr);
+  }
+  .rail {
+    grid-area: rail;
+    overflow-y: auto;
+    border-inline-end: 1px solid var(--line);
+    background: var(--surface-rail);
+  }
+  .sidebar {
+    grid-area: sidebar;
+    min-inline-size: 0;
+    overflow-y: auto;
+    border-inline-end: 1px solid var(--line);
+  }
+  .sidebar[hidden] {
+    display: none;
+  }
+  .header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-inline-size: 0;
+    padding: var(--space-3) var(--space-5);
+    border-block-end: 1px solid var(--line);
+    background: var(--surface-panel);
+  }
+  .headerContent {
+    flex: 1;
+    min-inline-size: 0;
+  }
+  .main {
+    grid-area: main;
+    min-inline-size: 0;
+    min-block-size: 0;
+    overflow: auto;
+    padding: var(--space-8);
+    overscroll-behavior: contain;
+  }
+  .skip {
+    position: absolute;
+    z-index: var(--z-sticky);
+    inset-block-start: var(--space-3);
+    inset-inline-start: var(--space-3);
+    transform: translateY(-200%);
+    background: var(--surface-raised);
+    border: 1px solid var(--line-strong);
+    padding: var(--space-4);
+    color: var(--ink);
+    border-radius: var(--radius-2);
+  }
+  .skip:focus {
+    transform: none;
+  }
+  @container rail-shell (max-width: 780px) {
+    .frame,
+    .frame[data-sidebar-open] {
+      grid-template-columns: 48px minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr);
+      grid-template-areas: "rail header" "rail sidebar" "rail main";
+    }
+    .sidebar {
+      max-block-size: 260px;
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--line);
+    }
+    .main {
+      padding: var(--space-6);
+    }
+  }
+}

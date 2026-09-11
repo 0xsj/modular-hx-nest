@@ -1,34 +1,100 @@
-import { RadioGroup as Ark } from "@ark-ui/solid";
-import { splitProps, type ComponentProps, type JSX } from "solid-js";
+import { RadioGroup as Ark } from "@ark-ui/solid/radio-group";
+import {
+  createContext,
+  createUniqueId,
+  onCleanup,
+  splitProps,
+  untrack,
+  useContext,
+  type ComponentProps,
+} from "solid-js";
 import { cn } from "~/lib/kernel";
+import {
+  bindNativeChoiceReset,
+  nativeChoiceStyle,
+} from "../_shared/native-choice";
 import s from "./radio-group.module.css";
-
-export type RadioGroupProps = ComponentProps<typeof Ark.Root>;
-export type RadioProps = ComponentProps<typeof Ark.Item> & { children?: JSX.Element };
-
-/** The group owns the value and the arrow-key navigation, and it needs a NAME
- *  of its own — `aria-label`, or `aria-labelledby` at some visible text.
- *
- *  A `Fieldset` legend is not that name, which is the trap: the legend names
- *  the `fieldset`, and the element carrying `role="radiogroup"` is a different
- *  one inside it. Measured — a legend of "Retention" produces a `group` named
- *  Retention and a `radiogroup` named nothing. Wrapping a group in a fieldset
- *  is still right for a real form, because the legend is announced on entry;
- *  it just is not a substitute for this. */
+// External Field labels and the behavior engine must point to the same native
+// input. Register stable field IDs before Ark constructs each item.
+const InputIds = createContext<Map<string, string>>();
+export type RadioGroupProps = Omit<
+  ComponentProps<typeof Ark.Root>,
+  "onValueChange"
+> & { onValueChange?: (value: string) => void };
 export function RadioGroup(props: RadioGroupProps) {
-  const [local, rest] = splitProps(props, ["class"]);
-  return <Ark.Root {...rest} class={cn(s.group, local.class)} />;
-}
-
-/** `Radio`, not `RadioGroupItem`. A radio outside a group is not a thing, so
- *  the shorter name is not ambiguous. */
-export function Radio(props: RadioProps) {
-  const [local, rest] = splitProps(props, ["class", "children"]);
+  const [local, rest] = splitProps(props, [
+    "class",
+    "onValueChange",
+    "id",
+    "ids",
+  ]);
+  const generated = createUniqueId(),
+    inputs = new Map<string, string>();
   return (
-    <Ark.Item {...rest} class={cn(s.radio, local.class)}>
-      <Ark.ItemControl class={s.control} />
-      <Ark.ItemText class={s.text}>{local.children}</Ark.ItemText>
-      <Ark.ItemHiddenInput />
+    <InputIds.Provider value={inputs}>
+      <Ark.Root
+        {...rest}
+        id={local.id ?? generated}
+        ids={{
+          ...local.ids,
+          itemHiddenInput: (value) =>
+            inputs.get(value) ??
+            local.ids?.itemHiddenInput?.(value) ??
+            `radio-group:${local.id ?? generated}:radio:input:${value}`,
+        }}
+        class={cn(s.group, local.class)}
+        onValueChange={(d) => {
+          if (d.value != null) local.onValueChange?.(d.value);
+        }}
+      />
+    </InputIds.Provider>
+  );
+}
+export type RadioProps = ComponentProps<typeof Ark.Item> & {
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
+};
+export function Radio(props: RadioProps) {
+  const [local, rest] = splitProps(props, [
+    "class",
+    "id",
+    "aria-label",
+    "aria-labelledby",
+    "aria-describedby",
+  ]);
+  const inputs = useContext(InputIds);
+  const registration = untrack(() => ({ value: props.value, id: local.id }));
+  if (registration.id) {
+    inputs?.set(registration.value, registration.id);
+    onCleanup(() => {
+      if (inputs?.get(registration.value) === registration.id)
+        inputs?.delete(registration.value);
+    });
+  }
+  return (
+    <Ark.Item {...rest} style={{ position: "relative" }} class={s.item}>
+      <Ark.ItemControl class={cn(s.radio, local.class)}>
+        <span class={s.indicator} />
+      </Ark.ItemControl>
+      <Ark.ItemContext>
+        {(item) => {
+          let input: HTMLInputElement | undefined;
+          bindNativeChoiceReset(
+            () => input,
+            () => ({ checked: item().checked }),
+          );
+          return (
+            <Ark.ItemHiddenInput
+              ref={input}
+              style={nativeChoiceStyle}
+              aria-label={local["aria-label"]}
+              aria-labelledby={local["aria-labelledby"]}
+              aria-describedby={local["aria-describedby"]}
+            />
+          );
+        }}
+      </Ark.ItemContext>
     </Ark.Item>
   );
 }

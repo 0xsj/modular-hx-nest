@@ -1,56 +1,41 @@
 /**
- * Select — a value bound to a form. The third of the three that look identical.
+ * Select — a value bound to a form. NOT a menu.
  *
- * # Select, a menu, and a popover
+ * # The distinction is the whole reason this is a separate component
  *
- *     Select     a VALUE. Announced as a combobox, has a name, submits
- *     Menu       ACTIONS. Its items are commands and nothing holds a value
- *     Popover    ARBITRARY content, including inputs
+ *     Select   picks a VALUE. It has a current one, it is submitted, and
+ *              reopening it shows what is chosen.
+ *     Menu     picks an ACTION. It has no value, nothing is submitted, and
+ *              reopening it shows the same list every time.
  *
- * Using a menu where a value belongs is the most common of the three mistakes:
- * the options are announced as commands and there is nothing for a form to
- * send.
+ * They look nearly identical and are announced completely differently — one as
+ * a combobox with a value, the other as a menu of commands. Using a menu for a
+ * value leaves a reader unable to discover what is currently selected, and
+ * using a select for actions announces a "current action", which is nonsense.
  *
- * # Why not a native `<select>`
+ * # The list is portalled
  *
- * A native select cannot be styled inside — no icons, no two-line options, no
- * grouping that matches the rest of the system — and its popup is drawn by the
- * operating system, so it ignores the theme entirely.
+ * Otherwise an `overflow: hidden` ancestor clips it, which is the commonest way
+ * a select becomes unusable inside a scrolling panel. The cost is that it leaves
+ * the DOM position of its trigger, which matters only if something is styling by
+ * descent — and nothing here does, because styling is by module.
  *
- * The cost is real and worth naming: it is not a real `<select>`, so a
- * browser's native mobile picker is gone, and it needs JavaScript to open. A
- * form that must work without JS wants the native element.
+ * # Highlight follows `data-highlighted`, not `:hover`
  *
- * The hidden select is what keeps the form half: without it this is a styled
- * div that submits nothing.
+ * The primitive sets that attribute for pointer AND keyboard. Styling `:hover`
+ * alone leaves a keyboard user with no indication of where they are in the list,
+ * which is invisible to anyone testing with a mouse.
  *
- * # The list is positioned in a portal, and that is not optional
+ * # Width comes from the trigger
  *
- * A list rendered in place inherits its ancestors' `overflow` and `transform`.
- * Inside a scrolling panel it is clipped; inside anything with a transform it
- * is displaced, because a transform creates a containing block no `z-index`
- * escapes. Both are bugs a caller finds late and diagnoses as something else,
- * so the portal is part of the component rather than left to the call site.
- *
- * # `data-highlighted`, never `:hover`
- *
- * The library drives pointer and keyboard through one attribute, so exactly one
- * item is lit at a time. Styling `:hover` instead produces the classic
- * two-cursor bug: the keyboard cursor on one item and the mouse highlight on
- * another, with Enter activating the one that is not under the pointer.
- *
- * # The list is never narrower than its trigger
- *
- * A value that appears to change width when the menu opens reads as two
- * different controls rather than as one expanding.
+ * `--radix-select-trigger-width` as a minimum, so the list cannot be narrower
+ * than the thing that opened it. A list that is wider is fine; one that is
+ * narrower reads as a different control.
  *
  * # Deliberately absent
  *
- * **Groups, and scroll buttons.** The library has them; no list here is long
- * enough to scroll or heterogeneous enough to group, and both arrive with the
- * screen that needs them.
- *
- * **A multiple variant.** Multi-select is a different control with a different
- * keyboard model and a different empty state, not a boolean on this one.
+ * A native `<select>` fallback. The two cannot be styled to match, and shipping
+ * both means every screen has two appearances depending on a decision nobody
+ * documented.
  */
 export {};

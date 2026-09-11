@@ -1,69 +1,65 @@
 /**
- * overlays — the group where the behaviour IS the component.
+ * overlays — content that appears over the page, and the four obligations that
+ * come with it.
  *
- * # Why this group is tested differently
+ * `decisions/0001-spec-tests-start-at-business-logic` names this as the one
+ * group committed to interaction tests, because these four break silently on
+ * refactor and are invisible to whoever broke them:
  *
- * Everywhere else in the design system, what a component promises is visible
- * in one render: a role, an attribute, a class. Here the promises are about
- * what happens over TIME and across elements —
- *
- *     focus is trapped inside while it is open
+ *     focus moves INTO the overlay when it opens
+ *     focus is TRAPPED while it is open
  *     Escape closes it
- *     focus returns to the trigger that opened it
- *     the page behind does not scroll
- *     a press outside closes it (and for an alert dialog, does not)
+ *     focus is RESTORED to the trigger on close
  *
- * None of those can be seen in a snapshot, all of them break on refactor, and
- * every one of them is invisible to the person who broke it, because the
- * overlay still opens and still looks right.
+ * A localized caller passes lang and dir to portal content explicitly: it no
+ * longer inherits the preview region's DOM ancestors. The shared panel uses
+ * logical positioning and reverses its horizontal translation in RTL so the
+ * same center anchor works in either direction.
  *
- * So this is the group that gets INTERACTION tests — open it, press a key,
- * assert where focus went — rather than the attribute assertions that are
- * enough elsewhere. That is not a new testing policy; it is the same rule
- * (`flover-solid ADR 0001`: components get unit tests) applied to components
- * whose unit of behaviour happens to be a sequence.
+ * All four are asserted, plus the scroll lock and the page behind going inert.
  *
- * # The library owns the hard part, and that is the point
+ * # The accessible name is a required PROP
  *
- * Focus trapping, dismiss layering, scroll locking, roving focus, typeahead
- * and portal ordering are solved problems with long tails, and the tail is
- * where the accessibility failures live: the trap that lets Tab escape into
- * the page behind, the restore that returns focus to `body`, the scroll lock
- * that shifts the layout by the scrollbar's width.
+ * `title` on a dialog's content is required and is not a child. A dialog with
+ * no name is announced as "dialog" and nothing else — the commonest defect in
+ * this component, and one a visual review cannot see. Making it a prop turns it
+ * from a thing you remember into a thing that does not typecheck.
  *
- * Reimplementing any of it is how a component library ships a keyboard trap.
- * What these wrappers add is styling, the token contract, and the props that
- * make the accessible name impossible to omit.
+ * `hideTitle` exists for a design that names the dialog around it. The title is
+ * still announced; there is no way to omit one.
  *
- * # Four surfaces that look alike and are not
+ * # Dialog and AlertDialog are different promises
  *
- *     Dialog       a task. Modal: the page behind is inert
- *     AlertDialog  a question that must be ANSWERED. No accidental dismissal
- *     Popover      more of the same page, positioned. Not modal, interactive
- *     Tooltip      a HINT about a control that already has a name
- *     Menu         a list of ACTIONS
+ *     Dialog        dismissible. Outside click, Escape, a close button.
+ *     AlertDialog   requires a CHOICE. No outside dismissal, no close button,
+ *                   and `description` is required rather than optional —
+ *                   a question you cannot look away from has to say what it asks.
  *
- * The distinctions that get lost, in the order they get lost:
+ * Focus lands on the CANCEL, never the destructive action. A confirmation whose
+ * default is "yes" is a confirmation that confirms itself.
  *
- * **A tooltip is not a label.** It cannot be one — see `tooltip/doc.ts`.
+ * # Popover, Tooltip and DropdownMenu are three things
  *
- * **A popover is not a tooltip.** A tooltip has no interactive content,
- * because it closes on blur and on pointer-leave, so anything focusable inside
- * it cannot be reached.
+ *     Tooltip   a supplementary hint for something that ALREADY has a name.
+ *               Unreachable by touch, and by anyone who does not hover — so it
+ *               may never carry the only copy of anything.
+ *     Popover   focusable, dismissible, may contain controls.
+ *     Menu      a list of ACTIONS. No current value, nothing submitted,
+ *               and reopening shows the same list. See the select's doc for
+ *               the other half of that distinction.
  *
- * **A menu is not a select.** A menu performs; a select holds a value. They
- * are announced differently and the wrong one leaves a user waiting for a
- * change that already happened — the same argument `forms/select/doc.ts`
- * makes from the other side.
+ * Putting controls in a tooltip makes them unreachable; putting a hint in a
+ * popover makes it a click away from a reader who needed it in passing.
  *
- * # Everything is portalled
+ * # Highlight follows `data-highlighted`, not `:hover`
  *
- * Every content part renders through a portal, so an `overflow: hidden`
- * ancestor cannot clip it. That is the commonest way an overlay becomes
- * unusable inside a scrolling panel, and no z-index fixes it.
+ * The primitives set it for pointer AND keyboard. A `:hover` rule alone leaves
+ * a keyboard user with no idea where they are in a menu, which is invisible to
+ * anybody testing with a mouse.
  *
- * The z ladder is deliberate and lives in `styles/tokens/z.css`: a popover
- * sits ABOVE a modal dialog, because a popover opened from inside one has to,
- * and content behind a modal is inert so it has nothing to compete with.
+ * # One elevated surface
+ *
+ * Everything that floats shares `components/surface.module.css`, so four
+ * overlays cannot drift into four shadows and three border colours.
  */
 export {};

@@ -1,0 +1,49 @@
+@layer token {
+  /* The four-category palette and ramps ported from Overwatch. Keep chart
+     identity separate from application statuses; a red series is not an error. */
+  :root {
+    --chart-blue-light: #1f7dcf;
+    --chart-red-light: #a51105;
+    --chart-green-light: #25984d;
+    --chart-purple-light: #6f29a7;
+    --chart-blue-dark: #4d97de;
+    --chart-red-dark: #af3e30;
+    --chart-green-dark: #47aa62;
+    --chart-purple-dark: #7d4dad;
+    --chart-neutral-light: #f0f0f2;
+    --chart-neutral-dark: #22222a;
+
+    --chart-1: var(--chart-blue-dark);
+    --chart-2: var(--chart-red-dark);
+    --chart-3: var(--chart-green-dark);
+    --chart-4: var(--chart-purple-dark);
+    --chart-pos: var(--chart-2);
+    --chart-neg: var(--chart-1);
+    --chart-mid: var(--chart-neutral-dark);
+    --chart-seq: var(--chart-1);
+    --chart-absent: var(--surface-panel-2);
+    --chart-unattempted: transparent;
+    --chart-na: var(--surface-sunk);
+    --chart-grid: var(--line);
+    --chart-axis: var(--line-strong);
+    --chart-label: var(--ink-3);
+    --chart-ink: var(--ink);
+    --chart-neutral: var(--ink-4);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --chart-1: var(--chart-blue-light);
+      --chart-2: var(--chart-red-light);
+      --chart-3: var(--chart-green-light);
+      --chart-4: var(--chart-purple-light);
+      --chart-mid: var(--chart-neutral-light);
+    }
+  }
+  :root[data-theme="light"] {
+    --chart-1: var(--chart-blue-light);
+    --chart-2: var(--chart-red-light);
+    --chart-3: var(--chart-green-light);
+    --chart-4: var(--chart-purple-light);
+    --chart-mid: var(--chart-neutral-light);
+  }
+}

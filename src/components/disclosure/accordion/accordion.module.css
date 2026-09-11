@@ -1,0 +1,50 @@
+@layer primitive {
+  .root {
+    inline-size: 100%;
+  }
+  .item {
+    border-block-end: 1px solid var(--line);
+  }
+  .heading {
+    margin: 0;
+  }
+  .trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    inline-size: 100%;
+    min-block-size: var(--control-lg);
+    padding: var(--space-6) var(--space-2);
+    text-align: start;
+    font-size: var(--text-13);
+    font-weight: var(--weight-strong);
+    color: var(--ink);
+    cursor: pointer;
+    border-radius: var(--radius-1);
+  }
+  .trigger:hover {
+    color: var(--accent);
+  }
+  .trigger:disabled {
+    color: var(--ink-4);
+    cursor: not-allowed;
+  }
+  .chevron {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform var(--dur-1) var(--ease);
+  }
+  .trigger[data-state="open"] .chevron {
+    transform: rotate(180deg);
+  }
+  .content {
+    overflow: hidden;
+    color: var(--ink-2);
+    font-size: var(--text-12-5);
+    line-height: var(--leading-body);
+  }
+  .inner {
+    padding: 0 var(--space-2) var(--space-7);
+  }
+}

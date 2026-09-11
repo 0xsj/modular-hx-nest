@@ -6,6 +6,10 @@
     --dur-3: 0.24s;
   }
   @media (prefers-reduced-motion: reduce) {
-    :root { --dur-1: 0s; --dur-2: 0s; --dur-3: 0s; }
+    :root {
+      --dur-1: 0s;
+      --dur-2: 0s;
+      --dur-3: 0s;
+    }
   }
 }

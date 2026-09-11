@@ -1,13 +1,12 @@
 @layer primitive {
   .container {
-    inline-size: 100%;
     margin-inline: auto;
-    /* Without this a container is exactly as wide as its cap and its children
-       overflow it instead of shrinking. */
-    min-inline-size: 0;
+    inline-size: 100%;
   }
-  .page { max-inline-size: var(--page-max); }
-  /* Characters, not pixels: the eye loses the start of the next line somewhere
-     past about 75 characters, and that limit does not move when the font does. */
-  .measure { max-inline-size: var(--measure); }
+  .page {
+    max-inline-size: var(--page-max);
+  }
+  .measure {
+    max-inline-size: var(--measure);
+  }
 }

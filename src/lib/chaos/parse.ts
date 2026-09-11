@@ -1,12 +1,12 @@
-import { isFailureKind } from "~/lib/kernel";
+import { isFailureKind } from "../kernel";
 import type { Effect, Plan } from "./plan";
 
 /* A plan in a query string, so a broken state is a LINK.
  *
- *   ?chaos=fail:forbidden                     everything, forbidden
- *   ?chaos=GET /items=empty:list              one route, empty collection
- *   ?chaos=GET /items=fail:not_found,p:0.3;POST /items=latency:2000
- *   ?chaos=...&chaosSeed=7                    replay a probabilistic run
+ *   ?chaos=fail:forbidden                       everything, forbidden
+ *   ?chaos=GET /targets=empty:list              one route, empty collection
+ *   ?chaos=GET /targets=fail:not_found,p:0.3;POST /targets=latency:2000
+ *   ?chaos=...&chaosSeed=7                      replay a probabilistic run
  *
  *   plan    := rule (";" rule)*
  *   rule    := [pattern "="] effect ("," effect)*
@@ -55,7 +55,8 @@ function effectOf(parts: string[]): Effect | null {
  *  it was pasted into. Chaos that can itself crash the app is indistinguishable
  *  from the bug you were hunting. */
 export function parsePlan(search: string | URLSearchParams): Plan | undefined {
-  const params = typeof search === "string" ? new URLSearchParams(search) : search;
+  const params =
+    typeof search === "string" ? new URLSearchParams(search) : search;
   const raw = params.get("chaos");
   if (!raw) return undefined;
 
@@ -71,5 +72,8 @@ export function parsePlan(search: string | URLSearchParams): Plan | undefined {
   if (!rules.length) return undefined;
 
   const seed = Number(params.get("chaosSeed"));
-  return { rules, seed: Number.isFinite(seed) && seed !== 0 ? seed : undefined };
+  return {
+    rules,
+    seed: Number.isFinite(seed) && seed !== 0 ? seed : undefined,
+  };
 }

@@ -6,82 +6,96 @@
     gap: var(--space-3);
     border: 1px solid transparent;
     border-radius: var(--radius-2);
-    font-family: var(--font-sans);
     font-size: var(--text-12-5);
     font-weight: var(--weight-medium);
-    line-height: 1;
     white-space: nowrap;
-    user-select: none;
-    transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
+    transition:
+      background var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease),
+      color var(--dur-1) var(--ease);
   }
 
-  /* ONE selector covers both branches — the native `disabled` attribute and
-     the polymorphic `aria-disabled` one — because both carry `data-disabled`.
-     Styling `:disabled` plus an attribute selector is two rules that have to
-     be kept in step. */
+  /* One selector covers both branches. The native element sets `disabled` and
+     the asChild branch cannot, so `:disabled` alone would leave the second
+     unstyled and interactive. */
   .button[data-disabled] {
+    opacity: 0.45;
     pointer-events: none;
-    opacity: 0.55;
   }
 
-  /* The indicator is a pseudo-element rather than a child. `asChild` hands the
-     caller the props and the caller renders the children, so this component
-     cannot inject an element into that branch — and two mechanisms for one
-     state is how the two branches drift. See doc.ts §4.3.
-
-     Under prefers-reduced-motion the global reset pins every animation to
-     0.01ms, so this resolves to a STATIC ring rather than a spinning one.
-     That is the correct thing to lose: `aria-busy` still carries the state,
-     and the ring still marks which control is busy. */
-  .button[data-loading]::before {
-    content: "";
-    inline-size: 1em;
-    block-size: 1em;
-    flex: none;
-    border-radius: 50%;
-    border: 2px solid currentColor;
-    border-block-start-color: transparent;
-    animation: spin 0.6s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(1turn); } }
-
-  /* ── intent ───────────────────────────────────────────────────────────── */
   .primary {
     background: var(--fill);
+    border-color: var(--fill);
     color: var(--fill-ink);
-    border-color: transparent;
   }
-  .primary:hover { background: var(--fill-hover); }
+  .primary:hover {
+    background: var(--fill-hover);
+    border-color: var(--fill-hover);
+  }
 
   .secondary {
     background: var(--surface-panel);
-    color: var(--ink);
     border-color: var(--line-strong);
+    color: var(--ink);
   }
-  .secondary:hover { background: var(--surface-panel-2); border-color: var(--line-heavy); }
+  .secondary:hover {
+    background: var(--surface-hover);
+    border-color: var(--line-heavy);
+  }
 
   .ghost {
-    background: transparent;
     color: var(--ink-2);
-    border-color: transparent;
   }
-  .ghost:hover { background: var(--surface-hover); color: var(--ink); }
+  .ghost:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
 
   .danger {
-    background: var(--crit-tint);
     color: var(--crit);
     border-color: var(--crit-line);
   }
-  .danger:hover { background: var(--crit-tint); border-color: var(--crit); }
+  .danger:hover {
+    background: var(--crit-tint);
+  }
 
-  /* ── size ─────────────────────────────────────────────────────────────── */
-  .sm   { block-size: var(--control-sm); padding-inline: var(--space-6); font-size: var(--text-11-5); }
-  .md   { block-size: var(--control-md); padding-inline: var(--space-7); }
-  .lg   { block-size: var(--control-lg); padding-inline: var(--space-8); font-size: var(--text-13); }
+  .link {
+    color: var(--accent);
+    padding: 0;
+    block-size: auto;
+  }
+  .link:hover {
+    text-decoration: underline;
+  }
+
+  .sm {
+    block-size: var(--control-sm);
+    padding-inline: var(--space-4);
+    font-size: var(--text-11-5);
+  }
+  .md {
+    block-size: var(--control-md);
+    padding-inline: var(--space-5);
+  }
+  .lg {
+    block-size: var(--control-lg);
+    padding-inline: var(--space-7);
+    font-size: var(--text-13);
+  }
   .icon {
     block-size: var(--control-md);
     inline-size: var(--control-md);
-    padding-inline: 0;
-    flex: none;
+    padding: 0;
+  }
+
+  .spinner {
+    animation: spin 0.7s linear infinite;
+    inline-size: 14px;
+    block-size: 14px;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 }

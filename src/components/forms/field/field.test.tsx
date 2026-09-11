@@ -1,8 +1,8 @@
 import { cleanup, render } from "@solidjs/testing-library";
 import { createSignal } from "solid-js";
 import { afterEach, describe, expect, it } from "vitest";
-import { Field } from "./field";
 import { Input } from "../input";
+import { Field } from "./field";
 
 afterEach(cleanup);
 
@@ -15,12 +15,23 @@ describe("Field · the label points at the control", () => {
     const { getByLabelText } = render(() => (
       <Field label="Host">{(c) => <Input {...c} />}</Field>
     ));
-    expect(getByLabelText("Host").tagName, "the label must reach the control, not a wrapper").toBe("INPUT");
+    expect(
+      getByLabelText("Host").tagName,
+      "the label must reach the control, not a wrapper",
+    ).toBe("INPUT");
   });
 
   it("survives the control being nested, which is where cloning fails silently", () => {
     const { getByLabelText } = render(() => (
-      <Field label="Host">{(c) => <div><span><Input {...c} /></span></div>}</Field>
+      <Field label="Host">
+        {(c) => (
+          <div>
+            <span>
+              <Input {...c} />
+            </span>
+          </div>
+        )}
+      </Field>
     ));
     expect(getByLabelText("Host").tagName).toBe("INPUT");
   });
@@ -40,7 +51,9 @@ describe("Field · the label points at the control", () => {
 
 describe("Field · described-by", () => {
   it("is absent when there is neither an error nor a hint", () => {
-    const { getByLabelText } = render(() => <Field label="Host">{(c) => <Input {...c} />}</Field>);
+    const { getByLabelText } = render(() => (
+      <Field label="Host">{(c) => <Input {...c} />}</Field>
+    ));
     expect(
       getByLabelText("Host").hasAttribute("aria-describedby"),
       "absent, never empty",
@@ -53,7 +66,9 @@ describe("Field · described-by", () => {
         {(c) => <Input {...c} />}
       </Field>
     ));
-    const ids = getByLabelText("Host").getAttribute("aria-describedby")!.split(" ");
+    const ids = getByLabelText("Host")
+      .getAttribute("aria-describedby")!
+      .split(" ");
     expect(ids).toHaveLength(2);
     expect(
       document.getElementById(ids[0])!.textContent,
@@ -65,7 +80,9 @@ describe("Field · described-by", () => {
 
   it("does not replace the hint with the error", () => {
     const { queryByText } = render(() => (
-      <Field label="Host" hint="One per line" error="Bad.">{(c) => <Input {...c} />}</Field>
+      <Field label="Host" hint="One per line" error="Bad.">
+        {(c) => <Input {...c} />}
+      </Field>
     ));
     expect(
       queryByText("One per line"),
@@ -76,15 +93,23 @@ describe("Field · described-by", () => {
 
 describe("Field · absent, never false", () => {
   it("sets aria-invalid only when there is an error", () => {
-    const { getByLabelText, unmount } = render(() => <Field label="A">{(c) => <Input {...c} />}</Field>);
+    const { getByLabelText, unmount } = render(() => (
+      <Field label="A">{(c) => <Input {...c} />}</Field>
+    ));
     expect(
       getByLabelText("A").getAttribute("aria-invalid"),
       'aria-invalid="false" still matches [aria-invalid] and would style every valid field as an error',
     ).toBeNull();
     unmount();
 
-    const withError = render(() => <Field label="B" error="no">{(c) => <Input {...c} />}</Field>);
-    expect(withError.getByLabelText("B").getAttribute("aria-invalid")).toBe("true");
+    const withError = render(() => (
+      <Field label="B" error="no">
+        {(c) => <Input {...c} />}
+      </Field>
+    ));
+    expect(withError.getByLabelText("B").getAttribute("aria-invalid")).toBe(
+      "true",
+    );
   });
 
   /* Asserted through the ACCESSIBLE NAME rather than the label's text.
@@ -93,7 +118,9 @@ describe("Field · absent, never false", () => {
      point of the mark being hidden, and only a role query can see it. */
   it("sets required only when required, and the mark is not announced", () => {
     const { getByRole, container } = render(() => (
-      <Field label="A" required>{(c) => <Input {...c} />}</Field>
+      <Field label="A" required>
+        {(c) => <Input {...c} />}
+      </Field>
     ));
     const control = getByRole("textbox", { name: "A" }) as HTMLInputElement;
     expect(control.required, "the attribute is the announcement").toBe(true);
@@ -108,8 +135,12 @@ describe("Field · absent, never false", () => {
   });
 
   it("omits required when it was not asked for", () => {
-    const { getByRole } = render(() => <Field label="B">{(c) => <Input {...c} />}</Field>);
-    expect((getByRole("textbox", { name: "B" }) as HTMLInputElement).required).toBe(false);
+    const { getByRole } = render(() => (
+      <Field label="B">{(c) => <Input {...c} />}</Field>
+    ));
+    expect(
+      (getByRole("textbox", { name: "B" }) as HTMLInputElement).required,
+    ).toBe(false);
   });
 });
 
@@ -163,7 +194,11 @@ describe("Field · a late error updates the control, it does not replace it", ()
       required: input.hasAttribute("required"),
     });
 
-    expect(state()).toEqual({ invalid: null, describedBy: null, required: false });
+    expect(state()).toEqual({
+      invalid: null,
+      describedBy: null,
+      required: false,
+    });
 
     setHint("Use twelve characters.");
     expect(state().describedBy).toMatch(/-hint$/);
@@ -179,7 +214,10 @@ describe("Field · a late error updates the control, it does not replace it", ()
 
     /* The direction that a one-way binding gets wrong. */
     setError(undefined);
-    expect(state().invalid, "aria-invalid must be removed, not set to false").toBeNull();
+    expect(
+      state().invalid,
+      "aria-invalid must be removed, not set to false",
+    ).toBeNull();
     expect(state().describedBy).toMatch(/-hint$/);
   });
 });

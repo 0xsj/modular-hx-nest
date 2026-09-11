@@ -1,15 +1,17 @@
 @layer primitive {
-  .positioner { z-index: var(--z-tooltip); }
   .content {
-    max-inline-size: 18rem;
-    padding: var(--space-2) var(--space-3);
-    background: var(--ink);
-    color: var(--surface-ground);
-    border-radius: var(--radius-1);
-    font-size: var(--text-11);
+    z-index: var(--z-toast);
+    max-inline-size: 260px;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-2);
+    background: var(--surface-raised);
+    border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow);
+    color: var(--ink);
+    font-size: var(--text-11-5);
     line-height: var(--leading-snug);
-    /* It follows the pointer's target and must never be under it, or hovering
-       the tip re-triggers the trigger's leave. */
-    pointer-events: none;
+  }
+  .arrow {
+    fill: var(--surface-raised);
   }
 }

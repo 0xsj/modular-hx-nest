@@ -1,45 +1,22 @@
 /**
- * Switch — a setting that takes effect when you press it.
+ * Switch — a setting that takes effect when you flip it.
  *
- * # Switch, Checkbox and Toggle are three different things
+ * # Switch, Checkbox and Toggle look alike and are three different controls
  *
- *     Switch     role="switch". A state of the SYSTEM, applied immediately.
- *                "Refuse loud tools outside the declared range"
- *     Checkbox   role="checkbox". A value in a FORM, applied when submitted.
- *                "Include withdrawn invitations", beside a Save button
- *     Toggle     a button with aria-pressed. A view or a mode, not data.
- *                A filter chip, a formatting mark
+ *     Checkbox   a VALUE you are submitting. Nothing happens until the form is.
+ *     Switch     a SETTING. It takes effect immediately, and there is no Save.
+ *     Toggle     a BUTTON that stays pressed. It changes the view, not the data.
  *
- * They are interchangeable to look at and none of the three substitutes for
- * another. The test that separates the first two: **does pressing it change
- * anything before you press Save?** If yes it is a switch; if it waits for a
- * submit it is a checkbox in a form.
+ * The choice is not cosmetic: each announces itself differently, so picking the
+ * wrong one tells a screen-reader user something untrue about what will happen.
+ * A switch inside a form with a Save button is the common mistake — it promises
+ * an immediate effect the form does not deliver.
  *
- * Getting it wrong is not cosmetic — a switch in a form is announced as a
- * switch and implies its change has already happened, so somebody navigates
- * away believing they have saved.
+ * # There is no loading state
  *
- * # The role is set here, not by the library
- *
- * The library renders the same bare `input type="checkbox"` for a switch as
- * for a checkbox, so `role="switch"` is ours to add. Without it the promise
- * three paragraphs up is a comment rather than a behaviour, and the control
- * is announced as exactly the thing it must not be mistaken for.
- *
- * Valid ARIA: `switch` is a subclass of `checkbox`, and the native checked
- * state supplies `aria-checked` — so nothing needs to mirror it.
- *
- * # No indeterminate
- *
- * A switch is on or off. There is no third state to announce, which is the
- * other difference from a checkbox and the reason the two cannot share an
- * implementation.
- *
- * # The thumb transition is the only animation in this group
- *
- * It is here rather than on a dialog or a tooltip because a switch that jumps
- * gives no feedback about which way it moved, and direction is the whole
- * affordance. The duration is a motion token, so it collapses to zero under
- * `prefers-reduced-motion` without a second rule.
+ * A switch whose effect is asynchronous will be flipped back by a failure, and a
+ * spinner inside the track is not enough to explain that. Make the surrounding
+ * region busy and let the failure surface where failures surface. A control that
+ * silently reverts is worse than one that never moved.
  */
 export {};

@@ -1,0 +1,111 @@
+@layer composition {
+  .message {
+    padding: var(--space-7);
+    color: var(--ink-3);
+    font-size: var(--text-13);
+  }
+  .viewport {
+    max-inline-size: 100%;
+    overflow: auto;
+  }
+  .point {
+    fill: var(--chart-grid);
+    transition: r var(--dur-1);
+  }
+  .point[data-state="up"] {
+    fill: var(--chart-pos);
+  }
+  .point[data-state="down"] {
+    fill: var(--chart-neg);
+  }
+  .point[data-state="quiet"] {
+    fill: var(--chart-neutral);
+  }
+
+  .pointLabel {
+    fill: var(--chart-ink);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .bubble {
+    fill: var(--chart-1);
+    fill-opacity: 0.55;
+    stroke: var(--surface-panel);
+    /* A 2px ring of the surface between overlapping bubbles, so a cluster reads
+       as several marks and not one shape. */
+    stroke-width: 1.5;
+  }
+
+  .bar {
+    fill: var(--chart-1);
+  }
+  .barValue {
+    fill: var(--chart-label);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  .barLabel {
+    fill: var(--chart-label);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .matrix {
+    display: block;
+    /* Preserve the design size; the local viewport scrolls before text shrinks. */
+    max-inline-size: none;
+    block-size: auto;
+    overflow: visible;
+  }
+
+  .cell {
+    fill: var(--chart-mid);
+  }
+  .cell[role="button"] {
+    cursor: pointer;
+  }
+  .cell:focus-visible {
+    outline: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+  }
+  .cell[data-state="unavailable"] {
+    fill: none;
+    stroke: var(--ink-3);
+    stroke-dasharray: 2 2;
+  }
+  /* Looked, found nothing — a MEASURED zero, so it is filled. */
+  .cell[data-state="absent"] {
+    fill: var(--chart-absent);
+  }
+  /* Never asked — genuinely empty, so no fill, and the outline below says so. */
+  .cell[data-state="unattempted"] {
+    fill: var(--chart-unattempted);
+  }
+  /* No question to ask — a quiet ground plus a slash. */
+  .cell[data-state="na"] {
+    fill: var(--chart-na);
+  }
+
+  .unattempted {
+    fill: none;
+    stroke: var(--ink-4);
+    stroke-width: 1;
+    stroke-dasharray: 2 2;
+    pointer-events: none;
+  }
+
+  .na {
+    stroke: var(--ink-4);
+    stroke-width: 1;
+    pointer-events: none;
+  }
+
+  .matrixLabel {
+    fill: var(--chart-label);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+}

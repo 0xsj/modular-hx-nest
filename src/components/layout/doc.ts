@@ -1,82 +1,42 @@
 /**
- * layout — arrangement, and nothing that can be seen.
+ * layout — arrangement, and the smallest set of it that is worth owning.
  *
- * # The group's one rule
+ * # Why this group exists at all, having argued it should not
  *
- * Nothing here has an appearance. No background, no border, no radius, no
- * colour, no shadow. A `Box` that could be given a background would let a
- * screen restyle a primitive from the outside, which is the thing the cascade
- * tiers exist to prevent — and it would do it invisibly, because the result
- * looks like a `Panel` and is not one.
+ * The position this group shipped with was that arrangement is a screen's own
+ * business and a layout library is how a design system starts owning decisions
+ * it cannot see. That is still true of layout COMPONENTS — a `<Stack>` with
+ * eleven props is a stylesheet with worse ergonomics.
  *
- * The test for whether something belongs in this group: **could you tell it
- * was there with the stylesheet's colours removed?** If yes it is `display`.
+ * What changed is the mechanism. These four take spacing as props that resolve
+ * to the EXISTING tokens and emit an inline style, so they add nothing to the
+ * cascade and invent no second scale. See
+ * `decisions/0004-spacing-shorthand-is-a-typed-accessor-to-the-token-scale`.
  *
- * `Separator` is the edge case and it stays, because a rule is a position
- * rather than a surface — it says *these are two groups*, which is
- * arrangement, and it carries no tone.
+ * # Spacing and flow only
  *
- * # Steps, never lengths
+ * No colour, no type, no borders, no radii. A prop for those would let a screen
+ * restyle a primitive from the outside, which is precisely what the layer model
+ * exists to prevent — and it is the line between a typed accessor to the tokens
+ * and a utility framework.
  *
- * Every spacing prop takes a step from `SPACE_STEPS`, so `p={20}` is a compile
- * error and the scale cannot grow a thirteenth value from a call site. `0` is
- * the one literal: there is no `--space-0` token and there should not be,
- * because zero is not a size.
+ * # The edge shorthands are logical
  *
- * The alternative — `p="12px"` — is the same thing as writing the CSS, except
- * it is now spread across the components that happen to use it and cannot be
- * changed in one place.
+ * `pl` is inline-start, not left. The familiar letters are kept because in a
+ * left-to-right document they are the same thing; in a right-to-left one the
+ * padding follows the text rather than staying on the west side of the screen.
+ * Physical names would be a lie that only surfaces in a language nobody on the
+ * team reads.
  *
- * # There is no `pl` or `pr`, and that is the point
+ * # `Flex grow` sets `min-inline-size: 0`
  *
- * The props are `ps`/`pe` — inline START and END — because every stylesheet in
- * this template is written in logical properties. A `pl` that means "left"
- * becomes a lie the first time the app renders in Arabic or Hebrew, and it is
- * a lie nothing detects: the layout is merely mirrored wrongly, which reads as
- * a design that was never checked.
+ * A flex child defaults to `min-width: auto`, which refuses to shrink below its
+ * content and overflows the row. It is the commonest flex defect, it is not the
+ * caller's fault, and a component that takes `grow` should not hand it back.
  *
- * `pt`/`pb` are kept for the block axis because top and bottom do not flip in
- * any writing mode this template supports, and `pbs`/`pbe` would be cryptic
- * for no gain.
+ * # `Container` is the one arrangement decision made on a screen's behalf
  *
- * # Order is load-bearing
- *
- * The style object is built broadest-first — `padding`, then `padding-inline`,
- * then the individual sides — because a style object is applied in insertion
- * order. Reversed, `p={4} pt={0}` would apply the 4 after the 0 and silently
- * ignore the override. `SPACE_KEYS` is therefore written out by hand rather
- * than derived from the property map with `Object.keys`, which is a guarantee
- * about an object and not about intent.
- *
- * # `spaceStyle` is called inside the `style` prop
- *
- * Not above the return. That position is tracked, so a step that changes
- * updates the declaration; computing it once in the component body reads the
- * props outside any computation and freezes them at their first values. This
- * is the same trap the field wrapper hit from the other direction, and the
- * same reason `splitSpace` returns the framework's proxies rather than a copy.
- *
- * # Why `asChild` on Box and Flex, and not on Container
- *
- * A Box exists to carry spacing onto something. If it cannot become the thing,
- * it has to wrap it, and a wrapper changes the layout it was brought in to
- * describe — a flex child gains a box between it and its parent, and the
- * arrangement that was correct stops being correct.
- *
- * A Container is different: it centres and caps, which needs an element of its
- * own by definition. There is nothing for it to become.
- *
- * # What this group does NOT have
- *
- * **No Grid.** A grid's value is in `grid-template-areas` and named lines, and
- * every prop-based API for it either exposes a string that is CSS with extra
- * steps, or covers the trivial cases only. Grids belong in the screen's own
- * stylesheet, in `@layer composition`.
- *
- * **No Stack.** `Flex` with `direction="column"` and a `gap` is the same
- * component, and a second name for it splits every future decision in two.
- *
- * **No Spacer.** An element that exists to push things apart is a margin that
- * has been given a DOM node, and it lands in the accessibility tree.
+ * Because a reading measure is a typographic fact rather than an arrangement —
+ * capped in characters, not pixels, since that is what legibility depends on.
  */
 export {};

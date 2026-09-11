@@ -1,22 +1,65 @@
 @layer primitive {
-  .checkbox { display: inline-flex; align-items: center; }
-  .control {
+  .checkbox {
+    display: inline-grid;
+    place-items: center;
     inline-size: 16px;
     block-size: 16px;
-    display: grid;
-    place-items: center;
+    flex: none;
     border: 1px solid var(--line-heavy);
     border-radius: var(--radius-1);
     background: var(--surface-sunk);
     color: var(--fill-ink);
-    transition: background var(--dur-1), border-color var(--dur-1);
+    transition:
+      background var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease);
   }
-  .checkbox:hover .control { border-color: var(--accent); }
-  .control[data-state="checked"],
-  .control[data-state="indeterminate"] {
+
+  .checkbox:hover:not(:disabled) {
+    border-color: var(--ink-4);
+  }
+  .checkbox[data-state="checked"],
+  .checkbox[data-state="indeterminate"] {
     background: var(--fill);
     border-color: var(--fill);
   }
-  .checkbox[data-disabled] { opacity: 0.55; cursor: not-allowed; }
-  .indicator { display: grid; place-items: center; line-height: 0; }
+  .checkbox[aria-invalid] {
+    border-color: var(--crit);
+  }
+  .checkbox:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .indicator {
+    display: grid;
+    place-items: center;
+  }
+
+  /* Which glyph shows is decided by the state attribute, so the two can never
+     both appear and neither can appear in the wrong state. */
+  .checkbox[data-state="checked"] .mixed,
+  .checkbox[data-state="indeterminate"] .check {
+    display: none;
+  }
+}
+
+@layer primitive {
+  .root {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    flex: none;
+    cursor: pointer;
+  }
+  .root[data-disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .checkbox[data-focus-visible] {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .checkbox[data-invalid] {
+    border-color: var(--crit);
+  }
 }

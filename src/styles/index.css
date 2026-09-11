@@ -7,6 +7,9 @@
  * `button { border: none }` in @layer reset beating every button primitive,
  * which reads as a specificity bug in a file that has no specificity problem.
  *
+ * The server document also emits this same layer statement before its assets.
+ * Vite can inject component modules ahead of this stylesheet in development;
+ * import order within this file cannot order those independently loaded sheets.
  * See `doc.ts`. */
 @import "./layers.css";
 @import "./tokens/index.css";

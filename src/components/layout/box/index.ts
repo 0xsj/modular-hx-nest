@@ -1,2 +1,1 @@
-export { Box } from "./box";
-export type { BoxProps } from "./box";
+export { Box, type BoxProps } from "./box";

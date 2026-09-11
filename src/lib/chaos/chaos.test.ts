@@ -1,113 +1,207 @@
 import { describe, expect, it, vi } from "vitest";
-import { ok, type Failure, type Result } from "~/lib/kernel";
-import type { HttpClient, RequestOptions } from "~/lib/http";
-import { matches, parsePlan, rng, withChaos, type Plan } from "./index";
+import { narrow, ok, type Failure, type Result } from "../kernel";
+import { createMemoryClient, type MemoryRoute } from "../http";
+import { parsePlan, withChaos, type Plan } from ".";
 
-const stub = (calls: string[] = []): HttpClient => {
-  const request = async <T>(m: string, p: string, _o?: RequestOptions): Promise<Result<T, Failure>> => {
-    calls.push(`${m} ${p}`);
-    return ok("real" as T);
-  };
-  return { request, get: (p, o) => request("GET", p, o), post: (p, o) => request("POST", p, o),
-           put: (p, o) => request("PUT", p, o), patch: (p, o) => request("PATCH", p, o),
-           delete: (p, o) => request("DELETE", p, o) };
-};
+const rows = [{ id: "t1" }, { id: "t2" }];
+const routes: MemoryRoute[] = [
+  { method: "GET", pattern: /^\/targets$/, handle: () => ok(rows) },
+  { method: "GET", pattern: /^\/targets\/t1$/, handle: () => ok(rows[0]) },
+  { method: "POST", pattern: /^\/targets$/, handle: () => ok(rows[0]) },
+];
+const base = () => createMemoryClient({ routes, latencyMs: 0 });
 const plan = (rules: Plan["rules"], seed?: number): Plan => ({ rules, seed });
-const fail = (r: unknown) => (r as { error: Failure }).error;
 
-describe("matching", () => {
-  it("* matches everything", () => expect(matches("*", "GET", "/anything")).toBe(true));
-  it("method must agree", () => expect(matches("GET /items", "POST", "/items")).toBe(false));
-  it("* covers a segment run", () => {
-    expect(matches("GET /items/*", "GET", "/items/a/b")).toBe(true);
-    expect(matches("GET /items/*", "GET", "/other")).toBe(false);
+describe("it decorates the port and nothing else notices", () => {
+  it("passes an unmatched request straight through", async () => {
+    const c = withChaos(
+      base(),
+      plan([["GET /nothing", { fail: "forbidden" }]]),
+    );
+    const r = await c.get("/targets");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.value).toEqual(rows);
   });
-  it("first rule in order wins", async () => {
-    const c = withChaos(stub(), plan([["GET /x", { fail: "forbidden" }], ["*", { fail: "internal" }]]));
-    expect(fail(await c.get("/x")).kind).toBe("forbidden");
+
+  it("forces a failure on a matching one", async () => {
+    const c = withChaos(
+      base(),
+      plan([["GET /targets", { fail: "forbidden" }]]),
+    );
+    const r = await c.get("/targets");
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.kind).toBe("forbidden");
+  });
+
+  it("matches a wildcard path and respects method", async () => {
+    const c = withChaos(
+      base(),
+      plan([["GET /targets/*", { fail: "not_found" }]]),
+    );
+    expect((await c.get("/targets/t1")).ok).toBe(false);
+    expect((await c.get("/targets")).ok).toBe(true); // no segment to match
+    expect((await c.post("/targets")).ok).toBe(true); // wrong method
+  });
+
+  it("`*` matches everything", async () => {
+    const c = withChaos(base(), plan([["*", { fail: "unavailable" }]]));
+    expect((await c.get("/targets")).ok).toBe(false);
+    expect((await c.post("/targets")).ok).toBe(false);
+  });
+
+  it("takes the first matching rule, so specific rules go first", async () => {
+    const c = withChaos(
+      base(),
+      plan([
+        ["GET /targets", { fail: "conflict" }],
+        ["*", { fail: "unavailable" }],
+      ]),
+    );
+    const r = await c.get("/targets");
+    if (!r.ok) expect(r.error.kind).toBe("conflict");
   });
 });
 
-describe("effects", () => {
-  it("fail returns the kind, unnarrowed", async () => {
-    const c = withChaos(stub(), plan([["*", { fail: "rate_limited" }]]));
-    expect(fail(await c.get("/x")).kind).toBe("rate_limited");
+describe("emptiness — the axis fixtures hide", () => {
+  it("forces a null, which is a SUCCESS and not a failure", async () => {
+    const c = withChaos(base(), plan([["GET /targets/*", { empty: "null" }]]));
+    const r = await c.get("/targets/t1");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.value).toBeNull();
   });
 
-  it("empty is a SUCCESS, not a failure — the axis nobody asks for", async () => {
-    const list = withChaos(stub(), plan([["*", { empty: "list" }]]));
-    const one = withChaos(stub(), plan([["*", { empty: "null" }]]));
-    const a = await list.get("/x"), b = await one.get("/x");
-    expect(a.ok && a.value, "looked and found nothing is not an error").toEqual([]);
-    expect(b.ok && b.value).toBeNull();
+  it("forces an empty collection", async () => {
+    const c = withChaos(base(), plan([["GET /targets", { empty: "list" }]]));
+    const r = await c.get("/targets");
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.value).toEqual([]);
+  });
+});
+
+describe("latency and hang", () => {
+  it("delays before answering", async () => {
+    const c = withChaos(base(), plan([["GET /targets", { latency: 40 }]]));
+    const started = Date.now();
+    await c.get("/targets");
+    expect(Date.now() - started).toBeGreaterThanOrEqual(35);
   });
 
-  it("a forced failure carries the interaction id", async () => {
-    const c = withChaos(stub(), plan([["*", { fail: "internal" }]]), "cid-7");
-    expect(fail(await c.get("/x")).correlationId).toBe("cid-7");
+  it("hang never settles — the stuck spinner, not a timeout", async () => {
+    const c = withChaos(base(), plan([["GET /targets", { hang: true }]]));
+    const settled = vi.fn();
+    void c.get("/targets").then(settled);
+    await new Promise((r) => setTimeout(r, 60));
+    expect(settled).not.toHaveBeenCalled();
   });
 
-  it("hang never settles, but still honours an abort", async () => {
-    const c = withChaos(stub(), plan([["*", { hang: true }]]));
+  it("but still honours cancellation, because a hang that ignores abort is a leak", async () => {
+    const c = withChaos(base(), plan([["GET /targets", { hang: true }]]));
     const controller = new AbortController();
-    let settled = false;
-    const pending = c.get("/x", { signal: controller.signal }).then((r) => { settled = true; return r; });
-    await new Promise((r) => setTimeout(r, 20));
-    expect(settled, "a stuck spinner is the point").toBe(false);
+    const pending = c.get("/targets", { signal: controller.signal });
     controller.abort();
-    expect(fail(await pending).kind, "a hang that ignores abort is a leak").toBe("canceled");
-  }, 3000);
-
-  it("does not call through when an effect applies, and does when it does not", async () => {
-    const calls: string[] = [];
-    const c = withChaos(stub(calls), plan([["GET /blocked", { fail: "internal" }]]));
-    await c.get("/blocked");
-    await c.get("/allowed");
-    expect(calls).toEqual(["GET /allowed"]);
+    const r = await pending;
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.kind).toBe("canceled");
   });
 });
 
-describe("reproducibility", () => {
-  it("the same seed gives the same sequence", () => {
-    const a = rng(7), b = rng(7);
-    expect([a(), a(), a()]).toEqual([b(), b(), b()]);
+describe("a probabilistic plan replays", () => {
+  const run = async (seed: number) => {
+    const c = withChaos(
+      base(),
+      plan([["GET /targets", { fail: "internal", p: 0.5 }]], seed),
+    );
+    const out: boolean[] = [];
+    for (let i = 0; i < 12; i++) out.push((await c.get("/targets")).ok);
+    return out;
+  };
+
+  it("the same seed gives the same sequence", async () => {
+    expect(await run(7)).toEqual(await run(7));
   });
 
-  it("a probabilistic plan replays identically", async () => {
-    const run = async () => {
-      const c = withChaos(stub(), plan([["*", { fail: "internal", p: 0.5 }]], 42));
-      return Promise.all([1, 2, 3, 4, 5, 6].map(async () => (await c.get("/x")).ok));
-    };
-    expect(await run(), "a run you cannot replay is an anecdote").toEqual(await run());
+  it("a different seed gives a different one", async () => {
+    expect(await run(7)).not.toEqual(await run(99));
+  });
+
+  it("and it is neither always nor never", async () => {
+    const r = await run(7);
+    expect(new Set(r).size).toBe(2);
   });
 });
 
-describe("parsePlan — total and silent", () => {
-  it("returns undefined rather than throwing on nonsense", () => {
-    for (const q of ["", "chaos=", "chaos=bogus:thing", "chaos=fail:not_a_kind", "chaos=p:9"]) {
-      expect(parsePlan(q), q).toBeUndefined();
-    }
+describe("a forced failure travels the REAL path", () => {
+  it("arrives unnarrowed, so a read's own narrowing folds it", async () => {
+    const c = withChaos(
+      base(),
+      plan([["GET /targets/*", { fail: "invalid" }]]),
+    );
+    const asRead = narrow("not_found");
+    const raw: Result<unknown, Failure> = await c.get("/targets/t1");
+    expect(raw.ok).toBe(false);
+    if (raw.ok) return;
+    const folded = asRead(raw.error);
+    expect(folded.kind).toBe("internal"); // a read cannot produce `invalid`
+    expect(folded.cause?.kind).toBe("invalid"); // and nothing was lost
   });
-  it("a bare effect applies to everything", () => {
-    expect(parsePlan("chaos=fail:forbidden")?.rules).toEqual([["*", { fail: "forbidden" }]]);
+});
+
+describe("a plan is a link", () => {
+  it("the short form breaks everything", () => {
+    const p = parsePlan("chaos=fail:forbidden");
+    expect(p?.rules).toEqual([["*", { fail: "forbidden" }]]);
   });
-  it("reads a pattern, several effects and a seed", () => {
-    const p = parsePlan("chaos=GET /items=fail:not_found,p:0.3;POST /items=latency:2000&chaosSeed=7");
+
+  it("parses a route, several effects and a seed", () => {
+    const p = parsePlan(
+      "chaos=GET /targets=fail:not_found,p:0.3;POST /targets=latency:2000&chaosSeed=7",
+    );
     expect(p?.rules).toEqual([
-      ["GET /items", { fail: "not_found", p: 0.3 }],
-      ["POST /items", { latency: 2000 }],
+      ["GET /targets", { fail: "not_found", p: 0.3 }],
+      ["POST /targets", { latency: 2000 }],
     ]);
     expect(p?.seed).toBe(7);
   });
-  it("keeps the good rules when one is malformed", () => {
-    expect(parsePlan("chaos=GET /a=nonsense;GET /b=hang")?.rules).toEqual([["GET /b", { hang: true }]]);
+
+  it("round-trips into a working client", async () => {
+    const c = withChaos(base(), parsePlan("chaos=GET /targets=empty:list"));
+    const r = await c.get("/targets");
+    expect(r.ok && r.value).toEqual([]);
+  });
+
+  it("is TOTAL — a malformed plan is undefined, never a throw", () => {
+    for (const s of [
+      "chaos=",
+      "chaos=nonsense",
+      "chaos=fail:not_a_kind",
+      "chaos=latency:abc",
+      "chaos=p:5",
+      "chaos===",
+      "other=1",
+    ]) {
+      expect(() => parsePlan(s)).not.toThrow();
+      expect(parsePlan(s)).toBeUndefined();
+    }
+  });
+
+  it("keeps the rules it can parse and drops the ones it cannot", () => {
+    const p = parsePlan("chaos=GET /a=fail:bogus;GET /b=fail:conflict");
+    expect(p?.rules).toEqual([["GET /b", { fail: "conflict" }]]);
   });
 });
 
 describe("safety", () => {
-  it("an inactive plan returns the very same client object", () => {
-    const c = stub();
+  it("is a no-op with no plan", async () => {
+    const c = base();
     expect(withChaos(c, undefined)).toBe(c);
-    expect(withChaos(c, plan([]))).toBe(c);
+    expect(withChaos(c, { rules: [] })).toBe(c);
+  });
+
+  it("is a no-op in production — structurally, not by default", async () => {
+    const before = process.env.NODE_ENV;
+    vi.stubEnv("NODE_ENV", "production");
+    const c = base();
+    expect(withChaos(c, plan([["*", { fail: "internal" }]]))).toBe(c);
+    vi.stubEnv("NODE_ENV", before ?? "test");
   });
 });
